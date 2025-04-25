@@ -1406,376 +1406,142 @@ class MirDBParser:
         return True
 
     def save_to_json(self, output_path):
-        """保存数据到JSON文件，使用UTF-8编码"""
-        data = {
+        """保存数据到多个JSON文件，使用UTF-8编码"""
+        # 创建输出目录
+        os.makedirs(output_path, exist_ok=True)
+        
+        # 保存版本信息
+        version_data = {
             'version': self.version,
-            'custom_version': self.custom_version,
-            'maps': [
-                {
-                    'index': m.index,
-                    'file_name': m.filename,
-                    'title': m.title,
-                    'mini_map': m.mini_map,
-                    'light': m.light,
-                    'big_map': m.big_map,
-                    'safe_zones': [
-                        {
-                            'location': {'x': sz.location.x, 'y': sz.location.y},
-                            'size': sz.size,
-                            'start_point': sz.start_point
-                        } for sz in m.safe_zones
-                    ],
-                    'no_teleport': m.no_teleport,
-                    'no_reconnect': m.no_reconnect,
-                    'no_reconnect_map': m.no_reconnect_map,
-                    'no_random': m.no_random,
-                    'no_escape': m.no_escape,
-                    'no_recall': m.no_recall,
-                    'no_drug': m.no_drug,
-                    'no_position': m.no_position,
-                    'no_throw_item': m.no_throw_item,
-                    'no_drop_player': m.no_drop_player,
-                    'no_drop_monster': m.no_drop_monster,
-                    'no_names': m.no_names,
-                    'fight': m.fight,
-                    'fire': m.fight,
-                    'fire_damage': m.fire_damage,
-                    'lightning': m.lightning,
-                    'lightning_damage': m.lightning_damage,
-                    'map_dark_light': m.map_dark_light,
-                    'mine_index': m.mine_index,
-                    'no_mount': m.no_mount,
-                    'need_bridle': m.need_bridle,
-                    'no_fight': m.no_fight,
-                    'music': m.music
-                } for m in self.maps
-            ],
-            'monsters': [
-                {
-                    'index': m.index,
-                    'name': m.name,
-                    'image': m.image,
-                    'ai': m.ai,
-                    'effect': m.effect,
-                    'level': m.level,
-                    'view_range': m.view_range,
-                    'cool_eye': m.cool_eye,
-                    'stats': {stat.name: m.stats[stat] for stat in Stat},
-                    'drops': [
-                        {
-                            'chance': d.chance,
-                            'gold': d.gold,
-                            'type': d.type,
-                            'quest_required': d.quest_required
-                        } for d in m.drops
-                    ],
-                    'can_tame': m.can_tame,
-                    'can_push': m.can_push,
-                    'auto_rev': m.auto_rev,
-                    'undead': m.undead,
-                    'has_spawn_script': m.has_spawn_script,
-                    'has_die_script': m.has_die_script,
-                    'attack_speed': m.attack_speed,
-                    'move_speed': m.move_speed,
-                    'experience': m.experience,
-                    'light': m.light,
-                    'drop_path': m.drop_path
-                } for m in self.monsters
-            ]
+            'custom_version': self.custom_version
         }
+        version_path = os.path.join(output_path, 'version.json')
+        with open(version_path, 'w', encoding='utf-8') as f:
+            json.dump(version_data, f, ensure_ascii=False, indent=2)
 
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        # 保存地图信息
+        maps_data = [
+            {
+                'index': m.index,
+                'file_name': m.filename,
+                'title': m.title,
+                'mini_map': m.mini_map,
+                'light': m.light,
+                'big_map': m.big_map,
+                'safe_zones': [
+                    {
+                        'location': {'x': sz.location.x, 'y': sz.location.y},
+                        'size': sz.size,
+                        'start_point': sz.start_point
+                    } for sz in m.safe_zones
+                ],
+                'no_teleport': m.no_teleport,
+                'no_reconnect': m.no_reconnect,
+                'no_reconnect_map': m.no_reconnect_map,
+                'no_random': m.no_random,
+                'no_escape': m.no_escape,
+                'no_recall': m.no_recall,
+                'no_drug': m.no_drug,
+                'no_position': m.no_position,
+                'no_throw_item': m.no_throw_item,
+                'no_drop_player': m.no_drop_monster,
+                'no_drop_monster': m.no_drop_monster,
+                'no_names': m.no_names,
+                'fight': m.fight,
+                'fire': m.fight,
+                'fire_damage': m.fire_damage,
+                'lightning': m.lightning,
+                'lightning_damage': m.lightning_damage,
+                'map_dark_light': m.map_dark_light,
+                'mine_index': m.mine_index,
+                'no_mount': m.no_mount,
+                'need_bridle': m.need_bridle,
+                'no_fight': m.no_fight,
+                'music': m.music
+            } for m in self.maps
+        ]
+        maps_path = os.path.join(output_path, 'maps.json')
+        with open(maps_path, 'w', encoding='utf-8') as f:
+            json.dump(maps_data, f, ensure_ascii=False, indent=2)
 
-    def save_to_binary(self, output_path):
-        """保存数据到二进制文件"""
-        try:
-            with open(output_path, 'wb') as f:
-                # 写入版本信息
-                self.write_int32(f, self.version)
-                self.write_int32(f, self.custom_version)
-                
-                # 写入索引信息
-                map_index = max((m.index for m in self.maps), default=0)
-                item_index = max((i.index for i in self.items), default=0)
-                monster_index = max((m.index for m in self.monsters), default=0)
-                npc_index = 0  # 暂不支持NPC
-                quest_index = 0  # 暂不支持任务
-                
-                self.write_int32(f, map_index)
-                self.write_int32(f, item_index)
-                self.write_int32(f, monster_index)
-                self.write_int32(f, npc_index)
-                self.write_int32(f, quest_index)
-                
-                # 根据版本写入额外索引
-                if self.version >= 63:
-                    self.write_int32(f, 0)  # gameshop_index
-                if self.version >= 66:
-                    self.write_int32(f, 0)  # conquest_index
-                if self.version >= 68:
-                    self.write_int32(f, 0)  # respawn_index
-                
-                # 写入地图信息
-                self.write_int32(f, len(self.maps))
-                for map_info in self.maps:
-                    self.write_map_info(f, map_info)
-                
-                # 写入物品信息
-                self.write_int32(f, len(self.items))
-                for item_info in self.items:
-                    self.write_item_info(f, item_info)
-                
-                # 写入怪物信息
-                self.write_int32(f, len(self.monsters))
-                for monster_info in self.monsters:
-                    self.write_monster_info(f, monster_info)
-                
-            print(f"成功保存数据到: {output_path}")
-            return True
-            
-        except Exception as e:
-            print(f"保存数据库时出错: {str(e)}")
-            return False
-            
-    @staticmethod
-    def write_int32(f, value):
-        """写入32位整数"""
-        f.write(struct.pack('<i', value))
-        
-    @staticmethod
-    def write_uint32(f, value):
-        """写入32位无符号整数"""
-        f.write(struct.pack('<I', value))
-        
-    @staticmethod
-    def write_int16(f, value):
-        """写入16位整数"""
-        f.write(struct.pack('<h', value))
-        
-    @staticmethod
-    def write_uint16(f, value):
-        """写入16位无符号整数"""
-        f.write(struct.pack('<H', value))
-        
-    @staticmethod
-    def write_byte(f, value):
-        """写入单字节"""
-        f.write(struct.pack('B', value))
-        
-    @staticmethod
-    def write_bool(f, value):
-        """写入布尔值"""
-        f.write(struct.pack('?', value))
-        
-    @staticmethod
-    def write_string(f, value):
-        """写入字符串"""
-        if not value:
-            f.write(struct.pack('B', 0))
-            return
-            
-        encoded = value.encode('latin1')
-        length = len(encoded)
-        f.write(struct.pack('B', length))
-        f.write(encoded)
-        
-    def write_point(self, f, point):
-        """写入坐标点"""
-        self.write_int32(f, point.x)
-        self.write_int32(f, point.y)
-        
-    def write_safe_zone(self, f, safe_zone):
-        """写入安全区域"""
-        self.write_point(f, safe_zone.location)
-        self.write_uint16(f, safe_zone.size)
-        self.write_bool(f, safe_zone.start_point)
-        
-    def write_movement_info(self, f, movement):
-        """写入移动点信息"""
-        self.write_int32(f, movement.map_index)
-        self.write_point(f, movement.source)
-        self.write_point(f, movement.destination)
-        self.write_bool(f, movement.need_hole)
-        self.write_bool(f, movement.need_move)
-        self.write_int32(f, movement.conquest_index)
-        self.write_bool(f, movement.show_on_big_map)
-        self.write_byte(f, movement.icon)
-        
-    def write_mine_zone(self, f, mine_zone):
-        """写入矿区信息"""
-        self.write_point(f, mine_zone.location)
-        self.write_byte(f, mine_zone.size)
-        self.write_byte(f, mine_zone.mine_index)
-        
-    def write_map_info(self, f, map_info):
-        """写入地图信息"""
-        self.write_int32(f, map_info.index)
-        self.write_string(f, map_info.filename)
-        self.write_string(f, map_info.title)
-        self.write_byte(f, map_info.mini_map)
-        self.write_byte(f, map_info.big_map)
-        self.write_byte(f, map_info.light)
-        self.write_byte(f, map_info.map_dark_light)
-        self.write_byte(f, map_info.music)
-        
-        # 写入布尔标志
-        self.write_bool(f, map_info.no_teleport)
-        self.write_bool(f, map_info.no_reconnect)
-        self.write_bool(f, map_info.no_random)
-        self.write_bool(f, map_info.no_escape)
-        self.write_bool(f, map_info.no_recall)
-        self.write_bool(f, map_info.no_drug)
-        self.write_bool(f, map_info.no_position)
-        self.write_bool(f, map_info.no_fight)
-        self.write_bool(f, map_info.no_throw_item)
-        self.write_bool(f, map_info.no_drop_player)
-        self.write_bool(f, map_info.no_drop_monster)
-        self.write_bool(f, map_info.no_names)
-        self.write_bool(f, map_info.no_mount)
-        self.write_bool(f, map_info.need_bridle)
-        self.write_bool(f, map_info.fight)
-        self.write_bool(f, map_info.fire)
-        self.write_bool(f, map_info.lightning)
-        
-        # 写入伤害值
-        self.write_int32(f, map_info.fire_damage)
-        self.write_int32(f, map_info.lightning_damage)
-        
-        # 写入安全区域
-        self.write_int32(f, len(map_info.safe_zones))
-        for safe_zone in map_info.safe_zones:
-            self.write_safe_zone(f, safe_zone)
-            
-        # 写入移动点
-        self.write_int32(f, len(map_info.movements))
-        for movement in map_info.movements:
-            self.write_movement_info(f, movement)
-            
-        # 写入矿区
-        self.write_int32(f, len(map_info.mine_zones))
-        for mine_zone in map_info.mine_zones:
-            self.write_mine_zone(f, mine_zone)
-            
-    def write_monster_info(self, f, monster):
-        """写入怪物信息"""
-        self.write_int32(f, monster.index)
-        self.write_string(f, monster.name)
-        self.write_uint16(f, monster.image)
-        self.write_byte(f, monster.ai)
-        self.write_byte(f, monster.effect)
-        
-        if self.version < 62:
-            self.write_byte(f, monster.level)
-        else:
-            self.write_uint16(f, monster.level)
-            
-        self.write_byte(f, monster.view_range)
-        self.write_byte(f, monster.cool_eye)
-        
-        # 写入状态信息
-        if self.version > 84:
-            for stat in Stat:
-                self.write_int32(f, monster.stats[stat])
-        else:
-            self.write_uint32(f, monster.stats[Stat.HP])
-            
-            if self.version < 62:
-                self.write_byte(f, monster.stats[Stat.MinAC])
-                self.write_byte(f, monster.stats[Stat.MaxAC])
-                self.write_byte(f, monster.stats[Stat.MinMAC])
-                self.write_byte(f, monster.stats[Stat.MaxMAC])
-                self.write_byte(f, monster.stats[Stat.MinDC])
-                self.write_byte(f, monster.stats[Stat.MaxDC])
-                self.write_byte(f, monster.stats[Stat.MinMC])
-                self.write_byte(f, monster.stats[Stat.MaxMC])
-                self.write_byte(f, monster.stats[Stat.MinSC])
-                self.write_byte(f, monster.stats[Stat.MaxSC])
-            else:
-                self.write_uint16(f, monster.stats[Stat.MinAC])
-                self.write_uint16(f, monster.stats[Stat.MaxAC])
-                self.write_uint16(f, monster.stats[Stat.MinMAC])
-                self.write_uint16(f, monster.stats[Stat.MaxMAC])
-                self.write_uint16(f, monster.stats[Stat.MinDC])
-                self.write_uint16(f, monster.stats[Stat.MaxDC])
-                self.write_uint16(f, monster.stats[Stat.MinMC])
-                self.write_uint16(f, monster.stats[Stat.MaxMC])
-                self.write_uint16(f, monster.stats[Stat.MinSC])
-                self.write_uint16(f, monster.stats[Stat.MaxSC])
-                
-            if self.version <= 84:
-                self.write_byte(f, monster.stats[Stat.Accuracy])
-                self.write_byte(f, monster.stats[Stat.Agility])
-                
-        self.write_byte(f, monster.light)
-        self.write_uint16(f, monster.attack_speed)
-        self.write_uint16(f, monster.move_speed)
-        self.write_uint32(f, monster.experience)
-        
-        self.write_bool(f, monster.can_push)
-        self.write_bool(f, monster.can_tame)
-        
-        if self.version >= 18:
-            self.write_bool(f, monster.auto_rev)
-            self.write_bool(f, monster.undead)
-            
-        if self.version >= 89:
-            self.write_string(f, monster.drop_path)
-            
-    def write_item_info(self, f, item):
-        """写入物品信息"""
-        self.write_int32(f, item.index)
-        self.write_string(f, item.name)
-        self.write_byte(f, item.type.value)
-        self.write_byte(f, item.grade.value)
-        self.write_byte(f, item.required_type.value)
-        self.write_byte(f, item.required_class.value)
-        self.write_byte(f, item.required_gender.value)
-        self.write_byte(f, item.set.value)
-        
-        self.write_byte(f, item.shape)
-        self.write_byte(f, item.weight)
-        self.write_byte(f, item.light)
-        self.write_byte(f, item.required_amount)
-        self.write_uint16(f, item.image)
-        self.write_uint16(f, item.durability)
-        
-        if self.version >= 84:
-            self.write_uint32(f, item.price)
-            self.write_uint16(f, item.stack_size)
-        else:
-            self.write_uint16(f, item.price)
-            self.write_byte(f, item.stack_size)
-            
-        self.write_bool(f, item.start_item)
-        self.write_byte(f, item.effect)
-        
-        # 写入布尔标志
-        self.write_bool(f, item.need_identify)
-        self.write_bool(f, item.show_group_pickup)
-        self.write_bool(f, item.global_drop_notify)
-        self.write_bool(f, item.class_based)
-        self.write_bool(f, item.level_based)
-        self.write_bool(f, item.can_mine)
-        self.write_bool(f, item.can_fast_run)
-        self.write_bool(f, item.can_awakening)
-        
-        self.write_byte(f, item.bind.value)
-        self.write_int32(f, item.unique.value)
-        self.write_int32(f, item.random_stats_id)
-        
-        # 写入状态信息
-        for stat in Stat:
-            self.write_int32(f, item.stats[stat])
-            
-        # 写入随机状态信息
-        self.write_int32(f, len(item.random_stats))
-        for stat_id, value in item.random_stats.items():
-            self.write_byte(f, stat_id)
-            self.write_int32(f, value)
-            
-        self.write_string(f, item.tool_tip)
-        self.write_byte(f, item.slots)
+        # 保存怪物信息
+        monsters_data = [
+            {
+                'index': m.index,
+                'name': m.name,
+                'image': m.image,
+                'ai': m.ai,
+                'effect': m.effect,
+                'level': m.level,
+                'view_range': m.view_range,
+                'cool_eye': m.cool_eye,
+                'stats': {stat.name: m.stats[stat] for stat in Stat},
+                'drops': [
+                    {
+                        'chance': d.chance,
+                        'gold': d.gold,
+                        'type': d.type,
+                        'quest_required': d.quest_required
+                    } for d in m.drops
+                ],
+                'can_tame': m.can_tame,
+                'can_push': m.can_push,
+                'auto_rev': m.auto_rev,
+                'undead': m.undead,
+                'has_spawn_script': m.has_spawn_script,
+                'has_die_script': m.has_die_script,
+                'attack_speed': m.attack_speed,
+                'move_speed': m.move_speed,
+                'experience': m.experience,
+                'light': m.light,
+                'drop_path': m.drop_path
+            } for m in self.monsters
+        ]
+        monsters_path = os.path.join(output_path, 'monsters.json')
+        with open(monsters_path, 'w', encoding='utf-8') as f:
+            json.dump(monsters_data, f, ensure_ascii=False, indent=2)
+
+        # 保存物品信息
+        items_data = [
+            {
+                'index': i.index,
+                'name': i.name,
+                'type': i.type.name,
+                'grade': i.grade.name,
+                'required_type': i.required_type.name,
+                'required_class': i.required_class.name,
+                'required_gender': i.required_gender.name,
+                'set': i.set.name,
+                'shape': i.shape,
+                'weight': i.weight,
+                'light': i.light,
+                'required_amount': i.required_amount,
+                'image': i.image,
+                'durability': i.durability,
+                'stack_size': i.stack_size,
+                'price': i.price,
+                'start_item': i.start_item,
+                'effect': i.effect,
+                'need_identify': i.need_identify,
+                'show_group_pickup': i.show_group_pickup,
+                'global_drop_notify': i.global_drop_notify,
+                'class_based': i.class_based,
+                'level_based': i.level_based,
+                'can_mine': i.can_mine,
+                'can_fast_run': i.can_fast_run,
+                'can_awakening': i.can_awakening,
+                'bind': i.bind.name,
+                'unique': i.unique.name,
+                'random_stats_id': i.random_stats_id,
+                'random_stats': i.random_stats,
+                'tool_tip': i.tool_tip,
+                'slots': i.slots,
+                'stats': {stat.name: i.stats[stat] for stat in Stat}
+            } for i in self.items
+        ]
+        items_path = os.path.join(output_path, 'items.json')
+        with open(items_path, 'w', encoding='utf-8') as f:
+            json.dump(items_data, f, ensure_ascii=False, indent=2)
 
 def main():
     # 使用相对路径
@@ -1784,11 +1550,7 @@ def main():
     
     if parser.load():
         print("\n保存解析结果到JSON文件...")
-        parser.save_to_json('mir_db_export.json')
-        
-        print("\n保存解析结果到二进制文件...")
-        parser.save_to_binary('Server.MirDB.new')
-        
+        parser.save_to_json('data')
         print("完成!")
 
 if __name__ == "__main__":
