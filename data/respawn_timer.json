@@ -1,0 +1,13 @@
+{
+  "base_spawn_rate": 20,
+  "current_tick_counter": 0,
+  "last_tick": 0,
+  "last_user_count": 0,
+  "current_delay": 1200000,
+  "respawn_options": [
+    {
+      "user_count": 0,
+      "delay_loss": 0.0
+    }
+  ]
+}

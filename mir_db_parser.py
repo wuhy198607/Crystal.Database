@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from enum import Enum
 import re
+import random
 
 class Settings:
     """设置类，用于定义各种路径"""
@@ -88,6 +89,12 @@ class WeatherSetting(Enum):
     Rain = 1
     Snow = 2
     Fog = 3
+
+class Spell(Enum):
+    None_ = 0
+    FireBall = 1
+    Healing = 2
+    # ... 其他魔法类型
 
 @dataclass
 class Stats:
@@ -650,8 +657,8 @@ class DragonInfo:
     drop_area_bottom: Point = field(default_factory=Point)
     level: int = 1
     experience: int = 0
-    exps: List[int] = field(default_factory=lambda: [10000 * (i + 1) for i in range(9)])  # 默认9级经验值
-    drops: List[List[DragonDropInfo]] = field(default_factory=lambda: [[] for _ in range(10)])  # 默认10级掉落
+    exps: List[int] = field(default_factory=lambda: [10000 * (i + 1) for i in range(12)])  # 12级经验值
+    drops: List[List[DragonDropInfo]] = field(default_factory=lambda: [[] for _ in range(13)])  # 13级掉落
 
     def __post_init__(self):
         # 设置默认位置
@@ -787,6 +794,101 @@ class DragonInfo:
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             raise
 
+@dataclass
+class MagicInfo:
+    name: str = ""
+    spell: Spell = Spell.None_
+    base_cost: int = 0
+    level_cost: int = 0
+    icon: int = 0
+    level1: int = 0
+    level2: int = 0
+    level3: int = 0
+    need1: int = 0
+    need2: int = 0
+    need3: int = 0
+    delay_base: int = 1800
+    delay_reduction: int = 0
+    power_base: int = 0
+    power_bonus: int = 0
+    mpower_base: int = 0
+    mpower_bonus: int = 0
+    range: int = 9
+    multiplier_base: float = 1.0
+    multiplier_bonus: float = 0.0
+
+@dataclass
+class UserMagic:
+    spell: Spell = Spell.None_
+    info: Optional[MagicInfo] = None
+    level: int = 0
+    key: int = 0
+    experience: int = 0
+    is_temp_spell: bool = False
+    cast_time: int = 0
+
+    def get_magic_info(self, spell: Spell) -> Optional[MagicInfo]:
+        for info in self.magic_info_list:
+            if info.spell == spell:
+                return info
+        return None
+
+    def create_client_magic(self):
+        if not self.info:
+            return None
+        return {
+            'name': self.info.name,
+            'spell': self.info.spell,
+            'base_cost': self.info.base_cost,
+            'level_cost': self.info.level_cost,
+            'icon': self.info.icon,
+            'level1': self.info.level1,
+            'level2': self.info.level2,
+            'level3': self.info.level3,
+            'need1': self.info.need1,
+            'need2': self.info.need2,
+            'need3': self.info.need3,
+            'level': self.level,
+            'key': self.key,
+            'experience': self.experience,
+            'is_temp_spell': self.is_temp_spell,
+            'delay': self.get_delay(),
+            'range': self.info.range,
+            'cast_time': self.cast_time
+        }
+
+    def get_delay(self) -> int:
+        if not self.info:
+            return 0
+        return self.info.delay_base - (self.level * self.info.delay_reduction)
+
+    def get_power(self) -> int:
+        if not self.info:
+            return 0
+        return int(round((self.mpower() / 4.0) * (self.level + 1) + self.def_power()))
+
+    def mpower(self) -> int:
+        if not self.info:
+            return 0
+        if self.info.mpower_bonus > 0:
+            return random.randint(self.info.mpower_base, self.info.mpower_bonus + self.info.mpower_base)
+        return self.info.mpower_base
+
+    def def_power(self) -> int:
+        if not self.info:
+            return 0
+        if self.info.power_bonus > 0:
+            return random.randint(self.info.power_base, self.info.power_bonus + self.info.power_base)
+        return self.info.power_base
+
+    def get_multiplier(self) -> float:
+        if not self.info:
+            return 0.0
+        return self.info.multiplier_base + (self.level * self.info.multiplier_bonus)
+
+    def get_damage(self, damage_base: int) -> int:
+        return int((damage_base + self.get_power()) * self.get_multiplier())
+
 class MirDBParser:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -798,6 +900,7 @@ class MirDBParser:
         self.npcs = []
         self.quests = []
         self.dragons = []  # 添加dragon列表
+        self.magics = []  # 添加魔法信息列表
 
     @staticmethod
     def read_int32(f):
@@ -837,7 +940,20 @@ class MirDBParser:
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             raise
-
+    @staticmethod
+    def read_uint64(f):
+        """读取64位无符号整数"""
+        try:
+            data = f.read(8)
+            if len(data) < 8:
+                print(f"读取uint64时数据不足8字节: {len(data)}")
+                return 0
+            return struct.unpack('<Q', data)[0]
+        except Exception as e:
+            print(f"读取uint64时出错: {str(e)}")
+            if 'data' in locals():
+                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            return 0
     @staticmethod
     def read_uint32(f):
         """读取无符号32位整数，使用小端字节序（little-endian）"""
@@ -2063,6 +2179,90 @@ class MirDBParser:
                     print(f"读取龙信息时出错: {str(e)}")
                     # 移除continue语句
 
+              
+                
+                print("\n=== 魔法信息 ===")
+                # 读取魔法数量
+                magic_count = self.read_int32(f)
+                print(f"魔法数量: {magic_count}")
+                
+                # 读取魔法信息
+                self.magics = []
+                for i in range(magic_count):
+                    try:
+                        magic_info = self.read_magic_info(f)
+                        self.magics.append(magic_info)
+                        print(f"\n魔法信息 {i+1}/{magic_count}:")
+                        print(f"  名称: {magic_info.name}")
+                        print(f"  类型: {magic_info.spell}")
+                        print(f"  基础消耗: {magic_info.base_cost}")
+                        print(f"  等级消耗: {magic_info.level_cost}")
+                        print(f"  图标: {magic_info.icon}")
+                        print(f"  等级1: {magic_info.level1}")
+                        print(f"  等级2: {magic_info.level2}")
+                        print(f"  等级3: {magic_info.level3}")
+                        print(f"  需求1: {magic_info.need1}")
+                        print(f"  需求2: {magic_info.need2}")
+                        print(f"  需求3: {magic_info.need3}")
+                        print(f"  基础延迟: {magic_info.delay_base}")
+                        print(f"  延迟减少: {magic_info.delay_reduction}")
+                        print(f"  基础力量: {magic_info.power_base}")
+                        print(f"  力量奖励: {magic_info.power_bonus}")
+                        print(f"  基础魔法力量: {magic_info.mpower_base}")
+                        print(f"  魔法力量奖励: {magic_info.mpower_bonus}")
+                        print(f"  范围: {magic_info.range}")
+                        print(f"  基础倍数: {magic_info.multiplier_base}")
+                        print(f"  倍数奖励: {magic_info.multiplier_bonus}")
+                    except Exception as e:
+                        print(f"读取魔法信息 {i+1} 时出错: {str(e)}")
+
+                print("\n=== 商城信息 ===")
+                # 读取商城物品数量
+                gameshop_count = self.read_int32(f)
+                print(f"商城物品数量: {gameshop_count}")
+                
+                # 读取商城物品信息
+                self.gameshop_items = []
+                for i in range(gameshop_count):
+                    try:
+                        item = GameShopItem()
+                        item.item_index = self.read_int32(f)
+                        item.g_index = self.read_int32(f)
+                        item.gold_price = self.read_uint32(f)
+                        item.credit_price = self.read_uint32(f)
+                        if self.version <= 84:
+                            item.count = self.read_uint32(f)
+                        else:
+                            item.count = self.read_uint16(f)
+                        item.class_name = self.read_string(f)
+                        item.category = self.read_string(f)
+                        item.stock = self.read_int32(f)
+                        item.i_stock = self.read_bool(f)
+                        item.deal = self.read_bool(f)
+                        item.top_item = self.read_bool(f)
+                        item.date = self.read_int64(f)
+                        if self.version > 105:
+                            item.can_buy_gold = self.read_bool(f)
+                            item.can_buy_credit = self.read_bool(f)
+                        
+                        self.gameshop_items.append(item)
+                        print(f"\n商城物品 {i+1}/{gameshop_count}:")
+                        print(f"  物品索引: {item.item_index}")
+                        print(f"  商品索引: {item.g_index}")
+                        print(f"  金币价格: {item.gold_price}")
+                        print(f"  元宝价格: {item.credit_price}")
+                        print(f"  数量: {item.count}")
+                        print(f"  职业: {item.class_name}")
+                        print(f"  分类: {item.category}")
+                        print(f"  库存: {item.stock}")
+                        print(f"  是否限量: {item.i_stock}")
+                        print(f"  是否特价: {item.deal}")
+                        print(f"  是否置顶: {item.top_item}")
+                        print(f"  可否用金币购买: {item.can_buy_gold}")
+                        print(f"  可否用元宝购买: {item.can_buy_credit}")
+                    except Exception as e:
+                        print(f"读取商城物品 {i+1} 时出错: {str(e)}")
+
                 print("\n=== 数据读取完成 ===")
                 print(f"成功加载地图数量: {len(self.maps)}")
                 print(f"成功加载物品数量: {len(self.items)}")
@@ -2070,7 +2270,47 @@ class MirDBParser:
                 print(f"成功加载NPC数量: {len(self.npcs)}")
                 print(f"成功加载任务数量: {len(self.quests)}")
                 print(f"成功加载龙数量: {len(self.dragons)}")
+
+                print("\n=== 征服信息 ===")
+                # 读取征服信息
+                conquest_count = self.read_int32(f)
+                print(f"征服数量: {conquest_count}")
                 
+                self.conquests = []
+                for i in range(conquest_count):
+                    try:
+                        conquest_info = self.read_conquest_info(f)
+                        self.conquests.append(conquest_info)
+                        print(f"\n征服信息 {i+1}/{conquest_count}:")
+                        print(f"  索引: {conquest_info.index}")
+                        print(f"  名称: {conquest_info.name}")
+                        print(f"  地图索引: {conquest_info.map_index}")
+                        print(f"  宫殿索引: {conquest_info.palace_index}")
+                        print(f"  守卫数量: {len(conquest_info.conquest_guards)}")
+                        print(f"  城门数量: {len(conquest_info.conquest_gates)}")
+                        print(f"  城墙数量: {len(conquest_info.conquest_walls)}")
+                        print(f"  攻城数量: {len(conquest_info.conquest_sieges)}")
+                        print(f"  旗帜数量: {len(conquest_info.conquest_flags)}")
+                        print(f"  控制点数量: {len(conquest_info.control_points)}")
+                    except Exception as e:
+                        print(f"读取征服信息 {i+1} 时出错: {str(e)}")
+
+                print("\n=== 刷新计时器信息 ===")
+                # 读取刷新计时器信息
+                try:
+                    respawn_timer = self.read_respawn_timer(f)
+                    self.respawn_timer = respawn_timer
+                    print(f"\n刷新计时器信息:")
+                    print(f"  基础刷新率: {respawn_timer.base_spawn_rate}")
+                    print(f"  当前刷新计数器: {respawn_timer.current_tick_counter}")
+                    print(f"  刷新选项数量: {len(respawn_timer.respawn_options)}")
+                    for i, option in enumerate(respawn_timer.respawn_options):
+                        print(f"  选项 {i+1}:")
+                        print(f"    用户数量: {option.user_count}")
+                        print(f"    延迟损失: {option.delay_loss}")
+                except Exception as e:
+                    print(f"读取刷新计时器信息时出错: {str(e)}")
+
         except Exception as e:
             print(f"加载数据库时出错: {str(e)}")
             return False
@@ -2347,6 +2587,113 @@ class MirDBParser:
         with open(dragons_path, 'w', encoding='utf-8') as f:
             json.dump(dragons_data, f, ensure_ascii=False, indent=2)
 
+        # 保存征服信息
+        conquests_data = [
+            {
+                'index': c.index,
+                'full_map': c.full_map,
+                'location': {'x': c.location.x, 'y': c.location.y},
+                'size': c.size,
+                'name': c.name,
+                'map_index': c.map_index,
+                'palace_index': c.palace_index,
+                'guard_index': c.guard_index,
+                'gate_index': c.gate_index,
+                'wall_index': c.wall_index,
+                'siege_index': c.siege_index,
+                'flag_index': c.flag_index,
+                'start_hour': c.start_hour,
+                'war_length': c.war_length,
+                'type': c.type.name,
+                'game': c.game.name,
+                'monday': c.monday,
+                'tuesday': c.tuesday,
+                'wednesday': c.wednesday,
+                'thursday': c.thursday,
+                'friday': c.friday,
+                'saturday': c.saturday,
+                'sunday': c.sunday,
+                'king_location': {'x': c.king_location.x, 'y': c.king_location.y},
+                'king_size': c.king_size,
+                'control_point_index': c.control_point_index,
+                'extra_maps': c.extra_maps,
+                'conquest_guards': [
+                    {
+                        'index': g.index,
+                        'location': {'x': g.location.x, 'y': g.location.y},
+                        'mob_index': g.mob_index,
+                        'name': g.name,
+                        'repair_cost': g.repair_cost
+                    } for g in c.conquest_guards
+                ],
+                'conquest_gates': [
+                    {
+                        'index': g.index,
+                        'location': {'x': g.location.x, 'y': g.location.y},
+                        'mob_index': g.mob_index,
+                        'name': g.name,
+                        'repair_cost': g.repair_cost
+                    } for g in c.conquest_gates
+                ],
+                'conquest_walls': [
+                    {
+                        'index': w.index,
+                        'location': {'x': w.location.x, 'y': w.location.y},
+                        'mob_index': w.mob_index,
+                        'name': w.name,
+                        'repair_cost': w.repair_cost
+                    } for w in c.conquest_walls
+                ],
+                'conquest_sieges': [
+                    {
+                        'index': s.index,
+                        'location': {'x': s.location.x, 'y': s.location.y},
+                        'mob_index': s.mob_index,
+                        'name': s.name,
+                        'repair_cost': s.repair_cost
+                    } for s in c.conquest_sieges
+                ],
+                'conquest_flags': [
+                    {
+                        'index': f.index,
+                        'location': {'x': f.location.x, 'y': f.location.y},
+                        'name': f.name,
+                        'file_name': f.file_name
+                    } for f in c.conquest_flags
+                ],
+                'control_points': [
+                    {
+                        'index': p.index,
+                        'location': {'x': p.location.x, 'y': p.location.y},
+                        'name': p.name,
+                        'file_name': p.file_name
+                    } for p in c.control_points
+                ]
+            } for c in self.conquests
+        ]
+        conquests_path = os.path.join(output_path, 'conquests.json')
+        with open(conquests_path, 'w', encoding='utf-8') as f:
+            json.dump(conquests_data, f, ensure_ascii=False, indent=2)
+
+        # 保存刷新计时器信息
+        if hasattr(self, 'respawn_timer') and self.respawn_timer:
+            respawn_timer_data = {
+                'base_spawn_rate': self.respawn_timer.base_spawn_rate,
+                'current_tick_counter': self.respawn_timer.current_tick_counter,
+                'last_tick': self.respawn_timer.last_tick,
+                'last_user_count': self.respawn_timer.last_user_count,
+                'current_delay': self.respawn_timer.current_delay,
+                'respawn_options': [
+                    {
+                        'user_count': option.user_count,
+                        'delay_loss': option.delay_loss
+                    } for option in self.respawn_timer.respawn_options
+                ]
+            }
+            respawn_timer_path = os.path.join(output_path, 'respawn_timer.json')
+            with open(respawn_timer_path, 'w', encoding='utf-8') as f:
+                json.dump(respawn_timer_data, f, ensure_ascii=False, indent=2)
+
     def read_dragon_info(self, f):
         """读取龙信息"""
         try:
@@ -2471,6 +2818,404 @@ class MirDBParser:
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             raise
+
+    def read_magic_info(self, f):
+        """读取魔法信息"""
+        magic = MagicInfo()
+        
+        # 读取基本信息
+        magic.name = self.read_string(f)
+        try:
+            magic.spell = Spell(self.read_byte(f))
+        except ValueError:
+            magic.spell = Spell.None_  # 如果值不在枚举中，设置为None
+        magic.base_cost = self.read_byte(f)
+        magic.level_cost = self.read_byte(f)
+        magic.icon = self.read_byte(f)
+        magic.level1 = self.read_byte(f)
+        magic.level2 = self.read_byte(f)
+        magic.level3 = self.read_byte(f)
+        magic.need1 = self.read_uint16(f)
+        magic.need2 = self.read_uint16(f)
+        magic.need3 = self.read_uint16(f)
+        magic.delay_base = self.read_uint32(f)
+        magic.delay_reduction = self.read_uint32(f)
+        magic.power_base = self.read_uint16(f)
+        magic.power_bonus = self.read_uint16(f)
+        magic.mpower_base = self.read_uint16(f)
+        magic.mpower_bonus = self.read_uint16(f)
+        
+        # 版本相关的读取
+        if self.version > 66:
+            magic.range = self.read_byte(f)
+        if self.version > 70:
+            magic.multiplier_base = self.read_float(f)
+            magic.multiplier_bonus = self.read_float(f)
+            
+        return magic
+
+    def read_float(self, f):
+        """读取单精度浮点数，对应C#的ReadSingle"""
+        try:
+            data = f.read(4)
+            if len(data) != 4:
+                raise ValueError("读取float时数据长度不足4字节")
+            return struct.unpack('<f', data)[0]  # 使用小端序，对应C#的BinaryReader
+        except Exception as e:
+            print(f"读取float时出错: {str(e)}")
+            if 'data' in locals():
+                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            return 0.0  # 出错时返回0.0，避免浮点数错误
+
+    def read_conquest_info(self, f):
+        """读取征服信息"""
+        try:
+            conquest = ConquestInfo()
+            
+            # 读取基本信息
+            print(f"\n开始读取征服信息，当前位置: {f.tell()}")
+            conquest.index = self.read_int32(f)
+            print(f"读取索引: {conquest.index}")
+            
+            if self.version > 73:
+                conquest.full_map = self.read_bool(f)
+                print(f"读取全地图: {conquest.full_map}")
+            
+            conquest.location = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取位置: ({conquest.location.x}, {conquest.location.y})")
+            
+            conquest.size = self.read_uint16(f)
+            print(f"读取大小: {conquest.size}")
+            
+            conquest.name = self.read_string(f)
+            print(f"读取名称: {conquest.name}")
+            
+            conquest.map_index = self.read_int32(f)
+            print(f"读取地图索引: {conquest.map_index}")
+            
+            conquest.palace_index = self.read_int32(f)
+            print(f"读取宫殿索引: {conquest.palace_index}")
+            
+            conquest.guard_index = self.read_int32(f)
+            print(f"读取守卫索引: {conquest.guard_index}")
+            
+            conquest.gate_index = self.read_int32(f)
+            print(f"读取城门索引: {conquest.gate_index}")
+            
+            conquest.wall_index = self.read_int32(f)
+            print(f"读取城墙索引: {conquest.wall_index}")
+            
+            conquest.siege_index = self.read_int32(f)
+            print(f"读取攻城索引: {conquest.siege_index}")
+            
+            if self.version > 72:
+                conquest.flag_index = self.read_int32(f)
+                print(f"读取旗帜索引: {conquest.flag_index}")
+            
+            # 读取守卫列表
+            guard_count = self.read_int32(f)
+            print(f"读取守卫数量: {guard_count}")
+            for i in range(guard_count):
+                guard = ConquestArcherInfo()
+                guard.index = self.read_int32(f)
+                guard.location = Point(
+                    x=self.read_int32(f),
+                    y=self.read_int32(f)
+                )
+                guard.mob_index = self.read_int32(f)
+                guard.name = self.read_string(f)
+                guard.repair_cost = self.read_uint32(f)
+                conquest.conquest_guards.append(guard)
+            
+            # 读取额外地图列表
+            map_count = self.read_int32(f)
+            print(f"读取额外地图数量: {map_count}")
+            for i in range(map_count):
+                map_index = self.read_int32(f)
+                conquest.extra_maps.append(map_index)
+            
+            # 读取城门列表
+            gate_count = self.read_int32(f)
+            print(f"读取城门数量: {gate_count}")
+            for i in range(gate_count):
+                gate = ConquestGateInfo()
+                gate.index = self.read_int32(f)
+                gate.location = Point(
+                    x=self.read_int32(f),
+                    y=self.read_int32(f)
+                )
+                gate.mob_index = self.read_int32(f)
+                gate.name = self.read_string(f)
+                if self.version <= 84:
+                    gate.repair_cost = self.read_uint32(f)
+                else:
+                    gate.repair_cost = self.read_int32(f)
+                conquest.conquest_gates.append(gate)
+            
+            # 读取城墙列表
+            wall_count = self.read_int32(f)
+            print(f"读取城墙数量: {wall_count}")
+            for i in range(wall_count):
+                wall = ConquestWallInfo()
+                wall.index = self.read_int32(f)
+                wall.location = Point(
+                    x=self.read_int32(f),
+                    y=self.read_int32(f)
+                )
+                wall.mob_index = self.read_int32(f)
+                wall.name = self.read_string(f)
+                if self.version <= 84:
+                    wall.repair_cost = self.read_uint32(f)
+                else:
+                    wall.repair_cost = self.read_int32(f)
+                conquest.conquest_walls.append(wall)
+            
+            # 读取攻城列表
+            siege_count = self.read_int32(f)
+            print(f"读取攻城数量: {siege_count}")
+            for i in range(siege_count):
+                siege = ConquestSiegeInfo()
+                siege.index = self.read_int32(f)
+                siege.location = Point(
+                    x=self.read_int32(f),
+                    y=self.read_int32(f)
+                )
+                siege.mob_index = self.read_int32(f)
+                siege.name = self.read_string(f)
+                if self.version <= 84:
+                    siege.repair_cost = self.read_uint32(f)
+                else:
+                    siege.repair_cost = self.read_int32(f)
+                conquest.conquest_sieges.append(siege)
+            
+            # 读取旗帜列表
+            if self.version > 72:
+                flag_count = self.read_int32(f)
+                print(f"读取旗帜数量: {flag_count}")
+                for i in range(flag_count):
+                    flag = ConquestFlagInfo()
+                    flag.index = self.read_int32(f)
+                    flag.location = Point(
+                        x=self.read_int32(f),
+                        y=self.read_int32(f)
+                    )
+                    flag.name = self.read_string(f)
+                    flag.file_name = self.read_string(f)
+                    conquest.conquest_flags.append(flag)
+            
+            # 读取其他信息
+            conquest.start_hour = self.read_byte(f)
+            print(f"读取开始时间: {conquest.start_hour}")
+            
+            conquest.war_length = self.read_int32(f)
+            print(f"读取战争时长: {conquest.war_length}")
+            
+            conquest.type = ConquestType(self.read_byte(f))
+            print(f"读取类型: {conquest.type}")
+            
+            conquest.game = ConquestGame(self.read_byte(f))
+            print(f"读取游戏模式: {conquest.game}")
+            
+            conquest.monday = self.read_bool(f)
+            conquest.tuesday = self.read_bool(f)
+            conquest.wednesday = self.read_bool(f)
+            conquest.thursday = self.read_bool(f)
+            conquest.friday = self.read_bool(f)
+            conquest.saturday = self.read_bool(f)
+            conquest.sunday = self.read_bool(f)
+            print(f"读取星期设置: {conquest.monday}, {conquest.tuesday}, {conquest.wednesday}, {conquest.thursday}, {conquest.friday}, {conquest.saturday}, {conquest.sunday}")
+            
+            conquest.king_location = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取国王位置: ({conquest.king_location.x}, {conquest.king_location.y})")
+            
+            conquest.king_size = self.read_uint16(f)
+            print(f"读取国王区域大小: {conquest.king_size}")
+            
+            if self.version > 74:
+                conquest.control_point_index = self.read_int32(f)
+                print(f"读取控制点索引: {conquest.control_point_index}")
+                
+                control_point_count = self.read_int32(f)
+                print(f"读取控制点数量: {control_point_count}")
+                for i in range(control_point_count):
+                    point = ConquestFlagInfo()
+                    point.index = self.read_int32(f)
+                    point.location = Point(
+                        x=self.read_int32(f),
+                        y=self.read_int32(f)
+                    )
+                    point.name = self.read_string(f)
+                    point.file_name = self.read_string(f)
+                    conquest.control_points.append(point)
+            
+            return conquest
+        except Exception as e:
+            print(f"读取征服信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+    def read_respawn_timer(self, f):
+        """读取刷新计时器信息"""
+        try:
+            respawn = RespawnTimer()
+            
+            # 读取基本信息
+            print(f"\n开始读取刷新计时器信息，当前位置: {f.tell()}")
+            respawn.base_spawn_rate = self.read_byte(f)
+            print(f"读取基础刷新率: {respawn.base_spawn_rate}")
+            
+            respawn.current_tick_counter = self.read_uint64(f)
+            print(f"读取当前刷新计数器: {respawn.current_tick_counter}")
+            
+            # 读取刷新选项列表
+            option_count = self.read_int32(f)
+            print(f"读取刷新选项数量: {option_count}")
+            
+            for i in range(option_count):
+                option = RespawnTickOption()
+                option.user_count = self.read_int32(f)
+                option.delay_loss = self.read_float(f)
+                respawn.respawn_options.append(option)
+                print(f"读取刷新选项 {i+1}/{option_count}:")
+                print(f"  用户数量: {option.user_count}")
+                print(f"  延迟损失: {option.delay_loss}")
+            
+            # 计算当前延迟
+            respawn.current_delay = int(round(respawn.base_spawn_rate * 60000))
+            print(f"计算当前延迟: {respawn.current_delay}")
+            
+            return respawn
+        except Exception as e:
+            print(f"读取刷新计时器信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+@dataclass
+class GameShopItem:
+    item_index: int = 0
+    g_index: int = 0
+    gold_price: int = 0
+    credit_price: int = 0
+    count: int = 1
+    class_name: str = ""
+    category: str = ""
+    stock: int = 0
+    i_stock: bool = False
+    deal: bool = False
+    top_item: bool = False
+    date: int = 0  # 使用int存储DateTime.ToBinary
+    can_buy_gold: bool = False
+    can_buy_credit: bool = False
+
+@dataclass
+class ConquestArcherInfo:
+    index: int = 0
+    location: Point = field(default_factory=Point)
+    mob_index: int = 0
+    name: str = ""
+    repair_cost: int = 0
+
+@dataclass
+class ConquestGateInfo:
+    index: int = 0
+    location: Point = field(default_factory=Point)
+    mob_index: int = 0
+    name: str = ""
+    repair_cost: int = 0
+
+@dataclass
+class ConquestWallInfo:
+    index: int = 0
+    location: Point = field(default_factory=Point)
+    mob_index: int = 0
+    name: str = ""
+    repair_cost: int = 0
+
+@dataclass
+class ConquestSiegeInfo:
+    index: int = 0
+    location: Point = field(default_factory=Point)
+    mob_index: int = 0
+    name: str = ""
+    repair_cost: int = 0
+
+@dataclass
+class ConquestFlagInfo:
+    index: int = 0
+    location: Point = field(default_factory=Point)
+    name: str = ""
+    file_name: str = ""
+
+class ConquestType(Enum):
+    Request = 0
+    AutoWar = 1
+    Forced = 2
+
+class ConquestGame(Enum):
+    CapturePalace = 0  # 占领宫殿模式
+    KingOfHill = 1    # 山丘之王模式
+    Random = 2        # 随机模式
+    Classic = 3       # 经典模式
+    ControlPoints = 4 # 控制点模式
+
+@dataclass
+class ConquestInfo:
+    index: int = 0
+    full_map: bool = False
+    location: Point = field(default_factory=Point)
+    size: int = 0
+    name: str = ""
+    map_index: int = 0
+    palace_index: int = 0
+    guard_index: int = 0
+    gate_index: int = 0
+    wall_index: int = 0
+    siege_index: int = 0
+    flag_index: int = 0
+    start_hour: int = 0
+    war_length: int = 60
+    type: ConquestType = ConquestType.Request
+    game: ConquestGame = ConquestGame.CapturePalace
+    monday: bool = False
+    tuesday: bool = False
+    wednesday: bool = False
+    thursday: bool = False
+    friday: bool = False
+    saturday: bool = False
+    sunday: bool = False
+    king_location: Point = field(default_factory=Point)
+    king_size: int = 0
+    control_point_index: int = 0
+    
+    extra_maps: List[int] = field(default_factory=list)
+    conquest_guards: List[ConquestArcherInfo] = field(default_factory=list)
+    conquest_gates: List[ConquestGateInfo] = field(default_factory=list)
+    conquest_walls: List[ConquestWallInfo] = field(default_factory=list)
+    conquest_sieges: List[ConquestSiegeInfo] = field(default_factory=list)
+    conquest_flags: List[ConquestFlagInfo] = field(default_factory=list)
+    control_points: List[ConquestFlagInfo] = field(default_factory=list)
+
+@dataclass
+class RespawnTickOption:
+    user_count: int = 1
+    delay_loss: float = 1.0
+
+@dataclass
+class RespawnTimer:
+    base_spawn_rate: int = 20  # 基础刷新率（分钟）
+    current_tick_counter: int = 0  # 当前刷新计数器
+    last_tick: int = 0  # 上次刷新时间
+    last_user_count: int = 0  # 上次用户数量
+    current_delay: int = 0  # 当前延迟
+    respawn_options: List[RespawnTickOption] = field(default_factory=list)
+
+ 
 
 def main():
     # 使用相对路径
