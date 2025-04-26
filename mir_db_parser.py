@@ -9,6 +9,7 @@ import re
 class Settings:
     """设置类，用于定义各种路径"""
     QuestPath = "Quests"  # 任务文件所在目录
+    DropPath = "Drops"    # 掉落文件所在目录
 
 class Monster(Enum):
     # 这里需要添加所有怪物类型的枚举值
@@ -631,6 +632,161 @@ class QuestInfo:
     fixed_rewards: List[QuestItemReward] = field(default_factory=list)
     select_rewards: List[QuestItemReward] = field(default_factory=list)
 
+@dataclass
+class DragonDropInfo:
+    chance: int = 0
+    item: Optional['ItemInfo'] = None
+    gold: int = 0
+    level: int = 0
+
+@dataclass
+class DragonInfo:
+    enabled: bool = False
+    map_file_name: str = "D2083"
+    monster_name: str = "Evil Mir"
+    body_name: str = "00"
+    location: Point = field(default_factory=Point)
+    drop_area_top: Point = field(default_factory=Point)
+    drop_area_bottom: Point = field(default_factory=Point)
+    level: int = 1
+    experience: int = 0
+    exps: List[int] = field(default_factory=lambda: [10000 * (i + 1) for i in range(9)])  # 默认9级经验值
+    drops: List[List[DragonDropInfo]] = field(default_factory=lambda: [[] for _ in range(10)])  # 默认10级掉落
+
+    def __post_init__(self):
+        # 设置默认位置
+        if self.location.x == 0 and self.location.y == 0:
+            self.location = Point(82, 44)
+        if self.drop_area_top.x == 0 and self.drop_area_top.y == 0:
+            self.drop_area_top = Point(75, 45)
+        if self.drop_area_bottom.x == 0 and self.drop_area_bottom.y == 0:
+            self.drop_area_bottom = Point(86, 57)
+
+    def read_dragon_info(self, f):
+        """读取龙信息"""
+        try:
+            dragon = DragonInfo()
+            
+            # 读取基本信息
+            print(f"\n开始读取龙信息，当前位置: {f.tell()}")
+            dragon.enabled = self.read_bool(f)
+            print(f"读取启用状态: {dragon.enabled}")
+            
+            dragon.map_file_name = self.read_string(f)
+            print(f"读取地图文件名: {dragon.map_file_name}")
+            
+            dragon.monster_name = self.read_string(f)
+            print(f"读取怪物名称: {dragon.monster_name}")
+            
+            dragon.body_name = self.read_string(f)
+            print(f"读取身体名称: {dragon.body_name}")
+            
+            # 读取位置信息
+            dragon.location = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取位置: ({dragon.location.x}, {dragon.location.y})")
+            
+            dragon.drop_area_top = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取掉落区域顶部: ({dragon.drop_area_top.x}, {dragon.drop_area_top.y})")
+            
+            dragon.drop_area_bottom = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取掉落区域底部: ({dragon.drop_area_bottom.x}, {dragon.drop_area_bottom.y})")
+            
+            # 读取经验值
+            for i in range(len(dragon.exps)):
+                dragon.exps[i] = self.read_int64(f)
+                print(f"读取等级 {i+1} 经验值: {dragon.exps[i]}")
+            
+            # 加载掉落信息
+            self.load_dragon_drops(dragon)
+            
+            return dragon
+        except Exception as e:
+            print(f"读取龙信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+    def load_dragon_drops(self, dragon):
+        """加载龙掉落信息"""
+        # 清空所有掉落列表
+        for level_drops in dragon.drops:
+            level_drops.clear()
+            
+        # 确保掉落文件目录存在
+        drop_path = os.path.join(os.path.dirname(self.db_path), Settings.DropPath)
+        if not os.path.exists(drop_path):
+            print(f"掉落文件目录不存在: {drop_path}")
+            return
+            
+        file_path = os.path.join(drop_path, "DragonItem.txt")
+        if not os.path.exists(file_path):
+            print(f"龙掉落文件不存在: {file_path}")
+            return
+            
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith(';'):
+                        continue
+                        
+                    drop = self.parse_dragon_drop(line)
+                    if drop and 0 < drop.level <= len(dragon.drops):
+                        dragon.drops[drop.level - 1].append(drop)
+                        
+            # 对每个等级的掉落列表进行排序
+            for level_drops in dragon.drops:
+                level_drops.sort(key=lambda d: (d.gold == 0, d.item.type if d.item else 0))
+                
+        except Exception as e:
+            print(f"加载龙掉落信息时出错: {str(e)}")
+            raise
+
+    def parse_dragon_drop(self, line):
+        """解析龙掉落信息"""
+        parts = line.split()
+        if len(parts) < 3:
+            return None
+            
+        try:
+            drop = DragonDropInfo()
+            drop.chance = int(parts[0][2:])  # 跳过前两个字符
+            
+            if parts[1].lower() == "gold":
+                if len(parts) < 4:
+                    return None
+                drop.gold = int(parts[2])
+                drop.level = int(parts[3])
+            else:
+                drop.item = self.get_item_info(parts[1])
+                if not drop.item:
+                    return None
+                drop.level = int(parts[2])
+                
+            return drop
+        except (ValueError, IndexError):
+            return None
+
+    def read_int64(self, f):
+        """读取64位整数"""
+        try:
+            data = f.read(8)
+            print(f"读取int64原始字节: {' '.join(f'{b:02x}' for b in data)}")
+            return struct.unpack('<q', data)[0]
+        except Exception as e:
+            print(f"读取int64时出错: {str(e)}")
+            if 'data' in locals():
+                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            raise
+
 class MirDBParser:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -641,6 +797,7 @@ class MirDBParser:
         self.items = []
         self.npcs = []
         self.quests = []
+        self.dragons = []  # 添加dragon列表
 
     @staticmethod
     def read_int32(f):
@@ -1884,10 +2041,35 @@ class MirDBParser:
                         print(f"读取任务 {i+1} 时出错: {str(e)}")
                         continue
 
+                print("\n=== 龙信息 ===")
+                # 读取龙信息
+                try:
+                    dragon_info = self.read_dragon_info(f)
+                    self.dragons.append(dragon_info)
+                    print(f"\n龙信息:")
+                    print(f"  启用状态: {dragon_info.enabled}")
+                    print(f"  地图文件名: {dragon_info.map_file_name}")
+                    print(f"  怪物名称: {dragon_info.monster_name}")
+                    print(f"  身体名称: {dragon_info.body_name}")
+                    print(f"  位置: ({dragon_info.location.x}, {dragon_info.location.y})")
+                    print(f"  掉落区域: ({dragon_info.drop_area_top.x}, {dragon_info.drop_area_top.y}) - ({dragon_info.drop_area_bottom.x}, {dragon_info.drop_area_bottom.y})")
+                    print(f"  等级: {dragon_info.level}")
+                    print(f"  经验值: {dragon_info.experience}")
+                    for j, exp in enumerate(dragon_info.exps):
+                        print(f"  等级 {j+1} 经验值: {exp}")
+                    for j, level_drops in enumerate(dragon_info.drops):
+                        print(f"  等级 {j+1} 掉落数量: {len(level_drops)}")
+                except Exception as e:
+                    print(f"读取龙信息时出错: {str(e)}")
+                    # 移除continue语句
+
                 print("\n=== 数据读取完成 ===")
                 print(f"成功加载地图数量: {len(self.maps)}")
-                print(f"成功加载物品数量: {item_count}")
+                print(f"成功加载物品数量: {len(self.items)}")
                 print(f"成功加载怪物数量: {len(self.monsters)}")
+                print(f"成功加载NPC数量: {len(self.npcs)}")
+                print(f"成功加载任务数量: {len(self.quests)}")
+                print(f"成功加载龙数量: {len(self.dragons)}")
                 
         except Exception as e:
             print(f"加载数据库时出错: {str(e)}")
@@ -2135,6 +2317,160 @@ class MirDBParser:
         items_path = os.path.join(output_path, 'items.json')
         with open(items_path, 'w', encoding='utf-8') as f:
             json.dump(items_data, f, ensure_ascii=False, indent=2)
+
+        # 保存龙信息
+        dragons_data = [
+            {
+                'enabled': d.enabled,
+                'map_file_name': d.map_file_name,
+                'monster_name': d.monster_name,
+                'body_name': d.body_name,
+                'location': {'x': d.location.x, 'y': d.location.y},
+                'drop_area_top': {'x': d.drop_area_top.x, 'y': d.drop_area_top.y},
+                'drop_area_bottom': {'x': d.drop_area_bottom.x, 'y': d.drop_area_bottom.y},
+                'level': d.level,
+                'experience': d.experience,
+                'exps': d.exps,
+                'drops': [
+                    [
+                        {
+                            'chance': drop.chance,
+                            'item': {'index': drop.item.index, 'name': drop.item.name} if drop.item else None,
+                            'gold': drop.gold,
+                            'level': drop.level
+                        } for drop in level_drops
+                    ] for level_drops in d.drops
+                ]
+            } for d in self.dragons
+        ]
+        dragons_path = os.path.join(output_path, 'dragons.json')
+        with open(dragons_path, 'w', encoding='utf-8') as f:
+            json.dump(dragons_data, f, ensure_ascii=False, indent=2)
+
+    def read_dragon_info(self, f):
+        """读取龙信息"""
+        try:
+            dragon = DragonInfo()
+            
+            # 读取基本信息
+            print(f"\n开始读取龙信息，当前位置: {f.tell()}")
+            dragon.enabled = self.read_bool(f)
+            print(f"读取启用状态: {dragon.enabled}")
+            
+            dragon.map_file_name = self.read_string(f)
+            print(f"读取地图文件名: {dragon.map_file_name}")
+            
+            dragon.monster_name = self.read_string(f)
+            print(f"读取怪物名称: {dragon.monster_name}")
+            
+            dragon.body_name = self.read_string(f)
+            print(f"读取身体名称: {dragon.body_name}")
+            
+            # 读取位置信息
+            dragon.location = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取位置: ({dragon.location.x}, {dragon.location.y})")
+            
+            dragon.drop_area_top = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取掉落区域顶部: ({dragon.drop_area_top.x}, {dragon.drop_area_top.y})")
+            
+            dragon.drop_area_bottom = Point(
+                x=self.read_int32(f),
+                y=self.read_int32(f)
+            )
+            print(f"读取掉落区域底部: ({dragon.drop_area_bottom.x}, {dragon.drop_area_bottom.y})")
+            
+            # 读取经验值
+            for i in range(len(dragon.exps)):
+                dragon.exps[i] = self.read_int64(f)
+                print(f"读取等级 {i+1} 经验值: {dragon.exps[i]}")
+            
+            # 加载掉落信息
+            self.load_dragon_drops(dragon)
+            
+            return dragon
+        except Exception as e:
+            print(f"读取龙信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+    def load_dragon_drops(self, dragon):
+        """加载龙掉落信息"""
+        # 清空所有掉落列表
+        for level_drops in dragon.drops:
+            level_drops.clear()
+            
+        # 确保掉落文件目录存在
+        drop_path = os.path.join(os.path.dirname(self.db_path), Settings.DropPath)
+        if not os.path.exists(drop_path):
+            print(f"掉落文件目录不存在: {drop_path}")
+            return
+            
+        file_path = os.path.join(drop_path, "DragonItem.txt")
+        if not os.path.exists(file_path):
+            print(f"龙掉落文件不存在: {file_path}")
+            return
+            
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith(';'):
+                        continue
+                        
+                    drop = self.parse_dragon_drop(line)
+                    if drop and 0 < drop.level <= len(dragon.drops):
+                        dragon.drops[drop.level - 1].append(drop)
+                        
+            # 对每个等级的掉落列表进行排序
+            for level_drops in dragon.drops:
+                level_drops.sort(key=lambda d: (d.gold == 0, d.item.type if d.item else 0))
+                
+        except Exception as e:
+            print(f"加载龙掉落信息时出错: {str(e)}")
+            raise
+
+    def parse_dragon_drop(self, line):
+        """解析龙掉落信息"""
+        parts = line.split()
+        if len(parts) < 3:
+            return None
+            
+        try:
+            drop = DragonDropInfo()
+            drop.chance = int(parts[0][2:])  # 跳过前两个字符
+            
+            if parts[1].lower() == "gold":
+                if len(parts) < 4:
+                    return None
+                drop.gold = int(parts[2])
+                drop.level = int(parts[3])
+            else:
+                drop.item = self.get_item_info(parts[1])
+                if not drop.item:
+                    return None
+                drop.level = int(parts[2])
+                
+            return drop
+        except (ValueError, IndexError):
+            return None
+
+    def read_int64(self, f):
+        """读取64位整数"""
+        try:
+            data = f.read(8)
+            print(f"读取int64原始字节: {' '.join(f'{b:02x}' for b in data)}")
+            return struct.unpack('<q', data)[0]
+        except Exception as e:
+            print(f"读取int64时出错: {str(e)}")
+            if 'data' in locals():
+                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            raise
 
 def main():
     # 使用相对路径
