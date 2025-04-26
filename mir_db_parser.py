@@ -6,6 +6,7 @@ from typing import List, Optional, Dict
 from enum import Enum
 import re
 import random
+from reader import BinaryReader
 
 class Settings:
     """设置类，用于定义各种路径"""
