@@ -4,6 +4,11 @@ import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from enum import Enum
+import re
+
+class Settings:
+    """设置类，用于定义各种路径"""
+    QuestPath = "Quests"  # 任务文件所在目录
 
 class Monster(Enum):
     # 这里需要添加所有怪物类型的枚举值
@@ -158,12 +163,30 @@ class RespawnInfo:
 @dataclass
 class NPCInfo:
     index: int = 0
-    name: str = ""
     file_name: str = ""
-    image: int = 0
-    location: Point = field(default_factory=Point)
-    direction: int = 0
+    name: str = ""
     map_index: int = 0
+    location: Point = field(default_factory=Point)
+    rate: int = 100
+    image: int = 0
+    time_visible: bool = False
+    hour_start: int = 0
+    minute_start: int = 0
+    hour_end: int = 0
+    minute_end: int = 1
+    min_lev: int = 0
+    max_lev: int = 0
+    day_of_week: str = ""
+    class_required: str = ""
+    sabuk: bool = False
+    flag_needed: int = 0
+    conquest: int = 0
+    show_on_big_map: bool = False
+    big_map_icon: int = 0
+    can_teleport_to: bool = False
+    conquest_visible: bool = True
+    collect_quest_indexes: List[int] = field(default_factory=list)
+    finish_quest_indexes: List[int] = field(default_factory=list)
 
 @dataclass
 class MineZone:
@@ -538,6 +561,75 @@ class ItemInfo:
             self.stats = Stats()
         if self.random_stats is None:
             self.random_stats = {}
+
+class QuestType(Enum):
+    General = 0
+    Daily = 1
+    Weekly = 2
+    Repeatable = 3
+    Story = 4
+    Achievement = 5
+    Tutorial = 6
+
+@dataclass
+class QuestItemTask:
+    item: 'ItemInfo' = None
+    count: int = 0
+    message: str = ""
+
+@dataclass
+class QuestKillTask:
+    monster: 'MonsterInfo' = None
+    count: int = 0
+    message: str = ""
+
+@dataclass
+class QuestFlagTask:
+    number: int = 0
+    message: str = ""
+
+@dataclass
+class QuestItemReward:
+    item: 'ItemInfo' = None
+    count: int = 0
+
+@dataclass
+class QuestInfo:
+    index: int = 0
+    name: str = ""
+    group: str = ""
+    file_name: str = ""
+    required_min_level: int = 0
+    required_max_level: int = 0
+    required_quest: int = 0
+    required_class: RequiredClass = RequiredClass.None_
+    type: QuestType = QuestType.General
+    goto_message: str = ""
+    kill_message: str = ""
+    item_message: str = ""
+    flag_message: str = ""
+    time_limit_in_seconds: int = 0
+    
+    # 任务描述
+    description: List[str] = field(default_factory=list)
+    task_description: List[str] = field(default_factory=list)
+    return_description: List[str] = field(default_factory=list)
+    completion_description: List[str] = field(default_factory=list)
+    
+    # 任务物品
+    carry_items: List[QuestItemTask] = field(default_factory=list)
+    
+    # 任务目标
+    kill_tasks: List[QuestKillTask] = field(default_factory=list)
+    item_tasks: List[QuestItemTask] = field(default_factory=list)
+    flag_tasks: List[QuestFlagTask] = field(default_factory=list)
+    
+    # 任务奖励
+    gold_reward: int = 0
+    exp_reward: int = 0
+    credit_reward: int = 0
+    fixed_rewards: List[QuestItemReward] = field(default_factory=list)
+    select_rewards: List[QuestItemReward] = field(default_factory=list)
 
 class MirDBParser:
     def __init__(self, db_path):
@@ -1043,16 +1135,82 @@ class MirDBParser:
         """读取NPC信息"""
         try:
             npc = NPCInfo()
+            
+            # 读取基本信息
+            print(f"\n开始读取NPC信息，当前位置: {f.tell()}")
             npc.index = self.read_int32(f)
-            npc.name = self.read_string(f)
-            npc.file_name = self.read_string(f)
-            npc.image = self.read_uint16(f)
-            npc.location = self.read_point(f)
-            npc.direction = self.read_byte(f)
+            print(f"读取NPC索引: {npc.index}")
+            
             npc.map_index = self.read_int32(f)
+            print(f"读取地图索引: {npc.map_index}")
+            
+            # 读取任务索引列表
+            collect_count = self.read_int32(f)
+            print(f"收集任务数量: {collect_count}")
+            for i in range(collect_count):
+                quest_index = self.read_int32(f)
+                npc.collect_quest_indexes.append(quest_index)
+                
+            finish_count = self.read_int32(f)
+            print(f"完成任务数量: {finish_count}")
+            for i in range(finish_count):
+                quest_index = self.read_int32(f)
+                npc.finish_quest_indexes.append(quest_index)
+                
+            npc.file_name = self.read_string(f)
+            print(f"读取文件名: {npc.file_name}")
+            
+            npc.name = self.read_string(f)
+            print(f"读取名称: {npc.name}")
+            
+            # 读取位置
+            x = self.read_int32(f)
+            y = self.read_int32(f)
+            npc.location = Point(x, y)
+            print(f"读取位置: ({x}, {y})")
+            
+            # 根据版本读取图像ID
+            if self.version >= 72:
+                npc.image = self.read_uint16(f)
+            else:
+                npc.image = self.read_byte(f)
+            print(f"读取图像ID: {npc.image}")
+            
+            npc.rate = self.read_uint16(f)
+            print(f"读取比率: {npc.rate}")
+            
+            if self.version >= 64:
+                npc.time_visible = self.read_bool(f)
+                npc.hour_start = self.read_byte(f)
+                npc.minute_start = self.read_byte(f)
+                npc.hour_end = self.read_byte(f)
+                npc.minute_end = self.read_byte(f)
+                npc.min_lev = self.read_int16(f)
+                npc.max_lev = self.read_int16(f)
+                npc.day_of_week = self.read_string(f)
+                npc.class_required = self.read_string(f)
+                
+                if self.version >= 66:
+                    npc.conquest = self.read_int32(f)
+                else:
+                    npc.sabuk = self.read_bool(f)
+                    
+                npc.flag_needed = self.read_int32(f)
+                
+            if self.version > 95:
+                npc.show_on_big_map = self.read_bool(f)
+                npc.big_map_icon = self.read_int32(f)
+                
+            if self.version > 96:
+                npc.can_teleport_to = self.read_bool(f)
+                
+            if self.version >= 107:
+                npc.conquest_visible = self.read_bool(f)
+                
             return npc
         except Exception as e:
             print(f"读取NPC信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
             raise
 
     def read_stats(self, f):
@@ -1269,6 +1427,290 @@ class MirDBParser:
             print(f"当前文件位置: {f.tell()}")
             raise
 
+    def read_quest_info(self, f):
+        """读取任务信息"""
+        try:
+            quest = QuestInfo()
+            
+            # 读取基本信息
+            print(f"\n开始读取任务信息，当前位置: {f.tell()}")
+            quest.index = self.read_int32(f)
+            print(f"读取任务索引: {quest.index}")
+            
+            quest.name = self.read_string(f)
+            print(f"读取任务名称: {quest.name}")
+            
+            quest.group = self.read_string(f)
+            print(f"读取任务组: {quest.group}")
+            
+            quest.file_name = self.read_string(f)
+            print(f"读取文件名: {quest.file_name}")
+            
+            quest.required_min_level = self.read_int32(f)
+            print(f"读取最低等级要求: {quest.required_min_level}")
+            
+            quest.required_max_level = self.read_int32(f)
+            if quest.required_max_level == 0:
+                quest.required_max_level = 65535  # ushort.MaxValue
+            print(f"读取最高等级要求: {quest.required_max_level}")
+            
+            quest.required_quest = self.read_int32(f)
+            print(f"读取前置任务: {quest.required_quest}")
+            
+            # 读取职业要求，如果值无效则设置为None
+            try:
+                required_class_value = self.read_byte(f)
+                print(f"读取byte原始字节: {required_class_value:02x}")
+                quest.required_class = RequiredClass(required_class_value)
+            except ValueError:
+                print(f"警告: 无效的职业要求值 {required_class_value}，将设置为 None")
+                quest.required_class = RequiredClass.None_
+            print(f"读取职业要求: {quest.required_class}")
+            
+            # 读取任务类型，如果值无效则设置为General
+            try:
+                quest_type_value = self.read_byte(f)
+                quest.type = QuestType(quest_type_value)
+            except ValueError:
+                print(f"警告: 无效的任务类型值 {quest_type_value}，将设置为 General")
+                quest.type = QuestType.General
+            print(f"读取任务类型: {quest.type}")
+            
+            quest.goto_message = self.read_string(f)
+            print(f"读取前往消息: {quest.goto_message}")
+            
+            quest.kill_message = self.read_string(f)
+            print(f"读取击杀消息: {quest.kill_message}")
+            
+            quest.item_message = self.read_string(f)
+            print(f"读取物品消息: {quest.item_message}")
+            
+            quest.flag_message = self.read_string(f)
+            print(f"读取标记消息: {quest.flag_message}")
+            
+            if self.version > 90:
+                quest.time_limit_in_seconds = self.read_int32(f)
+                print(f"读取时间限制: {quest.time_limit_in_seconds}")
+            
+            # 加载任务详细信息
+            self.load_quest_info(quest)
+            
+            return quest
+        except Exception as e:
+            print(f"读取任务信息时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+    def load_quest_info(self, quest, clear=False):
+        """加载任务详细信息"""
+        if clear:
+            self.clear_quest_info(quest)
+            
+        # 确保任务文件目录存在
+        quest_path = os.path.join(os.path.dirname(self.db_path), Settings.QuestPath)
+        if not os.path.exists(quest_path):
+            print(f"任务文件目录不存在: {quest_path}")
+            return
+            
+        file_path = os.path.join(quest_path, f"{quest.file_name}.txt")
+        if not os.path.exists(file_path):
+            print(f"任务文件不存在: {file_path}")
+            return
+            
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                self.parse_quest_file(quest, lines)
+        except Exception as e:
+            print(f"加载任务文件时出错: {str(e)}")
+            raise
+
+    def clear_quest_info(self, quest):
+        """清除任务信息"""
+        quest.description.clear()
+        quest.task_description.clear()
+        quest.return_description.clear()
+        quest.completion_description.clear()
+        quest.carry_items.clear()
+        quest.kill_tasks.clear()
+        quest.item_tasks.clear()
+        quest.flag_tasks.clear()
+        quest.fixed_rewards.clear()
+        quest.select_rewards.clear()
+        quest.exp_reward = 0
+        quest.gold_reward = 0
+        quest.credit_reward = 0
+
+    def parse_quest_file(self, quest, lines):
+        """解析任务文件"""
+        description_key = "[@DESCRIPTION]"
+        task_key = "[@TASKDESCRIPTION]"
+        return_key = "[@RETURNDESCRIPTION]"
+        completion_key = "[@COMPLETION]"
+        carry_items_key = "[@CARRYITEMS]"
+        kill_tasks_key = "[@KILLTASKS]"
+        item_tasks_key = "[@ITEMTASKS]"
+        flag_tasks_key = "[@FLAGTASKS]"
+        fixed_rewards_key = "[@FIXEDREWARDS]"
+        select_rewards_key = "[@SELECTREWARDS]"
+        exp_reward_key = "[@EXPREWARD]"
+        gold_reward_key = "[@GOLDREWARD]"
+        credit_reward_key = "[@CREDITREWARD]"
+        
+        headers = [
+            description_key, task_key, completion_key,
+            carry_items_key, kill_tasks_key, item_tasks_key, flag_tasks_key,
+            fixed_rewards_key, select_rewards_key, exp_reward_key, gold_reward_key, credit_reward_key, return_key
+        ]
+        
+        current_header = 0
+        while current_header < len(headers):
+            for i in range(len(lines)):
+                line = lines[i].strip().upper()
+                if line != headers[current_header].upper():
+                    continue
+                    
+                for j in range(i + 1, len(lines)):
+                    inner_line = lines[j].strip()
+                    if inner_line.startswith('[') or inner_line.startswith('//'):
+                        break
+                    if not inner_line:
+                        continue
+                        
+                    if line == description_key:
+                        quest.description.append(inner_line)
+                    elif line == task_key:
+                        quest.task_description.append(inner_line)
+                    elif line == return_key:
+                        quest.return_description.append(inner_line)
+                    elif line == completion_key:
+                        quest.completion_description.append(inner_line)
+                    elif line == carry_items_key:
+                        task = self.parse_quest_item(inner_line)
+                        if task:
+                            quest.carry_items.append(task)
+                    elif line == kill_tasks_key:
+                        task = self.parse_quest_kill(inner_line)
+                        if task:
+                            quest.kill_tasks.append(task)
+                    elif line == item_tasks_key:
+                        task = self.parse_quest_item(inner_line)
+                        if task:
+                            quest.item_tasks.append(task)
+                    elif line == flag_tasks_key:
+                        task = self.parse_quest_flag(inner_line)
+                        if task:
+                            quest.flag_tasks.append(task)
+                    elif line == fixed_rewards_key:
+                        reward = self.parse_quest_reward(inner_line)
+                        if reward:
+                            quest.fixed_rewards.append(reward)
+                    elif line == select_rewards_key:
+                        reward = self.parse_quest_reward(inner_line)
+                        if reward:
+                            quest.select_rewards.append(reward)
+                    elif line == exp_reward_key:
+                        quest.exp_reward = int(inner_line)
+                    elif line == gold_reward_key:
+                        quest.gold_reward = int(inner_line)
+                    elif line == credit_reward_key:
+                        quest.credit_reward = int(inner_line)
+                        
+            current_header += 1
+
+    def parse_quest_item(self, line):
+        """解析任务物品"""
+        if not line:
+            return None
+            
+        parts = line.split()
+        if not parts:
+            return None
+            
+        count = 1
+        if len(parts) > 1:
+            count = int(parts[1])
+            
+        message = ""
+        match = re.search(r'"([^"]*)"', line)
+        if match:
+            message = match.group(1)
+            
+        item_info = self.get_item_info(parts[0])
+        if not item_info:
+            # 尝试查找性别特定的物品
+            item_info = self.get_item_info(f"{parts[0]}(M)")
+            if not item_info:
+                item_info = self.get_item_info(f"{parts[0]}(F)")
+                
+        if not item_info:
+            return None
+            
+        return QuestItemTask(item=item_info, count=count, message=message)
+
+    def parse_quest_kill(self, line):
+        """解析击杀任务"""
+        if not line:
+            return None
+            
+        parts = line.split()
+        if not parts:
+            return None
+            
+        count = 1
+        if len(parts) > 1:
+            count = int(parts[1])
+            
+        message = ""
+        match = re.search(r'"([^"]*)"', line)
+        if match:
+            message = match.group(1)
+            
+        monster_info = self.get_monster_info(parts[0])
+        if not monster_info:
+            return None
+            
+        return QuestKillTask(monster=monster_info, count=count, message=message)
+
+    def parse_quest_flag(self, line):
+        """解析标记任务"""
+        if not line:
+            return None
+            
+        parts = line.split()
+        if not parts:
+            return None
+            
+        number = int(parts[0])
+        if number < 0 or number > 1000:  # 假设最大标记数为1000
+            return None
+            
+        message = ""
+        match = re.search(r'"([^"]*)"', line)
+        if match:
+            message = match.group(1)
+            
+        return QuestFlagTask(number=number, message=message)
+
+    def parse_quest_reward(self, line):
+        """解析任务奖励"""
+        if not line:
+            return None
+            
+        parts = line.split()
+        if not parts:
+            return None
+            
+        count = 1
+        if len(parts) > 1:
+            count = int(parts[1])
+            
+        item_info = self.get_item_info(parts[0])
+        if not item_info:
+            return None
+            
+        return QuestItemReward(item=item_info, count=count)
+
     def load(self):
         """加载数据库文件"""
         if not os.path.exists(self.db_path):
@@ -1394,6 +1836,54 @@ class MirDBParser:
                         print(f"读取怪物 {i+1} 时出错: {str(e)}")
                         continue
 
+                print("\n=== NPC信息 ===")
+                # 读取NPC信息
+                npc_count = self.read_int32(f)
+                print(f"NPC总数: {npc_count}")
+                
+                for i in range(npc_count):
+                    try:
+                        npc_info = self.read_npc_info(f)
+                        self.npcs.append(npc_info)
+                        print(f"\nNPC {i+1}/{npc_count}:")
+                        print(f"  索引: {npc_info.index}")
+                        print(f"  名称: {npc_info.name}")
+                        print(f"  文件名: {npc_info.file_name}")
+                        print(f"  地图索引: {npc_info.map_index}")
+                        print(f"  位置: ({npc_info.location.x}, {npc_info.location.y})")
+                        print(f"  收集任务数量: {len(npc_info.collect_quest_indexes)}")
+                        print(f"  完成任务数量: {len(npc_info.finish_quest_indexes)}")
+                    except Exception as e:
+                        print(f"读取NPC {i+1} 时出错: {str(e)}")
+                        continue
+
+                print("\n=== 任务信息 ===")
+                # 读取任务信息
+                quest_count = self.read_int32(f)
+                print(f"任务总数: {quest_count}")
+                
+                for i in range(quest_count):
+                    try:
+                        quest_info = self.read_quest_info(f)
+                        self.quests.append(quest_info)
+                        print(f"\n任务 {i+1}/{quest_count}:")
+                        print(f"  索引: {quest_info.index}")
+                        print(f"  名称: {quest_info.name}")
+                        print(f"  组: {quest_info.group}")
+                        print(f"  类型: {quest_info.type}")
+                        print(f"  最低等级: {quest_info.required_min_level}")
+                        print(f"  最高等级: {quest_info.required_max_level}")
+                        print(f"  前置任务: {quest_info.required_quest}")
+                        print(f"  职业要求: {quest_info.required_class}")
+                        print(f"  击杀任务数量: {len(quest_info.kill_tasks)}")
+                        print(f"  物品任务数量: {len(quest_info.item_tasks)}")
+                        print(f"  标记任务数量: {len(quest_info.flag_tasks)}")
+                        print(f"  固定奖励数量: {len(quest_info.fixed_rewards)}")
+                        print(f"  可选奖励数量: {len(quest_info.select_rewards)}")
+                    except Exception as e:
+                        print(f"读取任务 {i+1} 时出错: {str(e)}")
+                        continue
+
                 print("\n=== 数据读取完成 ===")
                 print(f"成功加载地图数量: {len(self.maps)}")
                 print(f"成功加载物品数量: {item_count}")
@@ -1500,6 +1990,109 @@ class MirDBParser:
         monsters_path = os.path.join(output_path, 'monsters.json')
         with open(monsters_path, 'w', encoding='utf-8') as f:
             json.dump(monsters_data, f, ensure_ascii=False, indent=2)
+
+        # 保存NPC信息
+        npcs_data = [
+            {
+                'index': n.index,
+                'name': n.name,
+                'file_name': n.file_name,
+                'map_index': n.map_index,
+                'location': {'x': n.location.x, 'y': n.location.y},
+                'rate': n.rate,
+                'image': n.image,
+                'time_visible': n.time_visible,
+                'hour_start': n.hour_start,
+                'minute_start': n.minute_start,
+                'hour_end': n.hour_end,
+                'minute_end': n.minute_end,
+                'min_lev': n.min_lev,
+                'max_lev': n.max_lev,
+                'day_of_week': n.day_of_week,
+                'class_required': n.class_required,
+                'sabuk': n.sabuk,
+                'flag_needed': n.flag_needed,
+                'conquest': n.conquest,
+                'show_on_big_map': n.show_on_big_map,
+                'big_map_icon': n.big_map_icon,
+                'can_teleport_to': n.can_teleport_to,
+                'conquest_visible': n.conquest_visible,
+                'collect_quest_indexes': n.collect_quest_indexes,
+                'finish_quest_indexes': n.finish_quest_indexes
+            } for n in self.npcs
+        ]
+        npcs_path = os.path.join(output_path, 'npcs.json')
+        with open(npcs_path, 'w', encoding='utf-8') as f:
+            json.dump(npcs_data, f, ensure_ascii=False, indent=2)
+
+        # 保存任务信息
+        quests_data = [
+            {
+                'index': q.index,
+                'name': q.name,
+                'group': q.group,
+                'file_name': q.file_name,
+                'required_min_level': q.required_min_level,
+                'required_max_level': q.required_max_level,
+                'required_quest': q.required_quest,
+                'required_class': q.required_class.name,
+                'type': q.type.name,
+                'goto_message': q.goto_message,
+                'kill_message': q.kill_message,
+                'item_message': q.item_message,
+                'flag_message': q.flag_message,
+                'time_limit_in_seconds': q.time_limit_in_seconds,
+                'description': q.description,
+                'task_description': q.task_description,
+                'return_description': q.return_description,
+                'completion_description': q.completion_description,
+                'carry_items': [
+                    {
+                        'item': {'index': t.item.index, 'name': t.item.name},
+                        'count': t.count,
+                        'message': t.message
+                    } for t in q.carry_items
+                ],
+                'kill_tasks': [
+                    {
+                        'monster': {'index': t.monster.index, 'name': t.monster.name},
+                        'count': t.count,
+                        'message': t.message
+                    } for t in q.kill_tasks
+                ],
+                'item_tasks': [
+                    {
+                        'item': {'index': t.item.index, 'name': t.item.name},
+                        'count': t.count,
+                        'message': t.message
+                    } for t in q.item_tasks
+                ],
+                'flag_tasks': [
+                    {
+                        'number': t.number,
+                        'message': t.message
+                    } for t in q.flag_tasks
+                ],
+                'gold_reward': q.gold_reward,
+                'exp_reward': q.exp_reward,
+                'credit_reward': q.credit_reward,
+                'fixed_rewards': [
+                    {
+                        'item': {'index': r.item.index, 'name': r.item.name},
+                        'count': r.count
+                    } for r in q.fixed_rewards
+                ],
+                'select_rewards': [
+                    {
+                        'item': {'index': r.item.index, 'name': r.item.name},
+                        'count': r.count
+                    } for r in q.select_rewards
+                ]
+            } for q in self.quests
+        ]
+        quests_path = os.path.join(output_path, 'quests.json')
+        with open(quests_path, 'w', encoding='utf-8') as f:
+            json.dump(quests_data, f, ensure_ascii=False, indent=2)
 
         # 保存物品信息
         items_data = [
