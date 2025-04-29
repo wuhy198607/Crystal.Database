@@ -10,6 +10,7 @@ from reader import BinaryReader
 from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone
 from  item import Item
 from  monster import Monster
+from  npc import NPC
 class Settings:
     """设置类，用于定义各种路径"""
     QuestPath = "Quests"  # 任务文件所在目录
@@ -130,170 +131,6 @@ class Stats:
             if other[stat] != value:
                 return False
         return True
-
-@dataclass
-class DropInfo:
-    chance: int = 0
-    gold: int = 0
-    type: int = 0
-    quest_required: bool = False
-
-@dataclass
-class Point:
-    x: int = 0
-    y: int = 0
-
-@dataclass
-class MovementInfo:
-    map_index: int = 0
-    source: Point = field(default_factory=Point)
-    destination: Point = field(default_factory=Point)
-    need_hole: bool = False
-    need_move: bool = False
-    conquest_index: int = 0
-    show_on_big_map: bool = False
-    icon: int = 0
-
-@dataclass
-class RespawnInfo:
-    monster_index: int = 0
-    location: Point = field(default_factory=Point)
-    count: int = 0  # 应该是uint16
-    spread: int = 0  # 应该是uint16
-    delay: int = 0   # 应该是uint16
-    direction: int = 0  # 应该是byte
-    route_path: str = ""
-    random_delay: int = 0  # 应该是uint16
-    respawn_index: int = 0
-    save_respawn_time: bool = False
-    respawn_ticks: int = 0  # 应该是uint16
-
-@dataclass
-class NPCInfo:
-    index: int = 0
-    file_name: str = ""
-    name: str = ""
-    map_index: int = 0
-    location: Point = field(default_factory=Point)
-    rate: int = 100
-    image: int = 0
-    time_visible: bool = False
-    hour_start: int = 0
-    minute_start: int = 0
-    hour_end: int = 0
-    minute_end: int = 1
-    min_lev: int = 0
-    max_lev: int = 0
-    day_of_week: str = ""
-    class_required: str = ""
-    sabuk: bool = False
-    flag_needed: int = 0
-    conquest: int = 0
-    show_on_big_map: bool = False
-    big_map_icon: int = 0
-    can_teleport_to: bool = False
-    conquest_visible: bool = True
-    collect_quest_indexes: List[int] = field(default_factory=list)
-    finish_quest_indexes: List[int] = field(default_factory=list)
-
-
-@dataclass
-class MonsterInfo:
-    index: int = 0
-    name: str = ""
-    image: int = 0
-    ai: int = 0
-    effect: int = 0
-    level: int = 0
-    view_range: int = 7
-    cool_eye: int = 0
-    stats: Stats = None
-    drops: List[DropInfo] = None
-    can_tame: bool = True
-    can_push: bool = True
-    auto_rev: bool = True
-    undead: bool = False
-    has_spawn_script: bool = False
-    has_die_script: bool = False
-    attack_speed: int = 2500
-    move_speed: int = 1800
-    experience: int = 0
-    light: int = 0
-    drop_path: str = ""
-
-    def __post_init__(self):
-        if self.stats is None:
-            self.stats = Stats()
-        if self.drops is None:
-            self.drops = []
-
-    def read_from_file(self, f, version, custom_version):
-        self.index = self.read_int32(f)
-        self.name = self.read_string(f)
-        self.image = self.read_uint16(f)
-        self.ai = self.read_byte(f)
-        self.effect = self.read_byte(f)
-
-        if version < 62:
-            self.level = self.read_byte(f)
-        else:
-            self.level = self.read_uint16(f)
-
-        self.view_range = self.read_byte(f)
-        self.cool_eye = self.read_byte(f)
-
-        if version > 84:
-            # 读取完整的状态信息
-            for stat in Stat:
-                self.stats[stat] = self.read_int32(f)
-        else:
-            # 旧版本的状态信息读取
-            self.stats[Stat.HP] = self.read_uint32(f)
-            
-            if version < 62:
-                self.stats[Stat.MinAC] = self.read_byte(f)
-                self.stats[Stat.MaxAC] = self.read_byte(f)
-                self.stats[Stat.MinMAC] = self.read_byte(f)
-                self.stats[Stat.MaxMAC] = self.read_byte(f)
-                self.stats[Stat.MinDC] = self.read_byte(f)
-                self.stats[Stat.MaxDC] = self.read_byte(f)
-                self.stats[Stat.MinMC] = self.read_byte(f)
-                self.stats[Stat.MaxMC] = self.read_byte(f)
-                self.stats[Stat.MinSC] = self.read_byte(f)
-                self.stats[Stat.MaxSC] = self.read_byte(f)
-            else:
-                self.stats[Stat.MinAC] = self.read_uint16(f)
-                self.stats[Stat.MaxAC] = self.read_uint16(f)
-                self.stats[Stat.MinMAC] = self.read_uint16(f)
-                self.stats[Stat.MaxMAC] = self.read_uint16(f)
-                self.stats[Stat.MinDC] = self.read_uint16(f)
-                self.stats[Stat.MaxDC] = self.read_uint16(f)
-                self.stats[Stat.MinMC] = self.read_uint16(f)
-                self.stats[Stat.MaxMC] = self.read_uint16(f)
-                self.stats[Stat.MinSC] = self.read_uint16(f)
-                self.stats[Stat.MaxSC] = self.read_uint16(f)
-
-            if version <= 84:
-                self.stats[Stat.Accuracy] = self.read_byte(f)
-                self.stats[Stat.Agility] = self.read_byte(f)
-
-        self.light = self.read_byte(f)
-        self.attack_speed = self.read_uint16(f)
-        self.move_speed = self.read_uint16(f)
-        self.experience = self.read_uint32(f)
-
-        self.can_push = self.read_bool(f)
-        self.can_tame = self.read_bool(f)
-
-        if version >= 18:
-            self.auto_rev = self.read_bool(f)
-            self.undead = self.read_bool(f)
-
-        if version >= 89:
-            self.drop_path = self.read_string(f)
-
-        return self
-
 
 
 
@@ -748,87 +585,7 @@ class MirDBParser:
     
 
 
-    def read_npc_info(self, f):
-        """读取NPC信息"""
-        try:
-            npc = NPCInfo()
-            
-            # 读取基本信息
-            print(f"\n开始读取NPC信息，当前位置: {f.tell()}")
-            npc.index = self.read_int32(f)
-            print(f"读取NPC索引: {npc.index}")
-            
-            npc.map_index = self.read_int32(f)
-            print(f"读取地图索引: {npc.map_index}")
-            
-            # 读取任务索引列表
-            collect_count = self.read_int32(f)
-            print(f"收集任务数量: {collect_count}")
-            for i in range(collect_count):
-                quest_index = self.read_int32(f)
-                npc.collect_quest_indexes.append(quest_index)
-                
-            finish_count = self.read_int32(f)
-            print(f"完成任务数量: {finish_count}")
-            for i in range(finish_count):
-                quest_index = self.read_int32(f)
-                npc.finish_quest_indexes.append(quest_index)
-                
-            npc.file_name = self.read_string(f)
-            print(f"读取文件名: {npc.file_name}")
-            
-            npc.name = self.read_string(f)
-            print(f"读取名称: {npc.name}")
-            
-            # 读取位置
-            x = self.read_int32(f)
-            y = self.read_int32(f)
-            npc.location = Point(x, y)
-            print(f"读取位置: ({x}, {y})")
-            
-            # 根据版本读取图像ID
-            if self.version >= 72:
-                npc.image = self.read_uint16(f)
-            else:
-                npc.image = self.read_byte(f)
-            print(f"读取图像ID: {npc.image}")
-            
-            npc.rate = self.read_uint16(f)
-            print(f"读取比率: {npc.rate}")
-            
-            if self.version >= 64:
-                npc.time_visible = self.read_bool(f)
-                npc.hour_start = self.read_byte(f)
-                npc.minute_start = self.read_byte(f)
-                npc.hour_end = self.read_byte(f)
-                npc.minute_end = self.read_byte(f)
-                npc.min_lev = self.read_int16(f)
-                npc.max_lev = self.read_int16(f)
-                npc.day_of_week = self.read_string(f)
-                npc.class_required = self.read_string(f)
-                
-                if self.version >= 66:
-                    npc.conquest = self.read_int32(f)
-                else:
-                    npc.sabuk = self.read_bool(f)
-                    
-                npc.flag_needed = self.read_int32(f)
-                
-            if self.version > 95:
-                npc.show_on_big_map = self.read_bool(f)
-                npc.big_map_icon = self.read_int32(f)
-                
-            if self.version > 96:
-                npc.can_teleport_to = self.read_bool(f)
-                
-            if self.version >= 107:
-                npc.conquest_visible = self.read_bool(f)
-                
-            return npc
-        except Exception as e:
-            print(f"读取NPC信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
+    
 
     def read_stats(self, f):
         """读取状态信息"""
@@ -1255,7 +1012,7 @@ class MirDBParser:
                 
                 for i in range(npc_count):
                     try:
-                        npc_info = self.read_npc_info(f)
+                        npc_info = NPC.read(f)
                         self.npcs.append(npc_info)
                         print(f"\nNPC {i+1}/{npc_count}:")
                         print(f"  索引: {npc_info.index}")

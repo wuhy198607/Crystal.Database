@@ -1,14 +1,11 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 from reader import BinaryReader
-@dataclass
-class Point:
-    x: int = 0
-    y: int = 0
+from common import Point
 
 @dataclass
 class SafeZoneInfo:
-    info: Optional['MapInfo'] = None
+    info: Optional['Map'] = None
     location: Point = field(default_factory=Point)
     size: int = 0  # 应该是uint16
     start_point: bool = False
@@ -120,17 +117,13 @@ class Map:
             raise ValueError(f"无效的天气设置: {self.weather_particles}")
         if self.gt_index < 0:
             raise ValueError(f"无效的GT索引: {self.gt_index}") 
-    @staticmethod
-    def read_point( f):
-        x = BinaryReader.read_int32(f)
-        y = BinaryReader.read_int32(f)
-        return Point(x, y)
+
     @staticmethod
     def read_safe_zone(f):
         """读取安全区信息"""
         try:
             safe_zone = SafeZoneInfo()
-            safe_zone.location = Map.read_point(f)
+            safe_zone.location = Point.read_point(f)
             safe_zone.size = BinaryReader.read_uint16(f)  # 修正为uint16
             safe_zone.start_point = BinaryReader.read_bool(f)  # 修正为bool
             return safe_zone
@@ -146,7 +139,7 @@ class Map:
             
             # 基本字段
             respawn.monster_index = BinaryReader.read_int32(f)
-            respawn.location = Map.read_point(f)
+            respawn.location = Point.read_point(f)
             respawn.count = BinaryReader.read_uint16(f)  # 使用uint16
             respawn.spread = BinaryReader.read_uint16(f)  # 使用uint16
             respawn.delay = BinaryReader.read_uint16(f)   # 使用uint16
@@ -170,8 +163,8 @@ class Map:
         try:
             movement = MovementInfo()
             movement.map_index = BinaryReader.read_int32(f)
-            movement.source = Map.read_point(f)
-            movement.destination = Map.read_point(f)
+            movement.source = Point.read_point(f)
+            movement.destination = Point.read_point(f)
             movement.need_hole = BinaryReader.read_bool(f)
             movement.need_move = BinaryReader.read_bool(f)
             
@@ -190,7 +183,7 @@ class Map:
         """读取矿区信息"""
         try:
             mine_zone = MineZone()
-            mine_zone.location = Map.read_point(f)
+            mine_zone.location = Point.read_point(f)
             mine_zone.size = BinaryReader.read_int32(f)
             mine_zone.mine_index = BinaryReader.read_byte(f)
             return mine_zone
