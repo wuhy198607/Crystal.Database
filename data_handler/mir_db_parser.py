@@ -7,15 +7,14 @@ from enum import Enum
 import re
 import random
 from reader import BinaryReader
-
+from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone
+from  item import Item
+from  monster import Monster
 class Settings:
     """设置类，用于定义各种路径"""
     QuestPath = "Quests"  # 任务文件所在目录
     DropPath = "Drops"    # 掉落文件所在目录
 
-class Monster(Enum):
-    # 这里需要添加所有怪物类型的枚举值
-    pass
 
 class Stat(Enum):
     MinAC = 0
@@ -197,95 +196,6 @@ class NPCInfo:
     collect_quest_indexes: List[int] = field(default_factory=list)
     finish_quest_indexes: List[int] = field(default_factory=list)
 
-@dataclass
-class MineZone:
-    location: Point = field(default_factory=Point)
-    size: int = 0
-    mine_index: int = 0
-
-@dataclass
-class SafeZoneInfo:
-    info: Optional['MapInfo'] = None
-    location: Point = field(default_factory=Point)
-    size: int = 0  # 应该是uint16
-    start_point: bool = False
-
-@dataclass
-class MapInfo:
-    def __init__(self):
-        self.index = 0
-        self.filename = ""
-        self.title = ""
-        self.mini_map = 0
-        self.big_map = 0
-        self.music = 0
-        self.light = 0
-        self.map_dark_light = 0
-        self.mine_index = 0
-        self.gt_index = 0
-        
-        self.no_teleport = False
-        self.no_reconnect = False
-        self.no_random = False
-        self.no_escape = False
-        self.no_recall = False
-        self.no_drug = False
-        self.no_position = False
-        self.no_fight = False
-        self.no_throw_item = False
-        self.no_drop_player = False
-        self.no_drop_monster = False
-        self.no_names = False
-        self.no_mount = False
-        self.need_bridle = False
-        self.fight = False
-        self.need_hole = False
-        self.fire = False
-        self.lightning = False
-        self.no_town_teleport = False
-        self.no_reincarnation = False
-        self.gt = False
-        
-        self.no_reconnect_map = ""
-        self.fire_damage = 0
-        self.lightning_damage = 0
-        
-        self.safe_zones = []
-        self.movements = []
-        self.respawns = []
-        self.npcs = []
-        self.mine_zones = []
-        self.active_coords = []
-        self.weather_particles = 0
-
-    def validate(self):
-        """验证地图信息的有效性"""
-        if self.index < 0:
-            raise ValueError(f"无效的地图索引: {self.index}")
-        if not self.filename:
-            raise ValueError("地图文件名不能为空")
-        if not self.title:
-            raise ValueError("地图标题不能为空")
-        if self.mini_map < 0:
-            raise ValueError(f"无效的小地图索引: {self.mini_map}")
-        if self.big_map < 0:
-            raise ValueError(f"无效的大地图索引: {self.big_map}")
-        if self.light < 0 or self.light > 4:
-            raise ValueError(f"无效的光照设置: {self.light}")
-        if self.fire_damage < 0:
-            raise ValueError(f"无效的火焰伤害: {self.fire_damage}")
-        if self.lightning_damage < 0:
-            raise ValueError(f"无效的闪电伤害: {self.lightning_damage}")
-        if self.map_dark_light < 0:
-            raise ValueError(f"无效的地图暗光设置: {self.map_dark_light}")
-        if self.mine_index < 0:
-            raise ValueError(f"无效的矿区索引: {self.mine_index}")
-        if self.music < 0:
-            raise ValueError(f"无效的音乐索引: {self.music}")
-        if self.weather_particles < 0 or self.weather_particles > 3:
-            raise ValueError(f"无效的天气设置: {self.weather_particles}")
-        if self.gt_index < 0:
-            raise ValueError(f"无效的GT索引: {self.gt_index}")
 
 @dataclass
 class MonsterInfo:
@@ -384,192 +294,8 @@ class MonsterInfo:
 
         return self
 
-class ItemType(Enum):
-    Nothing = 0
-    Weapon = 1
-    Armour = 2
-    Helmet = 3
-    Necklace = 4
-    Bracelet = 5
-    Ring = 6
-    Amulet = 7
-    Belt = 8
-    Boots = 9
-    Stone = 10
-    Torch = 11
-    Potion = 12
-    Ore = 13
-    Meat = 14
-    CraftingMaterial = 15
-    Scroll = 16
-    Gem = 17
-    Mount = 18
-    Book = 19
-    Script = 20
-    Reins = 21
-    Bells = 22
-    Saddle = 23
-    Ribbon = 24
-    Mask = 25
-    Food = 26
-    Hook = 27
-    Float = 28
-    Bait = 29
-    Finder = 30
-    Reel = 31
-    Fish = 32
-    Quest = 33
-    Awakening = 34
-    Pets = 35
-    Transform = 36
-    Deco = 37
 
-class ItemGrade(Enum):
-    None_ = 0
-    Common = 1
-    Rare = 2
-    Legendary = 3
-    Mythical = 4
 
-class RequiredType(Enum):
-    Level = 0
-    MaxAC = 1
-    MaxMAC = 2
-    MaxDC = 3
-    MaxMC = 4
-    MaxSC = 5
-    MaxLevel = 6
-    MinAC = 7
-    MinMAC = 8
-    MinDC = 9
-    MinMC = 10
-    MinSC = 11
-
-class RequiredClass(Enum):
-    None_ = 0
-    Warrior = 1
-    Wizard = 2
-    Taoist = 3
-    Assassin = 4
-    Archer = 5
-
-class RequiredGender(Enum):
-    None_ = 0
-    Male = 1
-    Female = 2
-
-class ItemSet(Enum):
-    None_ = 0
-    Spirit = 1
-    Recall = 2
-    RedOrchid = 3
-    RedFlame = 4
-    WhiteGold = 5
-    WhiteGoldH = 6
-    WhiteGoldL = 7
-    WhiteGoldW = 8
-    WhiteGoldM = 9
-    WhiteGoldT = 10
-    WhiteGoldA = 11
-    WhiteGoldI = 12
-    WhiteGoldS = 13
-    WhiteGoldC = 14
-    WhiteGoldB = 15
-    WhiteGoldD = 16
-    WhiteGoldE = 17
-    WhiteGoldF = 18
-    WhiteGoldG = 19
-    WhiteGoldJ = 20
-    WhiteGoldK = 21
-    WhiteGoldN = 22
-    WhiteGoldO = 23
-    WhiteGoldP = 24
-    WhiteGoldQ = 25
-    WhiteGoldR = 26
-    WhiteGoldU = 27
-    WhiteGoldV = 28
-    WhiteGoldX = 29
-    WhiteGoldY = 30
-    WhiteGoldZ = 31
-
-class BindMode(Enum):
-    None_ = 0
-    DontDrop = 1
-    DontDeathDrop = 2
-    DontStore = 4
-    DontTrade = 8
-    DontRepair = 16
-    DontSell = 32
-    DontDropRare = 64
-    BreakOnDeath = 128
-    BindOnEquip = 256
-    NoWeddingRing = 4096
-
-class SpecialItemMode(Enum):
-    None_ = 0
-    Paralize = 1
-    Teleport = 2
-    ClearRing = 4
-    Protection = 8
-    Revival = 16
-    Muscle = 32
-    Flame = 64
-    Healing = 128
-    Probe = 256
-    Skill = 512
-    NoDuraLoss = 1024
-    Blink = 2048
-    Blessing = 4096
-    Curse = 8192
-    NoDrop = 16384
-    NoDeathDrop = 32768
-    NoStore = 65536
-    NoTrade = 131072
-    NoRepair = 262144
-    NoSell = 524288
-    NoWeddingRing = 1048576
-
-@dataclass
-class ItemInfo:
-    index: int = 0
-    name: str = ""
-    type: ItemType = ItemType.Nothing
-    grade: ItemGrade = ItemGrade.None_
-    required_type: RequiredType = RequiredType.Level
-    required_class: RequiredClass = RequiredClass.None_
-    required_gender: RequiredGender = RequiredGender.None_
-    set: ItemSet = ItemSet.None_
-    shape: int = 0
-    weight: int = 0
-    light: int = 0
-    required_amount: int = 0
-    image: int = 0
-    durability: int = 0
-    stack_size: int = 1
-    price: int = 0
-    start_item: bool = False
-    effect: int = 0
-    need_identify: bool = False
-    show_group_pickup: bool = False
-    global_drop_notify: bool = False
-    class_based: bool = False
-    level_based: bool = False
-    can_mine: bool = False
-    can_fast_run: bool = False
-    can_awakening: bool = False
-    bind: BindMode = BindMode.None_
-    unique: SpecialItemMode = SpecialItemMode.None_
-    random_stats_id: int = 0
-    random_stats: Dict = None
-    tool_tip: str = ""
-    slots: int = 0
-    stats: Stats = None
-
-    def __post_init__(self):
-        if self.stats is None:
-            self.stats = Stats()
-        if self.random_stats is None:
-            self.random_stats = {}
 
 class QuestType(Enum):
     General = 0
@@ -601,7 +327,14 @@ class QuestFlagTask:
 class QuestItemReward:
     item: 'ItemInfo' = None
     count: int = 0
-
+@dataclass  
+class RequiredClass(Enum):
+    None_ = 0
+    Warrior = 1
+    Wizard = 2
+    Taoist = 3
+    Assassin = 4
+    Archer = 5
 @dataclass
 class QuestInfo:
     index: int = 0
@@ -611,8 +344,8 @@ class QuestInfo:
     required_min_level: int = 0
     required_max_level: int = 0
     required_quest: int = 0
-    required_class: RequiredClass = RequiredClass.None_
-    type: QuestType = QuestType.General
+    required_class: RequiredClass = field(default_factory=lambda: RequiredClass.None_)
+    type: QuestType = field(default_factory=lambda: QuestType.General)  
     goto_message: str = ""
     kill_message: str = ""
     item_message: str = ""
@@ -677,40 +410,40 @@ class DragonInfo:
             
             # 读取基本信息
             print(f"\n开始读取龙信息，当前位置: {f.tell()}")
-            dragon.enabled = self.read_bool(f)
+            dragon.enabled = BinaryReader.read_bool(f)
             print(f"读取启用状态: {dragon.enabled}")
             
-            dragon.map_file_name = self.read_string(f)
+            dragon.map_file_name = BinaryReader.read_string(f)
             print(f"读取地图文件名: {dragon.map_file_name}")
             
-            dragon.monster_name = self.read_string(f)
+            dragon.monster_name = BinaryReader.read_string(f)
             print(f"读取怪物名称: {dragon.monster_name}")
             
-            dragon.body_name = self.read_string(f)
+            dragon.body_name = BinaryReader.read_string(f)
             print(f"读取身体名称: {dragon.body_name}")
             
             # 读取位置信息
             dragon.location = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取位置: ({dragon.location.x}, {dragon.location.y})")
             
             dragon.drop_area_top = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取掉落区域顶部: ({dragon.drop_area_top.x}, {dragon.drop_area_top.y})")
             
             dragon.drop_area_bottom = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取掉落区域底部: ({dragon.drop_area_bottom.x}, {dragon.drop_area_bottom.y})")
             
             # 读取经验值
             for i in range(len(dragon.exps)):
-                dragon.exps[i] = self.read_int64(f)
+                dragon.exps[i] = BinaryReader.read_int64(f)
                 print(f"读取等级 {i+1} 经验值: {dragon.exps[i]}")
             
             # 加载掉落信息
@@ -783,17 +516,6 @@ class DragonInfo:
         except (ValueError, IndexError):
             return None
 
-    def read_int64(self, f):
-        """读取64位整数"""
-        try:
-            data = f.read(8)
-            print(f"读取int64原始字节: {' '.join(f'{b:02x}' for b in data)}")
-            return struct.unpack('<q', data)[0]
-        except Exception as e:
-            print(f"读取int64时出错: {str(e)}")
-            if 'data' in locals():
-                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
-            raise
 
 @dataclass
 class MagicInfo:
@@ -1023,387 +745,8 @@ class MirDBParser:
             print(f"当前文件位置: {f.tell()}")
             raise
 
-    def read_point(self, f):
-        x = MirDBParser.read_int32(f)
-        y = MirDBParser.read_int32(f)
-        return Point(x, y)
+    
 
-    def read_safe_zone(self, f):
-        """读取安全区信息"""
-        try:
-            safe_zone = SafeZoneInfo()
-            safe_zone.location = self.read_point(f)
-            safe_zone.size = self.read_uint16(f)  # 修正为uint16
-            safe_zone.start_point = self.read_bool(f)  # 修正为bool
-            return safe_zone
-        except Exception as e:
-            print(f"读取安全区信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
-
-    def read_respawn_info(self, f, version, custom_version):
-        """读取重生点信息"""
-        try:
-            respawn = RespawnInfo()
-            
-            # 基本字段
-            respawn.monster_index = self.read_int32(f)
-            respawn.location = self.read_point(f)
-            respawn.count = self.read_uint16(f)  # 使用uint16
-            respawn.spread = self.read_uint16(f)  # 使用uint16
-            respawn.delay = self.read_uint16(f)   # 使用uint16
-            respawn.direction = self.read_byte(f)  # 使用byte
-            respawn.route_path = self.read_string(f)
-            
-            # 版本相关字段
-            if version > 67:
-                respawn.random_delay = self.read_uint16(f)  # 使用uint16
-                respawn.respawn_index = self.read_int32(f)
-                respawn.save_respawn_time = self.read_bool(f)
-                respawn.respawn_ticks = self.read_uint16(f)  # 使用uint16
-            else:
-                # 在版本<=67时，respawn_index由Envir自动分配
-                # 这里需要从Envir获取，但目前我们无法访问Envir
-                # 暂时设置为0，后续需要修改
-                respawn.respawn_index = 0
-            
-            return respawn
-        except Exception as e:
-            print(f"读取重生点信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
-
-    def read_movement_info(self, f):
-        """读取移动点信息"""
-        try:
-            movement = MovementInfo()
-            movement.map_index = self.read_int32(f)
-            movement.source = self.read_point(f)
-            movement.destination = self.read_point(f)
-            movement.need_hole = self.read_bool(f)
-            movement.need_move = self.read_bool(f)
-            
-            # 版本相关字段
-            if self.version >= 69:
-                movement.conquest_index = self.read_int32(f)
-                
-            if self.version >= 95:
-                movement.show_on_big_map = self.read_bool(f)
-                movement.icon = self.read_int32(f)
-                
-            return movement
-        except Exception as e:
-            print(f"读取移动点信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
-
-    def read_mine_zone(self, f):
-        """读取矿区信息"""
-        try:
-            mine_zone = MineZone()
-            mine_zone.location = self.read_point(f)
-            mine_zone.size = self.read_int32(f)
-            mine_zone.mine_index = self.read_byte(f)
-            return mine_zone
-        except Exception as e:
-            print(f"读取矿区信息时出错: {str(e)}")
-            raise
-
-    def read_map_info(self, f):
-        """读取地图信息"""
-        try:
-            map_info = MapInfo()
-            
-            # 获取当前文件位置，但不移动指针
-            current_pos = f.tell()
-            print(f"\n开始读取地图信息:")
-            print(f"当前位置: {current_pos}")
-            
-            # 读取基本信息
-            try:
-                map_info.index = self.read_int32(f)
-                print(f"地图索引: {map_info.index}")
-                
-                map_info.filename = self.read_string(f)
-                print(f"文件名: {map_info.filename}")
-                
-                map_info.title = self.read_string(f)
-                print(f"标题: {map_info.title}")
-                
-                map_info.mini_map = self.read_uint16(f)
-                print(f"小地图: {map_info.mini_map}")
-                
-                map_info.light = self.read_byte(f)
-                print(f"光照设置: {map_info.light}")
-                
-                map_info.big_map = self.read_uint16(f)
-                print(f"大地图: {map_info.big_map}")
-            except Exception as e:
-                print(f"读取基本信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
-                raise
-            
-            # 读取安全区
-            try:
-                safe_zone_count = self.read_int32(f)
-                print(f"\n安全区数量: {safe_zone_count}")
-                print(f"读取安全区前位置: {f.tell()}")
-                
-                for i in range(safe_zone_count):
-                    safe_zone = self.read_safe_zone(f)
-                    safe_zone.info = map_info
-                    map_info.safe_zones.append(safe_zone)
-                    print(f"读取安全区 {i+1}/{safe_zone_count} 后位置: {f.tell()}")
-            except Exception as e:
-                print(f"读取安全区信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
-                raise
-            
-            # 读取重生点
-            try:
-                respawn_count = self.read_int32(f)
-                print(f"\n重生点数量: {respawn_count}")
-                print(f"读取重生点前位置: {f.tell()}")
-                
-                for i in range(respawn_count):
-                    respawn = self.read_respawn_info(f, self.version, self.custom_version)
-                    map_info.respawns.append(respawn)
-                    print(f"读取重生点 {i+1}/{respawn_count} 后位置: {f.tell()}")
-            except Exception as e:
-                print(f"读取重生点信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
-                raise
-            
-            # 读取移动点
-            try:
-                movement_count = self.read_int32(f)
-                print(f"\n移动点数量: {movement_count}")
-                print(f"读取移动点前位置: {f.tell()}")
-                
-                for i in range(movement_count):
-                    movement = self.read_movement_info(f)
-                    map_info.movements.append(movement)
-                    print(f"读取移动点 {i+1}/{movement_count} 后位置: {f.tell()}")
-            except Exception as e:
-                print(f"读取移动点信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
-                raise
-            
-            # 读取布尔属性
-            try:
-                map_info.no_teleport = self.read_bool(f)
-                map_info.no_reconnect = self.read_bool(f)
-                map_info.no_reconnect_map = self.read_string(f)
-                map_info.no_random = self.read_bool(f)
-                map_info.no_escape = self.read_bool(f)
-                map_info.no_recall = self.read_bool(f)
-                map_info.no_drug = self.read_bool(f)
-                map_info.no_position = self.read_bool(f)
-                map_info.no_throw_item = self.read_bool(f)
-                map_info.no_drop_player = self.read_bool(f)
-                map_info.no_drop_monster = self.read_bool(f)
-                map_info.no_names = self.read_bool(f)
-                map_info.fight = self.read_bool(f)
-                map_info.fire = self.read_bool(f)
-                map_info.fire_damage = self.read_int32(f)
-                map_info.lightning = self.read_bool(f)
-                map_info.lightning_damage = self.read_int32(f)
-                map_info.map_dark_light = self.read_byte(f)
-                print("布尔属性读取完成")
-            except Exception as e:
-                print(f"读取布尔属性时出错: {str(e)}")
-                raise
-            
-            # 读取矿区
-            try:
-                mine_zone_count = self.read_int32(f)
-                print(f"读取矿区数量: {mine_zone_count}")
-                if mine_zone_count > 1000:  # 添加合理性检查
-                    raise ValueError(f"矿区数量异常: {mine_zone_count}")
-                for i in range(mine_zone_count):
-                    try:
-                        mine_zone = self.read_mine_zone(f)
-                        map_info.mine_zones.append(mine_zone)
-                        print(f"读取矿区 {i+1}/{mine_zone_count}")
-                    except Exception as e:
-                        print(f"读取矿区 {i+1} 时出错: {str(e)}")
-                        raise
-            except Exception as e:
-                print(f"读取矿区信息时出错: {str(e)}")
-                raise
-            
-            try:
-                map_info.mine_index = self.read_byte(f)
-                map_info.no_mount = self.read_bool(f)
-                map_info.need_bridle = self.read_bool(f)
-                map_info.no_fight = self.read_bool(f)
-                map_info.music = self.read_uint16(f)
-                print("其他属性读取完成")
-            except Exception as e:
-                print(f"读取其他属性时出错: {str(e)}")
-                raise
-            
-            # 版本相关的额外属性
-            try:
-                if self.version >= 78:
-                    map_info.no_town_teleport = self.read_bool(f)
-                    
-                if self.version >= 79:
-                    map_info.no_reincarnation = self.read_bool(f)
-                    
-                if self.version >= 110:
-                    map_info.weather_particles = self.read_uint16(f)
-                    
-                if self.version >= 111:
-                    map_info.gt = self.read_bool(f)
-                    map_info.gt_index = self.read_byte(f)
-                print("版本相关属性读取完成")
-            except Exception as e:
-                print(f"读取版本相关属性时出错: {str(e)}")
-                raise
-            
-            return map_info
-        
-        except Exception as e:
-            print(f"读取地图信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
-
-    def validate_map_info(self, map_info):
-        if map_info.index < 0:
-            raise ValueError(f"无效的地图索引: {map_info.index}")
-        if not map_info.filename:
-            raise ValueError("地图文件名不能为空")
-        if not map_info.title:
-            raise ValueError("地图标题不能为空")
-        if map_info.mini_map < 0:
-            raise ValueError(f"无效的小地图索引: {map_info.mini_map}")
-        if map_info.big_map < 0:
-            raise ValueError(f"无效的大地图索引: {map_info.big_map}")
-        if map_info.light < 0 or map_info.light > 4:
-            raise ValueError(f"无效的光照设置: {map_info.light}")
-        if map_info.fire_damage < 0:
-            raise ValueError(f"无效的火焰伤害: {map_info.fire_damage}")
-        if map_info.lightning_damage < 0:
-            raise ValueError(f"无效的闪电伤害: {map_info.lightning_damage}")
-        if map_info.map_dark_light < 0:
-            raise ValueError(f"无效的地图暗光设置: {map_info.map_dark_light}")
-        if map_info.mine_index < 0:
-            raise ValueError(f"无效的矿区索引: {map_info.mine_index}")
-        if map_info.music < 0:
-            raise ValueError(f"无效的音乐索引: {map_info.music}")
-        if self.version >= 110 and map_info.weather_particles < 0 or map_info.weather_particles > 3:
-            raise ValueError(f"无效的天气设置: {map_info.weather_particles}")
-        if self.version >= 111 and map_info.gt_index < 0:
-            raise ValueError(f"无效的GT索引: {map_info.gt_index}")
-
-    def read_monster_info(self, f):
-        """读取怪物信息"""
-        try:
-            monster = MonsterInfo()
-            
-            # 读取基本信息
-            print(f"\n开始读取怪物信息，当前位置: {f.tell()}")
-            monster.index = self.read_int32(f)
-            print(f"读取怪物索引: {monster.index}")
-            
-            monster.name = self.read_string(f)
-            print(f"读取怪物名称: {monster.name}")
-            
-            monster.image = self.read_uint16(f)
-            print(f"读取怪物图像: {monster.image}")
-            
-            monster.ai = self.read_byte(f)
-            print(f"读取怪物AI: {monster.ai}")
-            
-            monster.effect = self.read_byte(f)
-            print(f"读取怪物效果: {monster.effect}")
-
-            # 版本相关的等级读取
-            if self.version < 62:
-                monster.level = self.read_byte(f)
-            else:
-                monster.level = self.read_uint16(f)
-            print(f"读取怪物等级: {monster.level}")
-
-            monster.view_range = self.read_byte(f)
-            print(f"读取视野范围: {monster.view_range}")
-            
-            monster.cool_eye = self.read_byte(f)
-            print(f"读取冷却时间: {monster.cool_eye}")
-
-            # 版本相关的状态信息读取
-            if self.version > 84:
-                # 读取完整的状态信息
-                monster.stats = self.read_stats(f)
-            else:
-                # 旧版本的状态信息读取
-                monster.stats = Stats()
-                monster.stats[Stat.HP] = self.read_uint32(f)
-                
-                if self.version < 62:
-                    monster.stats[Stat.MinAC] = self.read_byte(f)
-                    monster.stats[Stat.MaxAC] = self.read_byte(f)
-                    monster.stats[Stat.MinMAC] = self.read_byte(f)
-                    monster.stats[Stat.MaxMAC] = self.read_byte(f)
-                    monster.stats[Stat.MinDC] = self.read_byte(f)
-                    monster.stats[Stat.MaxDC] = self.read_byte(f)
-                    monster.stats[Stat.MinMC] = self.read_byte(f)
-                    monster.stats[Stat.MaxMC] = self.read_byte(f)
-                    monster.stats[Stat.MinSC] = self.read_byte(f)
-                    monster.stats[Stat.MaxSC] = self.read_byte(f)
-                else:
-                    monster.stats[Stat.MinAC] = self.read_uint16(f)
-                    monster.stats[Stat.MaxAC] = self.read_uint16(f)
-                    monster.stats[Stat.MinMAC] = self.read_uint16(f)
-                    monster.stats[Stat.MaxMAC] = self.read_uint16(f)
-                    monster.stats[Stat.MinDC] = self.read_uint16(f)
-                    monster.stats[Stat.MaxDC] = self.read_uint16(f)
-                    monster.stats[Stat.MinMC] = self.read_uint16(f)
-                    monster.stats[Stat.MaxMC] = self.read_uint16(f)
-                    monster.stats[Stat.MinSC] = self.read_uint16(f)
-                    monster.stats[Stat.MaxSC] = self.read_uint16(f)
-
-                if self.version <= 84:
-                    monster.stats[Stat.Accuracy] = self.read_byte(f)
-                    monster.stats[Stat.Agility] = self.read_byte(f)
-
-            monster.light = self.read_byte(f)
-            print(f"读取光照设置: {monster.light}")
-            
-            monster.attack_speed = self.read_uint16(f)
-            print(f"读取攻击速度: {monster.attack_speed}")
-            
-            monster.move_speed = self.read_uint16(f)
-            print(f"读取移动速度: {monster.move_speed}")
-            
-            monster.experience = self.read_uint32(f)
-            print(f"读取经验值: {monster.experience}")
-
-            # 直接读取布尔值，不使用位运算
-            monster.can_push = self.read_bool(f)
-            print(f"读取可推动: {monster.can_push}")
-            
-            monster.can_tame = self.read_bool(f)
-            print(f"读取可驯服: {monster.can_tame}")
-
-            if self.version >= 18:
-                monster.auto_rev = self.read_bool(f)
-                print(f"读取自动复活: {monster.auto_rev}")
-                
-                monster.undead = self.read_bool(f)
-                print(f"读取不死属性: {monster.undead}")
-
-            if self.version >= 89:
-                monster.drop_path = self.read_string(f)
-                print(f"读取掉落路径: {monster.drop_path}")
-
-            print(f"怪物信息读取完成，当前位置: {f.tell()}")
-            return monster
-        except Exception as e:
-            print(f"读取怪物信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
 
     def read_npc_info(self, f):
         """读取NPC信息"""
@@ -1511,195 +854,6 @@ class MirDBParser:
             print(f"当前文件位置: {f.tell()}")
             raise
 
-    def read_item_info(self, f):
-        """读取物品信息"""
-        try:
-            item_info = ItemInfo()
-            
-            # 读取基本信息
-            print(f"\n开始读取物品信息，当前位置: {f.tell()}")
-            item_info.index = self.read_int32(f)
-            print(f"读取物品索引: {item_info.index}")
-            
-            item_info.name = self.read_string(f)
-            print(f"读取物品名称: {item_info.name}")
-            
-            # 读取枚举值，如果值不匹配则设置为默认值
-            try:
-                item_info.type = ItemType(self.read_byte(f))
-                print(f"读取物品类型: {item_info.type}")
-            except ValueError:
-                item_info.type = ItemType.Nothing
-                
-            try:
-                item_info.grade = ItemGrade(self.read_byte(f))
-                print(f"读取物品等级: {item_info.grade}")
-            except ValueError:
-                item_info.grade = ItemGrade.None_
-                
-            try:
-                item_info.required_type = RequiredType(self.read_byte(f))
-                print(f"读取需求类型: {item_info.required_type}")
-            except ValueError:
-                item_info.required_type = RequiredType.Level
-                
-            try:
-                item_info.required_class = RequiredClass(self.read_byte(f))
-                print(f"读取需求职业: {item_info.required_class}")
-            except ValueError:
-                item_info.required_class = RequiredClass.None_
-                
-            try:
-                item_info.required_gender = RequiredGender(self.read_byte(f))
-                print(f"读取需求性别: {item_info.required_gender}")
-            except ValueError:
-                item_info.required_gender = RequiredGender.None_
-                
-            try:
-                item_info.set = ItemSet(self.read_byte(f))
-                print(f"读取物品套装: {item_info.set}")
-            except ValueError:
-                item_info.set = ItemSet.None_
-                
-            item_info.shape = self.read_int16(f)
-            print(f"读取物品形状: {item_info.shape}")
-            
-            item_info.weight = self.read_byte(f)
-            print(f"读取物品重量: {item_info.weight}")
-            
-            item_info.light = self.read_byte(f)
-            print(f"读取物品光照: {item_info.light}")
-            
-            item_info.required_amount = self.read_byte(f)
-            print(f"读取需求数量: {item_info.required_amount}")
-            
-            item_info.image = self.read_uint16(f)
-            print(f"读取物品图像: {item_info.image}")
-            
-            item_info.durability = self.read_uint16(f)
-            print(f"读取物品耐久: {item_info.durability}")
-
-            # 版本相关的堆叠大小读取
-            if self.version <= 84:
-                item_info.stack_size = self.read_uint32(f)
-            else:
-                item_info.stack_size = self.read_uint16(f)
-            print(f"读取堆叠大小: {item_info.stack_size}")
-
-            item_info.price = self.read_uint32(f)
-            print(f"读取物品价格: {item_info.price}")
-
-            # 版本相关的属性读取
-            if self.version <= 84:
-                print("开始读取旧版本属性...")
-                item_info.stats[Stat.MinAC] = self.read_byte(f)
-                item_info.stats[Stat.MaxAC] = self.read_byte(f)
-                item_info.stats[Stat.MinMAC] = self.read_byte(f)
-                item_info.stats[Stat.MaxMAC] = self.read_byte(f)
-                item_info.stats[Stat.MinDC] = self.read_byte(f)
-                item_info.stats[Stat.MaxDC] = self.read_byte(f)
-                item_info.stats[Stat.MinMC] = self.read_byte(f)
-                item_info.stats[Stat.MaxMC] = self.read_byte(f)
-                item_info.stats[Stat.MinSC] = self.read_byte(f)
-                item_info.stats[Stat.MaxSC] = self.read_byte(f)
-                item_info.stats[Stat.HP] = self.read_uint16(f)
-                item_info.stats[Stat.MP] = self.read_uint16(f)
-                item_info.stats[Stat.Accuracy] = self.read_byte(f)
-                item_info.stats[Stat.Agility] = self.read_byte(f)
-                item_info.stats[Stat.Luck] = self.read_byte(f)
-                item_info.stats[Stat.AttackSpeed] = self.read_byte(f)
-
-            item_info.start_item = self.read_bool(f)
-            print(f"读取起始物品: {item_info.start_item}")
-
-            if self.version <= 84:
-                item_info.stats[Stat.BagWeight] = self.read_byte(f)
-                item_info.stats[Stat.HandWeight] = self.read_byte(f)
-                item_info.stats[Stat.WearWeight] = self.read_byte(f)
-
-            item_info.effect = self.read_byte(f)
-            print(f"读取物品效果: {item_info.effect}")
-
-            if self.version <= 84:
-                item_info.stats[Stat.Strong] = self.read_byte(f)
-                item_info.stats[Stat.MagicResist] = self.read_byte(f)
-                item_info.stats[Stat.PoisonResist] = self.read_byte(f)
-                item_info.stats[Stat.HealthRecovery] = self.read_byte(f)
-                item_info.stats[Stat.SpellRecovery] = self.read_byte(f)
-                item_info.stats[Stat.PoisonRecovery] = self.read_byte(f)
-                item_info.stats[Stat.HPRatePercent] = self.read_byte(f)
-                item_info.stats[Stat.MPRatePercent] = self.read_byte(f)
-                item_info.stats[Stat.CriticalRate] = self.read_byte(f)
-                item_info.stats[Stat.CriticalDamage] = self.read_byte(f)
-
-            # 读取布尔值组合字节
-            bools = self.read_byte(f)
-            print(f"读取布尔值组合字节: {bools:02x}")
-            item_info.need_identify = (bools & 0x01) == 0x01
-            item_info.show_group_pickup = (bools & 0x02) == 0x02
-            item_info.class_based = (bools & 0x04) == 0x04
-            item_info.level_based = (bools & 0x08) == 0x08
-            item_info.can_mine = (bools & 0x10) == 0x10
-            if self.version >= 77:
-                item_info.global_drop_notify = (bools & 0x20) == 0x20
-            print(f"解析布尔值组合: need_identify={item_info.need_identify}, show_group_pickup={item_info.show_group_pickup}, class_based={item_info.class_based}, level_based={item_info.level_based}, can_mine={item_info.can_mine}, global_drop_notify={item_info.global_drop_notify}")
-
-            if self.version <= 84:
-                item_info.stats[Stat.MaxACRatePercent] = self.read_byte(f)
-                item_info.stats[Stat.MaxMACRatePercent] = self.read_byte(f)
-                item_info.stats[Stat.Holy] = self.read_byte(f)
-                item_info.stats[Stat.Freezing] = self.read_byte(f)
-                item_info.stats[Stat.PoisonAttack] = self.read_byte(f)
-
-            try:
-                item_info.bind = BindMode(self.read_int16(f))
-                print(f"读取绑定模式: {item_info.bind}")
-            except ValueError:
-                item_info.bind = BindMode.None_
-
-            if self.version <= 84:
-                item_info.stats[Stat.Reflect] = self.read_byte(f)
-                item_info.stats[Stat.HPDrainRatePercent] = self.read_byte(f)
-
-            try:
-                item_info.unique = SpecialItemMode(self.read_int16(f))
-                print(f"读取特殊物品模式: {item_info.unique}")
-            except ValueError:
-                item_info.unique = SpecialItemMode.None_
-
-            item_info.random_stats_id = self.read_byte(f)
-            print(f"读取随机属性ID: {item_info.random_stats_id}")
-            
-            item_info.can_fast_run = self.read_bool(f)
-            print(f"读取可以快速奔跑: {item_info.can_fast_run}")
-            
-            item_info.can_awakening = self.read_bool(f)
-            print(f"读取可以觉醒: {item_info.can_awakening}")
-
-            if self.version > 83:
-                item_info.slots = self.read_byte(f)
-                print(f"读取插槽数量: {item_info.slots}")
-
-            if self.version > 84:
-                print("开始读取新版本属性...")
-                new_stats = self.read_stats(f)
-                item_info.stats = new_stats
-
-            is_tooltip = self.read_bool(f)
-            if is_tooltip:
-                item_info.tool_tip = self.read_string(f)
-                print(f"读取工具提示: {item_info.tool_tip}")
-
-            if self.version < 70:
-                if item_info.type == ItemType.Ring and item_info.unique != SpecialItemMode.None_:
-                    item_info.bind |= BindMode.NoWeddingRing
-
-            print(f"物品信息读取完成，当前位置: {f.tell()}")
-            return item_info
-        except Exception as e:
-            print(f"读取物品信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
-            raise
 
     def read_quest_info(self, f):
         """读取任务信息"""
@@ -1994,28 +1148,20 @@ class MirDBParser:
         try:
             with open(self.db_path, 'rb') as f:
                 # 读取版本信息
-                self.version = self.read_int32(f)
-                self.custom_version = self.read_int32(f)
+                self.version = BinaryReader.read_int32(f)
+                self.custom_version = BinaryReader.read_int32(f)
                 
                 print(f"\n=== 数据库信息 ===")
                 print(f"数据库版本: {self.version}")
                 print(f"自定义版本: {self.custom_version}")
 
-                # 检查版本兼容性
-                if self.version < 60:  # MinVersion = 60
-                    print(f"无法加载版本 {self.version} 的数据库。最低支持版本为 60。")
-                    return False
-                elif self.version > 112:  # Version = 112
-                    print(f"无法加载版本 {self.version} 的数据库。最高支持版本为 112。")
-                    return False
-
                 print("\n=== 索引信息 ===")
                 # 读取索引
-                map_index = self.read_int32(f)
-                item_index = self.read_int32(f)
-                monster_index = self.read_int32(f)
-                npc_index = self.read_int32(f)
-                quest_index = self.read_int32(f)
+                map_index = BinaryReader.read_int32(f)
+                item_index = BinaryReader.read_int32(f)
+                monster_index = BinaryReader.read_int32(f)
+                npc_index = BinaryReader.read_int32(f)
+                quest_index = BinaryReader.read_int32(f)
                 
                 print(f"地图索引: {map_index}")
                 print(f"物品索引: {item_index}")
@@ -2028,31 +1174,24 @@ class MirDBParser:
                 conquest_index = 0
                 respawn_index = 0
                 
-                if self.version >= 63:
-                    gameshop_index = self.read_int32(f)
-                    print(f"商店索引: {gameshop_index}")
+                gameshop_index = BinaryReader.read_int32(f)
+                print(f"商店索引: {gameshop_index}")
                     
-                if self.version >= 66:
-                    conquest_index = self.read_int32(f)
-                    print(f"征服索引: {conquest_index}")
-                    
-                if self.version >= 68:
-                    respawn_index = self.read_int32(f)
-                    print(f"重生索引: {respawn_index}")
+                conquest_index = BinaryReader.read_int32(f)
+                print(f"征服索引: {conquest_index}")
+                
+                respawn_index = BinaryReader.read_int32(f)
+                print(f"重生索引: {respawn_index}")
 
                 print("\n=== 地图信息 ===")
                 # 读取地图信息
-                map_count = self.read_int32(f)
+                map_count = BinaryReader.read_int32(f)
                 print(f"地图总数: {map_count}")
                 
                 
                 for i in range(map_count):
                     try:
-                        map_info = self.read_map_info(f)
-                        if map_info is None:
-                            print(f"跳过地图 {i+1}: 读取失败")
-                            continue
-                            
+                        map_info = Map.read(f)
                         self.maps.append(map_info)
                         print(f"\n地图 {i+1}/{map_count}:")
                         print(f"  索引: {map_info.index}")
@@ -2070,13 +1209,12 @@ class MirDBParser:
 
                 print("\n=== 物品信息 ===")
                 # 读取物品信息（全量读取）
-                item_count = self.read_int32(f)
+                item_count = BinaryReader.read_int32(f)
                 print(f"物品总数: {item_count}")
                 
                 for i in range(item_count):
                     try:
-                        print(f"\n物品 {i+1}/{item_count}:")
-                        item_info = self.read_item_info(f)
+                        item_info = Item.read(f)
                         self.items.append(item_info)
                         print(f"  索引: {item_info.index}")
                         print(f"  名称: {item_info.name}")
@@ -2091,12 +1229,12 @@ class MirDBParser:
                 
                 print("\n=== 怪物信息 ===")
                 # 读取怪物信息（全量读取）
-                monster_count = self.read_int32(f)
+                monster_count = BinaryReader.read_int32(f)
                 print(f"怪物总数: {monster_count}")
                 
                 for i in range(monster_count):
                     try:
-                        monster_info = self.read_monster_info(f)
+                        monster_info = Monster.read(f)
                         self.monsters.append(monster_info)
                         print(f"\n怪物 {i+1}/{monster_count}:")
                         print(f"  索引: {monster_info.index}")
@@ -2112,7 +1250,7 @@ class MirDBParser:
 
                 print("\n=== NPC信息 ===")
                 # 读取NPC信息
-                npc_count = self.read_int32(f)
+                npc_count = BinaryReader.read_int32(f)
                 print(f"NPC总数: {npc_count}")
                 
                 for i in range(npc_count):
@@ -2133,7 +1271,7 @@ class MirDBParser:
 
                 print("\n=== 任务信息 ===")
                 # 读取任务信息
-                quest_count = self.read_int32(f)
+                quest_count = BinaryReader.read_int32(f)
                 print(f"任务总数: {quest_count}")
                 
                 for i in range(quest_count):
@@ -2184,7 +1322,7 @@ class MirDBParser:
                 
                 print("\n=== 魔法信息 ===")
                 # 读取魔法数量
-                magic_count = self.read_int32(f)
+                magic_count = BinaryReader.read_int32(f)
                 print(f"魔法数量: {magic_count}")
                 
                 # 读取魔法信息
@@ -2219,7 +1357,7 @@ class MirDBParser:
 
                 print("\n=== 商城信息 ===")
                 # 读取商城物品数量
-                gameshop_count = self.read_int32(f)
+                gameshop_count = BinaryReader.read_int32(f)
                 print(f"商城物品数量: {gameshop_count}")
                 
                 # 读取商城物品信息
@@ -2227,24 +1365,24 @@ class MirDBParser:
                 for i in range(gameshop_count):
                     try:
                         item = GameShopItem()
-                        item.item_index = self.read_int32(f)
-                        item.g_index = self.read_int32(f)
-                        item.gold_price = self.read_uint32(f)
-                        item.credit_price = self.read_uint32(f)
+                        item.item_index = BinaryReader.read_int32(f)
+                        item.g_index = BinaryReader.read_int32(f)
+                        item.gold_price = BinaryReader.read_uint32(f)
+                        item.credit_price = BinaryReader.read_uint32(f)
                         if self.version <= 84:
-                            item.count = self.read_uint32(f)
+                            item.count = BinaryReader.read_uint32(f)
                         else:
-                            item.count = self.read_uint16(f)
-                        item.class_name = self.read_string(f)
-                        item.category = self.read_string(f)
-                        item.stock = self.read_int32(f)
-                        item.i_stock = self.read_bool(f)
-                        item.deal = self.read_bool(f)
-                        item.top_item = self.read_bool(f)
-                        item.date = self.read_int64(f)
+                            item.count = BinaryReader.read_uint16(f)
+                        item.class_name = BinaryReader.read_string(f)
+                        item.category = BinaryReader.read_string(f)
+                        item.stock = BinaryReader.read_int32(f)
+                        item.i_stock = BinaryReader.read_bool(f)
+                        item.deal = BinaryReader.read_bool(f)
+                        item.top_item = BinaryReader.read_bool(f)
+                        item.date = BinaryReader.read_int64(f)
                         if self.version > 105:
-                            item.can_buy_gold = self.read_bool(f)
-                            item.can_buy_credit = self.read_bool(f)
+                            item.can_buy_gold = BinaryReader.read_bool(f)
+                            item.can_buy_credit = BinaryReader.read_bool(f)
                         
                         self.gameshop_items.append(item)
                         print(f"\n商城物品 {i+1}/{gameshop_count}:")
@@ -2274,7 +1412,7 @@ class MirDBParser:
 
                 print("\n=== 征服信息 ===")
                 # 读取征服信息
-                conquest_count = self.read_int32(f)
+                conquest_count = BinaryReader.read_int32(f)
                 print(f"征服数量: {conquest_count}")
                 
                 self.conquests = []
@@ -2702,40 +1840,40 @@ class MirDBParser:
             
             # 读取基本信息
             print(f"\n开始读取龙信息，当前位置: {f.tell()}")
-            dragon.enabled = self.read_bool(f)
+            dragon.enabled = BinaryReader.read_bool(f)
             print(f"读取启用状态: {dragon.enabled}")
             
-            dragon.map_file_name = self.read_string(f)
+            dragon.map_file_name = BinaryReader.read_string(f)
             print(f"读取地图文件名: {dragon.map_file_name}")
             
-            dragon.monster_name = self.read_string(f)
+            dragon.monster_name = BinaryReader.read_string(f)
             print(f"读取怪物名称: {dragon.monster_name}")
             
-            dragon.body_name = self.read_string(f)
+            dragon.body_name = BinaryReader.read_string(f)
             print(f"读取身体名称: {dragon.body_name}")
             
             # 读取位置信息
             dragon.location = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取位置: ({dragon.location.x}, {dragon.location.y})")
             
             dragon.drop_area_top = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取掉落区域顶部: ({dragon.drop_area_top.x}, {dragon.drop_area_top.y})")
             
             dragon.drop_area_bottom = Point(
-                x=self.read_int32(f),
-                y=self.read_int32(f)
+                x=BinaryReader.read_int32(f),
+                y=BinaryReader.read_int32(f)
             )
             print(f"读取掉落区域底部: ({dragon.drop_area_bottom.x}, {dragon.drop_area_bottom.y})")
             
             # 读取经验值
             for i in range(len(dragon.exps)):
-                dragon.exps[i] = self.read_int64(f)
+                dragon.exps[i] = BinaryReader.read_int64(f)
                 print(f"读取等级 {i+1} 经验值: {dragon.exps[i]}")
             
             # 加载掉落信息
@@ -2808,17 +1946,6 @@ class MirDBParser:
         except (ValueError, IndexError):
             return None
 
-    def read_int64(self, f):
-        """读取64位整数"""
-        try:
-            data = f.read(8)
-            print(f"读取int64原始字节: {' '.join(f'{b:02x}' for b in data)}")
-            return struct.unpack('<q', data)[0]
-        except Exception as e:
-            print(f"读取int64时出错: {str(e)}")
-            if 'data' in locals():
-                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
-            raise
 
     def read_magic_info(self, f):
         """读取魔法信息"""
@@ -3220,7 +2347,7 @@ class RespawnTimer:
 
 def main():
     # 使用相对路径
-    db_path = os.path.join("Jev", "Server.MirDB")
+    db_path = os.path.join("../Jev", "Server.MirDB")
     parser = MirDBParser(db_path)
     
     if parser.load():
