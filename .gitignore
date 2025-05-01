@@ -2,3 +2,6 @@ Jev.rar
 
 # Data files
 data/
+./pycache/
+./__pycache__/
+
