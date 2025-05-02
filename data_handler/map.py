@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from reader import BinaryReader
+from binary import BinaryReader
 from common import Point
 
 @dataclass

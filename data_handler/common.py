@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-from reader import BinaryReader
+from binary import BinaryReader
 from enum import Enum
 @dataclass
 class Point:

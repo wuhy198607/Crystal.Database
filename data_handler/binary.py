@@ -39,6 +39,7 @@ class BinaryReader:
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             raise
+
     @staticmethod
     def read_uint64(f):
         """读取64位无符号整数"""
@@ -53,6 +54,7 @@ class BinaryReader:
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             return 0
+
     @staticmethod
     def read_uint32(f):
         """读取无符号32位整数，使用小端字节序（little-endian）"""
@@ -131,7 +133,8 @@ class BinaryReader:
             print(f"读取float时出错: {str(e)}")
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
-            raise 
+            raise
+
     @staticmethod
     def read_int64(f):
         """读取64位整数"""
@@ -143,4 +146,122 @@ class BinaryReader:
             print(f"读取int64时出错: {str(e)}")
             if 'data' in locals():
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            raise
+
+class BinaryWriter:
+    @staticmethod
+    def write_int32(f, value):
+        """写入32位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<i', value)
+            f.write(data)
+            print(f"写入int32原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入int32时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_int16(f, value):
+        """写入16位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<h', value)
+            f.write(data)
+            print(f"写入int16原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入int16时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_uint16(f, value):
+        """写入无符号16位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<H', value)
+            f.write(data)
+            print(f"写入uint16原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入uint16时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_uint64(f, value):
+        """写入64位无符号整数"""
+        try:
+            data = struct.pack('<Q', value)
+            f.write(data)
+            print(f"写入uint64原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入uint64时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_uint32(f, value):
+        """写入无符号32位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<I', value)
+            f.write(data)
+            print(f"写入uint32原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入uint32时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_byte(f, value):
+        """写入一个字节"""
+        try:
+            data = struct.pack('B', value)
+            f.write(data)
+            print(f"写入byte原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入byte时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_bool(f, value):
+        """写入布尔值"""
+        try:
+            data = struct.pack('?', value)
+            f.write(data)
+            print(f"写入bool原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入bool时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_string(f, value):
+        """写入字符串，使用7位编码的长度前缀格式"""
+        try:
+            if not value:
+                value = ""
+            
+            # 将字符串编码为字节
+            data = value.encode('latin1')
+            length = len(data)
+            
+            # 写入7位编码的长度
+            while length > 0:
+                b = length & 0x7F
+                length >>= 7
+                if length > 0:
+                    b |= 0x80
+                f.write(struct.pack('B', b))
+                print(f"写入字符串长度原始字节: {b:02x}")
+            
+            # 写入字符串数据
+            f.write(data)
+            print(f"写入字符串数据原始字节: {' '.join(f'{b:02x}' for b in data)}")
+            
+        except Exception as e:
+            print(f"写入字符串时出错: {str(e)}")
+            print(f"当前文件位置: {f.tell()}")
+            raise
+
+    @staticmethod
+    def write_float(f, value):
+        """写入浮点数"""
+        try:
+            data = struct.pack('<f', value)
+            f.write(data)
+            print(f"写入float原始字节: {' '.join(f'{b:02x}' for b in data)}")
+        except Exception as e:
+            print(f"写入float时出错: {str(e)}")
             raise
