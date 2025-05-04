@@ -1,6 +1,7 @@
 import struct
 import os
 import json
+import argparse
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from enum import Enum
@@ -8,8 +9,8 @@ import re
 import random
 from binary import BinaryReader, BinaryWriter
 from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone
-from  item import Item
-from  monster import Monster
+from  item import Item,ItemType,ItemGrade,RequiredType,RequiredClass,RequiredGender,ItemSet,BindMode,SpecialItemMode
+from  monster import Monster,DropInfo
 from  npc import NPC
 from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemReward, RequiredClass
 from dragon import Dragon, DragonDropInfo
@@ -17,7 +18,7 @@ from magic import Magic, Spell
 from gameshop_item import GameShopItem
 from conquest import Conquest, ConquestType, ConquestGame
 from respawn_timer import RespawnTimer, RespawnTickOption
-from common import Stat
+from common import Stat,Stats
 
 class Settings:
     """设置类，用于定义各种路径"""
@@ -48,6 +49,9 @@ class Envir:
         self.quests = []
         self.dragons = []  # 添加dragon列表
         self.magics = []  # 添加魔法信息列表
+        self.respawn_timers = []
+        self.conquests = []
+        self.gameshop_items = []
 
 
     def load_dragon_drops(self, dragon):
@@ -816,6 +820,65 @@ class Envir:
                 monster.drop_path = monster_info['drop_path']
                 self.monsters.append(monster)
 
+   
+    def _load_npcs(self, json_dir):
+        """加载NPC信息"""
+        npcs_path = os.path.join(json_dir, 'npcs.json')
+        with open(npcs_path, 'r', encoding='utf-8') as read_f:
+            npc_data = json.load(read_f)
+            for npc_info in npc_data:
+                npc = NPC()
+                npc.index = npc_info['index']
+                npc.name = npc_info['name']
+                npc.file_name = npc_info['file_name']
+                npc.map_index = npc_info['map_index']
+                npc.location = Point(npc_info['location']['x'], npc_info['location']['y'])
+                npc.rate = npc_info['rate']
+                npc.image = npc_info['image']
+                npc.time_visible = npc_info['time_visible']
+                npc.hour_start = npc_info['hour_start']
+                npc.minute_start = npc_info['minute_start']
+                npc.hour_end = npc_info['hour_end']
+                npc.minute_end = npc_info['minute_end']
+                npc.min_lev = npc_info['min_lev']
+                npc.max_lev = npc_info['max_lev']
+                npc.day_of_week = npc_info['day_of_week']
+                npc.class_required = npc_info['class_required']
+                npc.sabuk = npc_info['sabuk']
+                npc.flag_needed = npc_info['flag_needed']
+                npc.conquest = npc_info['conquest']
+                npc.show_on_big_map = npc_info['show_on_big_map']
+                npc.big_map_icon = npc_info['big_map_icon']
+                npc.can_teleport_to = npc_info['can_teleport_to']
+                npc.conquest_visible = npc_info['conquest_visible']
+                self.npcs.append(npc)
+        pass
+
+    def _load_quests(self, json_dir):
+        """加载任务信息"""
+        quests_path = os.path.join(json_dir, 'quests.json')
+        with open(quests_path, 'r', encoding='utf-8') as read_f:
+            quest_data = json.load(read_f)
+            for quest_info in quest_data:
+                quest = Quest()
+                quest.index = quest_info['index']
+                quest.name = quest_info['name']
+                quest.file_name = quest_info['file_name']
+                quest.group = quest_info['group']
+                quest.required_min_level = quest_info['required_min_level']
+                quest.required_max_level = quest_info['required_max_level']
+                quest.required_quest = quest_info['required_quest']
+                quest.required_class = quest_info['required_class']
+                quest.type = quest_info['type']
+                quest.goto_message = quest_info['goto_message']
+                quest.kill_message = quest_info['kill_message']
+                quest.item_message = quest_info['item_message']
+                quest.flag_message = quest_info['flag_message']
+                quest.time_limit_in_seconds = quest_info['time_limit_in_seconds']
+                
+                
+                self.quests.append(quest)
+        pass
     def _load_dragons(self, json_dir):
         """加载龙信息"""
         dragons_path = os.path.join(json_dir, 'dragons.json')
@@ -848,52 +911,120 @@ class Envir:
                     dragon.drops.append(level_drop_list)
                 self.dragons.append(dragon)
 
-    def _load_npcs(self, json_dir):
-        """加载NPC信息"""
-        # TODO: 从 json_dir/npcs.json 加载NPC信息
-        npcs_path = os.path.join(json_dir, 'npcs.json')
-        with open(npcs_path, 'w', encoding='utf-8') as f:
-            json.dump(self.npcs, f, ensure_ascii=False, indent=2)
-        pass
-
-    def _load_quests(self, json_dir):
-        """加载任务信息"""
-        # TODO: 从 json_dir/quests.json 加载任务信息
-        quests_path = os.path.join(json_dir, 'quests.json')
-        with open(quests_path, 'w', encoding='utf-8') as f:
-            json.dump(self.quests, f, ensure_ascii=False, indent=2)
-        pass
-
     def _load_magics(self, json_dir):
         """加载魔法信息"""
-        # TODO: 从 json_dir/magics.json 加载魔法信息
         magics_path = os.path.join(json_dir, 'magics.json')
-        with open(magics_path, 'w', encoding='utf-8') as f:
-            json.dump(self.magics, f, ensure_ascii=False, indent=2)
+        with open(magics_path, 'r', encoding='utf-8') as read_f:
+            magic_data = json.load(read_f)
+            for magic_info in magic_data:
+                magic = Magic()
+                magic.name = magic_info['name']
+                magic.spell = magic_info['spell']
+                magic.base_cost = magic_info['base_cost']
+                magic.level_cost = magic_info['level_cost']
+                magic.icon = magic_info['icon']
+                magic.level1 = magic_info['level1'] 
+                magic.level2 = magic_info['level2']
+                magic.level3 = magic_info['level3']
+                magic.need1 = magic_info['need1']
+                magic.need2 = magic_info['need2']
+                magic.need3 = magic_info['need3']
+                magic.delay_base = magic_info['delay_base']
+                magic.delay_reduction = magic_info['delay_reduction']
+                magic.power_base = magic_info['power_base']
+                magic.power_bonus = magic_info['power_bonus']
+                magic.mpower_base = magic_info['mpower_base']
+                magic.mpower_bonus = magic_info['mpower_bonus']
+                magic.range = magic_info['range']
+                magic.multiplier_base = magic_info['multiplier_base']
+                magic.multiplier_bonus = magic_info['multiplier_bonus']
+
+                self.magics.append(magic)
         pass
 
     def _load_gameshop_items(self, json_dir):
         """加载商城物品信息"""
-        # TODO: 从 json_dir/gameshop_items.json 加载商城物品信息
         gameshop_items_path = os.path.join(json_dir, 'gameshop_items.json')
-        with open(gameshop_items_path, 'w', encoding='utf-8') as f:
-            json.dump(self.gameshop_items, f, ensure_ascii=False, indent=2)
+        with open(gameshop_items_path, 'r', encoding='utf-8') as read_f:
+            gameshop_items_data = json.load(read_f)
+            for gameshop_item_info in gameshop_items_data:
+                gameshop_item = GameShopItem()
+                gameshop_item.item_index = gameshop_item_info['item_index']
+                gameshop_item.g_index = gameshop_item_info['g_index']
+                gameshop_item.gold_price = gameshop_item_info['gold_price']
+                gameshop_item.credit_price = gameshop_item_info['credit_price']
+                gameshop_item.count = gameshop_item_info['count']
+                gameshop_item.class_name = gameshop_item_info['class_name']
+                gameshop_item.category = gameshop_item_info['category']
+                gameshop_item.stock = gameshop_item_info['stock']
+                gameshop_item.i_stock = gameshop_item_info['i_stock']
+                gameshop_item.deal = gameshop_item_info['deal']
+                gameshop_item.top_item = gameshop_item_info['top_item']
+                gameshop_item.date = gameshop_item_info['date']
+                gameshop_item.can_buy_gold = gameshop_item_info['can_buy_gold'] 
+                gameshop_item.can_buy_credit = gameshop_item_info['can_buy_credit']
+                self.gameshop_items.append(gameshop_item)
         pass
 
     def _load_conquests(self, json_dir):
         """加载征服信息"""
-        # TODO: 从 json_dir/conquests.json 加载征服信息
         conquests_path = os.path.join(json_dir, 'conquests.json')
-        with open(conquests_path, 'w', encoding='utf-8') as f:
-            json.dump(self.conquests, f, ensure_ascii=False, indent=2)
+        with open(conquests_path, 'r', encoding='utf-8') as read_f:
+            conquests_data = json.load(read_f)
+            for conquest_info in conquests_data:
+                conquest = Conquest()
+                conquest.index = conquest_info['index']
+                conquest.name = conquest_info['name']
+                conquest.map_index = conquest_info['map_index']
+                conquest.location = Point(conquest_info['location']['x'], conquest_info['location']['y'])
+                conquest.size = conquest_info['size']
+                conquest.full_map = conquest_info['full_map']
+                conquest.palace_index = conquest_info['palace_index']
+                conquest.guard_index = conquest_info['guard_index']
+                conquest.gate_index = conquest_info['gate_index']
+                conquest.wall_index = conquest_info['wall_index']
+                conquest.siege_index = conquest_info['siege_index']
+                conquest.flag_index = conquest_info['flag_index']
+                conquest.conquest_guards = conquest_info['conquest_guards']
+                conquest.extra_maps = conquest_info['extra_maps']
+                conquest.conquest_gates = conquest_info['conquest_gates']
+                conquest.conquest_walls = conquest_info['conquest_walls']
+                conquest.conquest_sieges = conquest_info['conquest_sieges']
+                conquest.conquest_flags = conquest_info['conquest_flags']
+                conquest.control_points = conquest_info['control_points']
+                conquest.start_hour = conquest_info['start_hour']
+                conquest.war_length = conquest_info['war_length']
+                conquest.type = ConquestType[conquest_info['type']]
+                conquest.game = ConquestGame[conquest_info['game']]
+                conquest.monday = conquest_info['monday']
+                conquest.tuesday = conquest_info['tuesday']
+                conquest.wednesday = conquest_info['wednesday']
+                conquest.thursday = conquest_info['thursday']
+                conquest.friday = conquest_info['friday']
+                conquest.saturday = conquest_info['saturday']
+                conquest.sunday = conquest_info['sunday']
+                conquest.king_location = Point(conquest_info['king_location']['x'], conquest_info['king_location']['y'])
+                conquest.king_size = conquest_info['king_size']
+                conquest.control_point_index = conquest_info['control_point_index']
+                conquest.control_points = conquest_info['control_points']
+                
+                self.conquests.append(conquest)
         pass
 
     def _load_respawn_timer(self, json_dir):
         """加载刷新计时器信息"""
-        # TODO: 从 json_dir/respawn_timer.json 加载刷新计时器信息
         respawn_timer_path = os.path.join(json_dir, 'respawn_timer.json')
-        with open(respawn_timer_path, 'w', encoding='utf-8') as f:
-            json.dump(self.respawn_timer, f, ensure_ascii=False, indent=2)
+        with open(respawn_timer_path, 'r', encoding='utf-8') as read_f:
+            respawn_timer_data = json.load(read_f)
+            for respawn_timer_info in respawn_timer_data:
+                respawn_timer = RespawnTimer()
+                respawn_timer.base_spawn_rate = respawn_timer_info['base_spawn_rate']
+                respawn_timer.current_tick_counter = respawn_timer_info['current_tick_counter']
+                respawn_timer.last_tick = respawn_timer_info['last_tick']
+                respawn_timer.last_user_count = respawn_timer_info['last_user_count']
+                respawn_timer.current_delay = respawn_timer_info['current_delay']
+                respawn_timer.respawn_options = respawn_timer_info['respawn_options']   
+                self.respawn_timer.append(respawn_timer)
         pass
 
     @staticmethod
@@ -1421,14 +1552,25 @@ class Envir:
 
 
 def main():
-    # 使用相对路径
-    db_path = os.path.join("../Jev", "Server.MirDB.bak")
-    
-    envir = Envir.load(db_path)
-    if envir:
-        print("\n保存解析结果到JSON文件...")
-        Envir.save_to_json(envir, 'data')
+    # 创建命令行参数解析器
+    parser = argparse.ArgumentParser(description='处理游戏数据库文件')
+    parser.add_argument('--db_path', type=str, default=os.path.join("../Jev", "Server.MirDB.bak"),
+                        help='数据库文件路径')
+    parser.add_argument('--output', type=str, default='data',
+                        help='输出JSON文件的目录')
+    parser.add_argument('--option', type=str, default='load',
+                        help='load: 加载数据库, save: 保存数据库')
+    # 解析命令行参数
+    args = parser.parse_args()
+    if args.option == 'load':       
+        envir = Envir.load(args.db_path)
+        if envir:
+            print("\n保存解析结果到JSON文件...")
+        Envir.save_to_json(envir, args.output)
         print("完成!")
+    elif args.option == 'save':
+        Envir.load_json_to_db( args.output,args.db_path)
+
 
 if __name__ == "__main__":
     main() 

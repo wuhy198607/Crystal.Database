@@ -14,8 +14,33 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             },
-            "args": [],
+            "args": [
+                "--db_path", "${input:dbPath}",
+                "--output", "${input:outputDir}",
+                "--option", "${input:optionType}"
+            ],
             "justMyCode": false
         },
+    ],
+    "inputs": [
+        {
+            "id": "dbPath",
+            "type": "promptString",
+            "description": "请输入数据库路径",
+            "default": "../Jev/Server.MirDB.bak"
+        },
+        {
+            "id": "outputDir",
+            "type": "promptString",
+            "description": "请输入输出目录",
+            "default": "data"
+        },
+        {
+            "id": "optionType",
+            "type": "pickString",
+            "description": "请选择操作类型",
+            "options": ["load", "save"],
+            "default": "load"
+        }
     ]
 }
