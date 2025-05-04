@@ -29,10 +29,17 @@ class Settings:
 
 
 
-class MirDBParser:
-    def __init__(self, db_path):
-        self.db_path = db_path
+class Envir:
+    def __init__(self):
         self.version = 0
+        self.map_index = 0  
+        self.item_index = 0
+        self.monster_index = 0
+        self.npc_index = 0
+        self.quest_index = 0
+        self.gameshop_index = 0
+        self.conquest_index = 0
+        self.respawn_timer_index = 0
         self.custom_version = 0
         self.maps = []
         self.monsters = []
@@ -314,50 +321,49 @@ class MirDBParser:
             return None
             
         return QuestItemReward(item=item_info, count=count)
-
-    def load(self):
+    @staticmethod
+    def load(db_path):
+        
         """加载数据库文件"""
-        if not os.path.exists(self.db_path):
-            print(f"数据库文件不存在: {self.db_path}")
-            return False
+        if not os.path.exists(db_path):
+            print(f"数据库文件不存在: {db_path}")
+            return None
 
         try:
-            with open(self.db_path, 'rb') as f:
+            envir =  Envir()
+            with open(db_path, 'rb') as f:
                 # 读取版本信息
-                self.version = BinaryReader.read_int32(f)
-                self.custom_version = BinaryReader.read_int32(f)
+                envir.version = BinaryReader.read_int32(f)
+                envir.custom_version = BinaryReader.read_int32(f)
                 
                 print(f"\n=== 数据库信息 ===")
-                print(f"数据库版本: {self.version}")
-                print(f"自定义版本: {self.custom_version}")
+                print(f"数据库版本: {envir.version}")
+                print(f"自定义版本: {envir.custom_version}")
 
                 print("\n=== 索引信息 ===")
                 # 读取索引
-                map_index = BinaryReader.read_int32(f)
-                item_index = BinaryReader.read_int32(f)
-                monster_index = BinaryReader.read_int32(f)
-                npc_index = BinaryReader.read_int32(f)
-                quest_index = BinaryReader.read_int32(f)
+                envir.map_index = BinaryReader.read_int32(f)
+                envir.item_index = BinaryReader.read_int32(f)
+                envir.monster_index = BinaryReader.read_int32(f)
+                envir.npc_index = BinaryReader.read_int32(f)
+                envir.quest_index = BinaryReader.read_int32(f)
                 
-                print(f"地图索引: {map_index}")
-                print(f"物品索引: {item_index}")
-                print(f"怪物索引: {monster_index}")
-                print(f"NPC索引: {npc_index}")
-                print(f"任务索引: {quest_index}")
+                print(f"地图索引: {envir.map_index}")
+                print(f"物品索引: {envir.item_index}")
+                print(f"怪物索引: {envir.monster_index}")
+                print(f"NPC索引: {envir.npc_index}")
+                print(f"任务索引: {envir.quest_index}")
                 
                 # 根据版本读取额外索引
-                gameshop_index = 0
-                conquest_index = 0
-                respawn_index = 0
+                envir.gameshop_index = BinaryReader.read_int32(f)
+                envir.conquest_index = BinaryReader.read_int32(f)
+                envir.respawn_timer_index = BinaryReader.read_int32(f)
                 
-                gameshop_index = BinaryReader.read_int32(f)
-                print(f"商店索引: {gameshop_index}")
+                print(f"商店索引: {envir.gameshop_index}")
                     
-                conquest_index = BinaryReader.read_int32(f)
-                print(f"征服索引: {conquest_index}")
+                print(f"征服索引: {envir.conquest_index}")
                 
-                respawn_index = BinaryReader.read_int32(f)
-                print(f"重生索引: {respawn_index}")
+                print(f"重生索引: {envir.respawn_timer_index}")
 
                 print("\n=== 地图信息 ===")
                 # 读取地图信息
@@ -368,7 +374,7 @@ class MirDBParser:
                 for i in range(map_count):
                     try:
                         map_info = Map.read(f)
-                        self.maps.append(map_info)
+                        envir.maps.append(map_info)
                         print(f"\n地图 {i+1}/{map_count}:")
                         print(f"  索引: {map_info.index}")
                         print(f"  文件名: {map_info.filename}")
@@ -391,7 +397,7 @@ class MirDBParser:
                 for i in range(item_count):
                     try:
                         item_info = Item.read(f)
-                        self.items.append(item_info)
+                        envir.items.append(item_info)
                         print(f"  索引: {item_info.index}")
                         print(f"  名称: {item_info.name}")
                         print(f"  类型: {item_info.type}")
@@ -411,7 +417,7 @@ class MirDBParser:
                 for i in range(monster_count):
                     try:
                         monster_info = Monster.read(f)
-                        self.monsters.append(monster_info)
+                        envir.monsters.append(monster_info)
                         print(f"\n怪物 {i+1}/{monster_count}:")
                         print(f"  索引: {monster_info.index}")
                         print(f"  名称: {monster_info.name}")
@@ -432,7 +438,7 @@ class MirDBParser:
                 for i in range(npc_count):
                     try:
                         npc_info = NPC.read(f)
-                        self.npcs.append(npc_info)
+                        envir.npcs.append(npc_info)
                         print(f"\nNPC {i+1}/{npc_count}:")
                         print(f"  索引: {npc_info.index}")
                         print(f"  名称: {npc_info.name}")
@@ -453,8 +459,8 @@ class MirDBParser:
                 for i in range(quest_count):
                     try:
                         quest_info = Quest.read(f)
-                        self.load_quest_info(quest_info,self.db_path)
-                        self.quests.append(quest_info)
+                        envir.load_quest_info(quest_info,db_path)
+                        envir.quests.append(quest_info)
                         print(f"\n任务 {i+1}/{quest_count}:")
                         print(f"  索引: {quest_info.index}")
                         print(f"  名称: {quest_info.name}")
@@ -478,8 +484,8 @@ class MirDBParser:
                 try:
                     dragon_info = Dragon.read(f)
                     # 加载掉落信息
-                    self.load_dragon_drops(dragon_info)
-                    self.dragons.append(dragon_info)
+                    envir.load_dragon_drops(dragon_info)
+                    envir.dragons.append(dragon_info)
                     print(f"\n龙信息:")
                     print(f"  启用状态: {dragon_info.enabled}")
                     print(f"  地图文件名: {dragon_info.map_file_name}")
@@ -505,11 +511,11 @@ class MirDBParser:
                 print(f"魔法数量: {magic_count}")
                 
                 # 读取魔法信息
-                self.magics = []
+                envir.magics = []
                 for i in range(magic_count):
                     try:
                         magic_info = Magic.read(f)
-                        self.magics.append(magic_info)
+                        envir.magics.append(magic_info)
                         print(f"\n魔法信息 {i+1}/{magic_count}:")
                         print(f"  名称: {magic_info.name}")
                         print(f"  类型: {magic_info.spell}")
@@ -540,11 +546,11 @@ class MirDBParser:
                 print(f"商城物品数量: {gameshop_count}")
                 
                 # 读取商城物品信息
-                self.gameshop_items = []
+                envir.gameshop_items = []
                 for i in range(gameshop_count):
                     try:
                         item = GameShopItem.read(f)
-                        self.gameshop_items.append(item)
+                        envir.gameshop_items.append(item)
                         print(f"\n商城物品 {i+1}/{gameshop_count}:")
                         print(f"  物品索引: {item.item_index}")
                         print(f"  商品索引: {item.g_index}")
@@ -563,23 +569,23 @@ class MirDBParser:
                         print(f"读取商城物品 {i+1} 时出错: {str(e)}")
 
                 print("\n=== 数据读取完成 ===")
-                print(f"成功加载地图数量: {len(self.maps)}")
-                print(f"成功加载物品数量: {len(self.items)}")
-                print(f"成功加载怪物数量: {len(self.monsters)}")
-                print(f"成功加载NPC数量: {len(self.npcs)}")
-                print(f"成功加载任务数量: {len(self.quests)}")
-                print(f"成功加载龙数量: {len(self.dragons)}")
+                print(f"成功加载地图数量: {len(envir.maps)}")
+                print(f"成功加载物品数量: {len(envir.items)}")
+                print(f"成功加载怪物数量: {len(envir.monsters)}")
+                print(f"成功加载NPC数量: {len(envir.npcs)}")
+                print(f"成功加载任务数量: {len(envir.quests)}")
+                print(f"成功加载龙数量: {len(envir.dragons)}")
 
                 print("\n=== 征服信息 ===")
                 # 读取征服信息
                 conquest_count = BinaryReader.read_int32(f)
                 print(f"征服数量: {conquest_count}")
                 
-                self.conquests = []
+                envir.conquests = []
                 for i in range(conquest_count):
                     try:
                         conquest_info = Conquest.read(f)
-                        self.conquests.append(conquest_info)
+                        envir.conquests.append(conquest_info)
                         print(f"\n征服信息 {i+1}/{conquest_count}:")
                         print(f"  索引: {conquest_info.index}")
                         print(f"  名称: {conquest_info.name}")
@@ -598,7 +604,7 @@ class MirDBParser:
                 # 读取刷新计时器信息
                 try:
                     respawn_timer = RespawnTimer.read(f)
-                    self.respawn_timer = respawn_timer
+                    envir.respawn_timer = respawn_timer
                     print(f"\n刷新计时器信息:")
                     print(f"  基础刷新率: {respawn_timer.base_spawn_rate}")
                     print(f"  当前刷新计数器: {respawn_timer.current_tick_counter}")
@@ -612,19 +618,302 @@ class MirDBParser:
 
         except Exception as e:
             print(f"加载数据库时出错: {str(e)}")
+            return None
+
+        return envir
+    @staticmethod
+    def load_json_to_db(json_dir,db_path):
+        """从JSON文件保存数据到二进制文件
+        
+        Args:
+            json_dir: JSON文件所在目录路径
+        """
+        try:
+            
+            # 从json_dir中读取version.json文件
+            envir=Envir.load_json(json_dir)
+            with open(db_path, 'wb') as f:
+            # 保存到f这个文件中
+                 envir.save_db(f)
+            return True
+            
+        except Exception as e:
+            print(f"保存数据库时出错: {str(e)}")
             return False
+    @staticmethod
+    def load_json(json_dir):
+        """从JSON文件加载数据
+        
+        Args:
+            json_dir: JSON文件所在目录路径
+        """
+        envir = Envir()  # 创建新的Envir实例，不需要db_path
+        envir._load_version_info(json_dir)
+        envir._load_maps(json_dir)
+        envir._load_items(json_dir)
+        envir._load_monsters(json_dir)
+        envir._load_npcs(json_dir)
+        envir._load_quests(json_dir)
+        envir._load_dragons(json_dir)
+        envir._load_magics(json_dir)
+        envir._load_gameshop_items(json_dir)
+        envir._load_conquests(json_dir)
+        envir._load_respawn_timer(json_dir)
+        return envir
 
-        return True
+    def _load_version_info(self, json_dir):
+        """加载版本信息
+        
+        Args:
+            json_dir: JSON文件所在目录路径
+        """
+        version_path = os.path.join(json_dir, 'version.json')
+        with open(version_path, 'r', encoding='utf-8') as read_f:
+            #从f这个json文件中读取version和custom_version
+            version_data = json.load(read_f) 
+            self.version = version_data['version']
+            self.custom_version = version_data['custom_version']
+            self.map_index = version_data['map_index']
+            self.item_index = version_data['item_index']
+            self.monster_index = version_data['monster_index']
+            self.npc_index = version_data['npc_index']
+            self.quest_index = version_data['quest_index']
+            self.gameshop_index = version_data['gameshop_index']
+            self.conquest_index = version_data['conquest_index']
+            self.respawn_timer_index = version_data['respawn_timer_index']  
+            print(f"version: {self.version}, custom_version: {self.custom_version}")
+            print(f"map_index: {self.map_index}, item_index: {self.item_index}, monster_index: {self.monster_index}, npc_index: {self.npc_index}, quest_index: {self.quest_index}, gameshop_index: {self.gameshop_index}, conquest_index: {self.conquest_index}, respawn_timer_index: {self.respawn_timer_index}")
+        
 
-    def save_to_json(self, output_path):
+    def _load_maps(self, json_dir):
+        """加载地图信息"""
+        maps_path = os.path.join(json_dir, 'maps.json')
+        with open(maps_path, 'r', encoding='utf-8') as read_f:
+            map_data = json.load(read_f)
+            for map_info in map_data:
+                map_obj = Map()
+                map_obj.index = map_info['index']
+                map_obj.filename = map_info['file_name']
+                map_obj.title = map_info['title']
+                map_obj.mini_map = map_info['mini_map']
+                map_obj.light = map_info['light']
+                map_obj.big_map = map_info['big_map']
+                # 加载安全区信息
+                for sz in map_info['safe_zones']:
+                    safe_zone = SafeZoneInfo()
+                    safe_zone.location = Point(sz['location']['x'], sz['location']['y'])
+                    safe_zone.size = sz['size']
+                    safe_zone.start_point = sz['start_point']
+                    map_obj.safe_zones.append(safe_zone)
+                # 加载其他属性
+                map_obj.no_teleport = map_info['no_teleport']
+                map_obj.no_reconnect = map_info['no_reconnect']
+                map_obj.no_reconnect_map = map_info['no_reconnect_map']
+                map_obj.no_random = map_info['no_random']
+                map_obj.no_escape = map_info['no_escape']
+                map_obj.no_recall = map_info['no_recall']
+                map_obj.no_drug = map_info['no_drug']
+                map_obj.no_position = map_info['no_position']
+                map_obj.no_throw_item = map_info['no_throw_item']
+                map_obj.no_drop_player = map_info['no_drop_player']
+                map_obj.no_drop_monster = map_info['no_drop_monster']
+                map_obj.no_names = map_info['no_names']
+                map_obj.fight = map_info['fight']
+                map_obj.fire = map_info['fire']
+                map_obj.fire_damage = map_info['fire_damage']
+                map_obj.lightning = map_info['lightning']
+                map_obj.lightning_damage = map_info['lightning_damage']
+                map_obj.map_dark_light = map_info['map_dark_light']
+                map_obj.mine_index = map_info['mine_index']
+                map_obj.no_mount = map_info['no_mount']
+                map_obj.need_bridle = map_info['need_bridle']
+                map_obj.no_fight = map_info['no_fight']
+                map_obj.music = map_info['music']
+                self.maps.append(map_obj)
+
+    def _load_items(self, json_dir):
+        """加载物品信息"""
+        items_path = os.path.join(json_dir, 'items.json')
+        with open(items_path, 'r', encoding='utf-8') as read_f:
+            item_data = json.load(read_f)
+            for item_info in item_data:
+                item = Item()
+                item.index = item_info['index']
+                item.name = item_info['name']
+                item.type = ItemType[item_info['type']]
+                item.grade = ItemGrade[item_info['grade']]
+                item.required_type = RequiredType[item_info['required_type']]
+                item.required_class = RequiredClass[item_info['required_class']]
+                item.required_gender = RequiredGender[item_info['required_gender']]
+                item.set = ItemSet[item_info['set']]
+                item.shape = item_info['shape']
+                item.weight = item_info['weight']
+                item.light = item_info['light']
+                item.required_amount = item_info['required_amount']
+                item.image = item_info['image']
+                item.durability = item_info['durability']
+                item.stack_size = item_info['stack_size']
+                item.price = item_info['price']
+                item.start_item = item_info['start_item']
+                item.effect = item_info['effect']
+                item.need_identify = item_info['need_identify']
+                item.show_group_pickup = item_info['show_group_pickup']
+                item.global_drop_notify = item_info['global_drop_notify']
+                item.class_based = item_info['class_based']
+                item.level_based = item_info['level_based']
+                item.can_mine = item_info['can_mine']
+                item.can_fast_run = item_info['can_fast_run']
+                item.can_awakening = item_info['can_awakening']
+                item.bind = BindMode[item_info['bind']]
+                item.unique = SpecialItemMode[item_info['unique']]
+                item.random_stats_id = item_info['random_stats_id']
+                item.random_stats = item_info['random_stats']
+                item.tool_tip = item_info['tool_tip']
+                item.slots = item_info['slots']
+                # 加载状态信息
+                item.stats = Stats()
+                for stat_name, value in item_info['stats'].items():
+                    item.stats[Stat[stat_name]] = value
+                self.items.append(item)
+
+    def _load_monsters(self, json_dir):
+        """加载怪物信息"""
+        monsters_path = os.path.join(json_dir, 'monsters.json')
+        with open(monsters_path, 'r', encoding='utf-8') as read_f:
+            monster_data = json.load(read_f)
+            for monster_info in monster_data:
+                monster = Monster()
+                monster.index = monster_info['index']
+                monster.name = monster_info['name']
+                monster.image = monster_info['image']
+                monster.ai = monster_info['ai']
+                monster.effect = monster_info['effect']
+                monster.level = monster_info['level']
+                monster.view_range = monster_info['view_range']
+                monster.cool_eye = monster_info['cool_eye']
+                # 加载状态信息
+                monster.stats = Stats()
+                for stat_name, value in monster_info['stats'].items():
+                    monster.stats[Stat[stat_name]] = value
+                # 加载掉落信息
+                for drop_info in monster_info['drops']:
+                    drop = DropInfo()
+                    drop.chance = drop_info['chance']
+                    drop.gold = drop_info['gold']
+                    drop.type = drop_info['type']
+                    drop.quest_required = drop_info['quest_required']
+                    monster.drops.append(drop)
+                monster.can_tame = monster_info['can_tame']
+                monster.can_push = monster_info['can_push']
+                monster.auto_rev = monster_info['auto_rev']
+                monster.undead = monster_info['undead']
+                monster.has_spawn_script = monster_info['has_spawn_script']
+                monster.has_die_script = monster_info['has_die_script']
+                monster.attack_speed = monster_info['attack_speed']
+                monster.move_speed = monster_info['move_speed']
+                monster.experience = monster_info['experience']
+                monster.light = monster_info['light']
+                monster.drop_path = monster_info['drop_path']
+                self.monsters.append(monster)
+
+    def _load_dragons(self, json_dir):
+        """加载龙信息"""
+        dragons_path = os.path.join(json_dir, 'dragons.json')
+        with open(dragons_path, 'r', encoding='utf-8') as read_f:
+            dragon_data = json.load(read_f)
+            for dragon_info in dragon_data:
+                dragon = Dragon()
+                dragon.enabled = dragon_info['enabled']
+                dragon.map_file_name = dragon_info['map_file_name']
+                dragon.monster_name = dragon_info['monster_name']
+                dragon.body_name = dragon_info['body_name']
+                dragon.location = Point(dragon_info['location']['x'], dragon_info['location']['y'])
+                dragon.drop_area_top = Point(dragon_info['drop_area_top']['x'], dragon_info['drop_area_top']['y'])
+                dragon.drop_area_bottom = Point(dragon_info['drop_area_bottom']['x'], dragon_info['drop_area_bottom']['y'])
+                dragon.level = dragon_info['level']
+                dragon.experience = dragon_info['experience']
+                dragon.exps = dragon_info['exps']
+                # 加载掉落信息
+                for level_drops in dragon_info['drops']:
+                    level_drop_list = []
+                    for drop_info in level_drops:
+                        drop = DragonDropInfo()
+                        drop.chance = drop_info['chance']
+                        if drop_info['item']:
+                            item_index = drop_info['item']['index']
+                            drop.item = next((item for item in self.items if item.index == item_index), None)
+                        drop.gold = drop_info['gold']
+                        drop.level = drop_info['level']
+                        level_drop_list.append(drop)
+                    dragon.drops.append(level_drop_list)
+                self.dragons.append(dragon)
+
+    def _load_npcs(self, json_dir):
+        """加载NPC信息"""
+        # TODO: 从 json_dir/npcs.json 加载NPC信息
+        npcs_path = os.path.join(json_dir, 'npcs.json')
+        with open(npcs_path, 'w', encoding='utf-8') as f:
+            json.dump(self.npcs, f, ensure_ascii=False, indent=2)
+        pass
+
+    def _load_quests(self, json_dir):
+        """加载任务信息"""
+        # TODO: 从 json_dir/quests.json 加载任务信息
+        quests_path = os.path.join(json_dir, 'quests.json')
+        with open(quests_path, 'w', encoding='utf-8') as f:
+            json.dump(self.quests, f, ensure_ascii=False, indent=2)
+        pass
+
+    def _load_magics(self, json_dir):
+        """加载魔法信息"""
+        # TODO: 从 json_dir/magics.json 加载魔法信息
+        magics_path = os.path.join(json_dir, 'magics.json')
+        with open(magics_path, 'w', encoding='utf-8') as f:
+            json.dump(self.magics, f, ensure_ascii=False, indent=2)
+        pass
+
+    def _load_gameshop_items(self, json_dir):
+        """加载商城物品信息"""
+        # TODO: 从 json_dir/gameshop_items.json 加载商城物品信息
+        gameshop_items_path = os.path.join(json_dir, 'gameshop_items.json')
+        with open(gameshop_items_path, 'w', encoding='utf-8') as f:
+            json.dump(self.gameshop_items, f, ensure_ascii=False, indent=2)
+        pass
+
+    def _load_conquests(self, json_dir):
+        """加载征服信息"""
+        # TODO: 从 json_dir/conquests.json 加载征服信息
+        conquests_path = os.path.join(json_dir, 'conquests.json')
+        with open(conquests_path, 'w', encoding='utf-8') as f:
+            json.dump(self.conquests, f, ensure_ascii=False, indent=2)
+        pass
+
+    def _load_respawn_timer(self, json_dir):
+        """加载刷新计时器信息"""
+        # TODO: 从 json_dir/respawn_timer.json 加载刷新计时器信息
+        respawn_timer_path = os.path.join(json_dir, 'respawn_timer.json')
+        with open(respawn_timer_path, 'w', encoding='utf-8') as f:
+            json.dump(self.respawn_timer, f, ensure_ascii=False, indent=2)
+        pass
+
+    @staticmethod
+    def save_to_json(envir, output_path):
         """保存数据到多个JSON文件，使用UTF-8编码"""
         # 创建输出目录
         os.makedirs(output_path, exist_ok=True)
         
         # 保存版本信息
         version_data = {
-            'version': self.version,
-            'custom_version': self.custom_version
+            'version': envir.version,
+            'custom_version': envir.custom_version,
+            "map_index": envir.map_index,
+            "item_index": envir.item_index,
+            "monster_index": envir.monster_index,
+            "npc_index": envir.npc_index,
+            "quest_index": envir.quest_index,
+            "gameshop_index": envir.gameshop_index,
+            "conquest_index": envir.conquest_index,
+            "respawn_timer_index": envir.respawn_timer_index,
         }
         version_path = os.path.join(output_path, 'version.json')
         with open(version_path, 'w', encoding='utf-8') as f:
@@ -655,7 +944,7 @@ class MirDBParser:
                 'no_drug': m.no_drug,
                 'no_position': m.no_position,
                 'no_throw_item': m.no_throw_item,
-                'no_drop_player': m.no_drop_monster,
+                'no_drop_player': m.no_drop_player,
                 'no_drop_monster': m.no_drop_monster,
                 'no_names': m.no_names,
                 'fight': m.fight,
@@ -669,7 +958,7 @@ class MirDBParser:
                 'need_bridle': m.need_bridle,
                 'no_fight': m.no_fight,
                 'music': m.music
-            } for m in self.maps
+            } for m in envir.maps
         ]
         maps_path = os.path.join(output_path, 'maps.json')
         with open(maps_path, 'w', encoding='utf-8') as f:
@@ -706,7 +995,7 @@ class MirDBParser:
                 'experience': m.experience,
                 'light': m.light,
                 'drop_path': m.drop_path
-            } for m in self.monsters
+            } for m in envir.monsters
         ]
         monsters_path = os.path.join(output_path, 'monsters.json')
         with open(monsters_path, 'w', encoding='utf-8') as f:
@@ -740,7 +1029,7 @@ class MirDBParser:
                 'conquest_visible': n.conquest_visible,
                 'collect_quest_indexes': n.collect_quest_indexes,
                 'finish_quest_indexes': n.finish_quest_indexes
-            } for n in self.npcs
+            } for n in envir.npcs
         ]
         npcs_path = os.path.join(output_path, 'npcs.json')
         with open(npcs_path, 'w', encoding='utf-8') as f:
@@ -809,7 +1098,7 @@ class MirDBParser:
                         'count': r.count
                     } for r in q.select_rewards
                 ]
-            } for q in self.quests
+            } for q in envir.quests
         ]
         quests_path = os.path.join(output_path, 'quests.json')
         with open(quests_path, 'w', encoding='utf-8') as f:
@@ -851,7 +1140,7 @@ class MirDBParser:
                 'tool_tip': i.tool_tip,
                 'slots': i.slots,
                 'stats': {stat.name: i.stats[stat] for stat in Stat}
-            } for i in self.items
+            } for i in envir.items
         ]
         items_path = os.path.join(output_path, 'items.json')
         with open(items_path, 'w', encoding='utf-8') as f:
@@ -880,7 +1169,7 @@ class MirDBParser:
                         } for drop in level_drops
                     ] for level_drops in d.drops
                 ]
-            } for d in self.dragons
+            } for d in envir.dragons
         ]
         dragons_path = os.path.join(output_path, 'dragons.json')
         with open(dragons_path, 'w', encoding='utf-8') as f:
@@ -968,25 +1257,25 @@ class MirDBParser:
                         'file_name': p.file_name
                     } for p in c.control_points
                 ]
-            } for c in self.conquests
+            } for c in envir.conquests
         ]
         conquests_path = os.path.join(output_path, 'conquests.json')
         with open(conquests_path, 'w', encoding='utf-8') as f:
             json.dump(conquests_data, f, ensure_ascii=False, indent=2)
 
         # 保存刷新计时器信息
-        if hasattr(self, 'respawn_timer') and self.respawn_timer:
+        if hasattr(envir, 'respawn_timer') and envir.respawn_timer:
             respawn_timer_data = {
-                'base_spawn_rate': self.respawn_timer.base_spawn_rate,
-                'current_tick_counter': self.respawn_timer.current_tick_counter,
-                'last_tick': self.respawn_timer.last_tick,
-                'last_user_count': self.respawn_timer.last_user_count,
-                'current_delay': self.respawn_timer.current_delay,
+                'base_spawn_rate': envir.respawn_timer.base_spawn_rate,
+                'current_tick_counter': envir.respawn_timer.current_tick_counter,
+                'last_tick': envir.respawn_timer.last_tick,
+                'last_user_count': envir.respawn_timer.last_user_count,
+                'current_delay': envir.respawn_timer.current_delay,
                 'respawn_options': [
                     {
                         'user_count': option.user_count,
                         'delay_loss': option.delay_loss
-                    } for option in self.respawn_timer.respawn_options
+                    } for option in envir.respawn_timer.respawn_options
                 ]
             }
             respawn_timer_path = os.path.join(output_path, 'respawn_timer.json')
@@ -1056,15 +1345,89 @@ class MirDBParser:
         except (ValueError, IndexError):
             return None
 
+    def save_db(self, f):
+        """保存环境数据到二进制文件
+        
+        Args:
+            f: 文件对象
+        """
+        try:
+            # 写入版本信息
+            BinaryWriter.write_int32(f, self.version)
+            BinaryWriter.write_int32(f, self.custom_version)
+            
+            # 写入索引信息
+            BinaryWriter.write_int32(f, self.map_index)
+            BinaryWriter.write_int32(f, self.item_index)
+            BinaryWriter.write_int32(f, self.monster_index)
+            BinaryWriter.write_int32(f, self.npc_index)
+            BinaryWriter.write_int32(f, self.quest_index)
+            BinaryWriter.write_int32(f, self.gameshop_index)
+            BinaryWriter.write_int32(f, self.conquest_index)
+            BinaryWriter.write_int32(f, self.respawn_timer_index)
+            
+            # 写入地图信息
+            BinaryWriter.write_int32(f, len(self.maps))
+            for map_info in self.maps:
+                map_info.write(f)
+                
+            # 写入物品信息
+            BinaryWriter.write_int32(f, len(self.items))
+            for item in self.items:
+                item.write(f)
+                
+            # 写入怪物信息
+            BinaryWriter.write_int32(f, len(self.monsters))
+            for monster in self.monsters:
+                monster.write(f)
+                
+            # 写入NPC信息
+            BinaryWriter.write_int32(f, len(self.npcs))
+            for npc in self.npcs:
+                npc.write(f)
+                
+            # 写入任务信息
+            BinaryWriter.write_int32(f, len(self.quests))
+            for quest in self.quests:
+                quest.write(f)
+                
+            # 写入龙信息
+            BinaryWriter.write_int32(f, len(self.dragons))
+            for dragon in self.dragons:
+                dragon.write(f)
+                
+            # 写入魔法信息
+            BinaryWriter.write_int32(f, len(self.magics))
+            for magic in self.magics:
+                magic.write(f)
+                
+            # 写入商城物品信息
+            BinaryWriter.write_int32(f, len(self.gameshop_items))
+            for item in self.gameshop_items:
+                item.write(f)
+                
+            # 写入征服信息
+            BinaryWriter.write_int32(f, len(self.conquests))
+            for conquest in self.conquests:
+                conquest.write(f)
+                
+            # 写入刷新计时器信息
+            if hasattr(self, 'respawn_timer') and self.respawn_timer:
+                self.respawn_timer.write(f)
+                
+        except Exception as e:
+            print(f"保存数据库时出错: {str(e)}")
+            raise
+
 
 def main():
     # 使用相对路径
     db_path = os.path.join("../Jev", "Server.MirDB.bak")
-    parser = MirDBParser(db_path)
     
-    if parser.load():
+    envir = Envir.load(db_path)
+    if envir:
         print("\n保存解析结果到JSON文件...")
-        parser.save_to_json('data')
+        Envir.save_to_json(envir, 'data')
         print("完成!")
 
 if __name__ == "__main__":

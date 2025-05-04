@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-from binary import BinaryReader
+from binary import BinaryReader, BinaryWriter
 from enum import Enum
 from common import Stats, Stat
 @dataclass
@@ -188,6 +188,66 @@ class Item:
     tool_tip: str = ""
     slots: int = 0
     stats: Stats = None
+    def write(self, f):
+        """写入物品信息"""
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_byte(f, self.type)
+        BinaryWriter.write_byte(f, self.grade)
+        BinaryWriter.write_byte(f, self.required_type)
+        BinaryWriter.write_byte(f, self.required_class)
+        BinaryWriter.write_byte(f, self.required_gender)
+        BinaryWriter.write_byte(f, self.set)
+        BinaryWriter.write_int16(f, self.shape)
+        BinaryWriter.write_byte(f, self.weight)
+        BinaryWriter.write_byte(f, self.light)
+        BinaryWriter.write_byte(f, self.required_amount)
+        BinaryWriter.write_uint16(f, self.image)
+        BinaryWriter.write_uint16(f, self.durability)
+        BinaryWriter.write_uint16(f, self.stack_size)
+        BinaryWriter.write_uint32(f, self.price)
+        BinaryWriter.write_bool(f, self.start_item)
+        BinaryWriter.write_byte(f, self.effect)
+        # #         # 读取布尔值组合字节
+        #     bools = BinaryReader.read_byte(f)
+        #     print(f"读取布尔值组合字节: {bools:02x}")
+        #     item_info.need_identify = (bools & 0x01) == 0x01
+        #     item_info.show_group_pickup = (bools & 0x02) == 0x02
+        #     item_info.class_based = (bools & 0x04) == 0x04
+        #     item_info.level_based = (bools & 0x08) == 0x08
+        #     item_info.can_mine = (bools & 0x10) == 0x10
+        #     item_info.global_drop_notify = (bools & 0x20) == 0x20
+        #     print(f"解析布尔值组合: need_identify={item_info.need_identify}, show_group_pickup={item_info.show_group_pickup}, class_based={item_info.class_based}, level_based={item_info.level_based}, can_mine={item_info.can_mine}, global_drop_notify={item_info.global_drop_notify}")
+        boolean_byte = 0
+        if self.need_identify:
+            boolean_byte |= 0x01
+        if self.show_group_pickup:
+            boolean_byte |= 0x02
+        if self.class_based:
+            boolean_byte |= 0x04    
+        if self.level_based:
+            boolean_byte |= 0x08
+        if self.can_mine:
+            boolean_byte |= 0x10
+        if self.global_drop_notify:
+            boolean_byte |= 0x20    
+        BinaryWriter.write_byte(f, boolean_byte)
+        BinaryWriter.write_int16(f, self.bind)
+        BinaryWriter.write_int16(f, self.unique)
+        BinaryWriter.write_byte(f, self.random_stats_id)
+        BinaryWriter.write_bool(f, self.can_fast_run)
+        BinaryWriter.write_bool(f, self.can_awakening)
+        BinaryWriter.write_byte(f, self.slots)
+        self.write_stats(f)
+        BinaryWriter.write_bool(f, self.tool_tip)
+        
+    def write_stats(self, f):
+        """写入状态信息"""
+        BinaryWriter.write_int32(f, len(self.stats))
+        for stat, value in self.stats.items():
+            BinaryWriter.write_byte(f, stat.value)
+            BinaryWriter.write_int32(f, value)
+
     @staticmethod
     def read_stats(f):
         """读取状态信息"""

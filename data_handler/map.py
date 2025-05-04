@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from binary import BinaryReader
+from binary import BinaryReader, BinaryWriter
 from common import Point
 
 @dataclass
@@ -9,6 +9,7 @@ class SafeZoneInfo:
     location: Point = field(default_factory=Point)
     size: int = 0  # 应该是uint16
     start_point: bool = False
+
 
 @dataclass
 class MovementInfo:
@@ -88,7 +89,65 @@ class Map:
         self.mine_zones = []
         self.active_coords = []
         self.weather_particles = 0
-
+    def write(self, f):
+        """写入地图信息"""
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_string(f, self.filename)
+        BinaryWriter.write_string(f, self.title)
+        BinaryWriter.write_uint16(f, self.mini_map)
+        BinaryWriter.write_byte(f, self.light)
+        BinaryWriter.write_uint16(f, self.big_map)
+        BinaryWriter.write_int32(f, len(self.safe_zones))
+        for safe_zone in self.safe_zones:
+            self.write_safe_zone(f, safe_zone)
+        BinaryWriter.write_int32(f, len(self.respawns))
+        for respawn in self.respawns:
+            self.write_respawn_info(f, respawn)
+        BinaryWriter.write_uint16(f, self.music)
+        BinaryWriter.write_byte(f, self.map_dark_light)
+        BinaryWriter.write_byte(f, self.mine_index)
+        BinaryWriter.write_byte(f, self.gt_index)   
+        BinaryWriter.write_bool(f, self.no_teleport)
+        BinaryWriter.write_bool(f, self.no_reconnect)
+        BinaryWriter.write_string(f, self.no_reconnect_map)
+        BinaryWriter.write_bool(f, self.no_random)
+        BinaryWriter.write_bool(f, self.no_escape)
+        BinaryWriter.write_bool(f, self.no_recall)
+        BinaryWriter.write_bool(f, self.no_drug)
+        BinaryWriter.write_bool(f, self.no_position)
+        BinaryWriter.write_bool(f, self.no_throw_item)
+        BinaryWriter.write_bool(f, self.no_drop_player)
+        BinaryWriter.write_bool(f, self.no_drop_monster)
+        BinaryWriter.write_bool(f, self.no_names)   
+        BinaryWriter.write_bool(f, self.no_mount)
+        BinaryWriter.write_bool(f, self.need_bridle)
+        BinaryWriter.write_bool(f, self.fight)
+        BinaryWriter.write_bool(f, self.need_hole)
+        BinaryWriter.write_bool(f, self.fire)
+        BinaryWriter.write_bool(f, self.lightning)
+        BinaryWriter.write_bool(f, self.no_town_teleport)
+        BinaryWriter.write_bool(f, self.no_reincarnation)
+        BinaryWriter.write_bool(f, self.gt)
+        BinaryWriter.write_int32(f, self.fire_damage)
+        BinaryWriter.write_int32(f, self.lightning_damage)
+        BinaryWriter.write_byte(f, self.map_dark_light)
+        
+        BinaryWriter.write_int32(f, len(self.movements))
+        for movement in self.movements:
+            movement.write(f)   
+       
+        BinaryWriter.write_int32(f, len(self.npcs))
+        for npc in self.npcs:
+            npc.write(f)
+        BinaryWriter.write_int32(f, len(self.mine_zones))
+        for mine_zone in self.mine_zones:
+            mine_zone.write(f)
+        BinaryWriter.write_int32(f, len(self.active_coords))
+        for active_coord in self.active_coords:
+            active_coord.write(f)   
+        BinaryWriter.write_uint16(f, self.weather_particles)
+        
+        
     def validate(self):
         """验证地图信息的有效性"""
         if self.index < 0:
@@ -132,6 +191,12 @@ class Map:
             print(f"当前文件位置: {f.tell()}")
             raise
     @staticmethod
+    def write_safe_zone(f, safe_zone):
+        """写入安全区信息"""
+        Point.write_point(f, safe_zone.location)
+        BinaryWriter.write_uint16(f, safe_zone.size)
+        BinaryWriter.write_bool(f, safe_zone.start_point)
+    @staticmethod
     def read_respawn_info( f):
         """读取重生点信息"""
         try:
@@ -157,6 +222,19 @@ class Map:
             print(f"读取重生点信息时出错: {str(e)}")
             print(f"当前文件位置: {f.tell()}")
             raise
+    @staticmethod
+    def write_respawn_info(f, respawn):
+        """写入重生点信息"""
+        BinaryWriter.write_int32(f, respawn.monster_index)
+        Point.write_point(f, respawn.location)
+        BinaryWriter.write_uint16(f, respawn.count)
+        BinaryWriter.write_uint16(f, respawn.spread)
+        BinaryWriter.write_uint16(f, respawn.delay)
+        BinaryWriter.write_byte(f, respawn.direction)
+        BinaryWriter.write_string(f, respawn.route_path)
+        BinaryWriter.write_uint16(f, respawn.random_delay)
+        BinaryWriter.write_int32(f, respawn.respawn_index)  
+        
     @staticmethod
     def read_movement_info(f):    
         """读取移动点信息"""
@@ -345,31 +423,3 @@ class Map:
             print(f"读取地图信息时出错: {str(e)}")
             print(f"当前文件位置: {f.tell()}")
             raise
-
-    def validate_map_info(self, map_info):
-        if map_info.index < 0:
-            raise ValueError(f"无效的地图索引: {map_info.index}")
-        if not map_info.filename:
-            raise ValueError("地图文件名不能为空")
-        if not map_info.title:
-            raise ValueError("地图标题不能为空")
-        if map_info.mini_map < 0:
-            raise ValueError(f"无效的小地图索引: {map_info.mini_map}")
-        if map_info.big_map < 0:
-            raise ValueError(f"无效的大地图索引: {map_info.big_map}")
-        if map_info.light < 0 or map_info.light > 4:
-            raise ValueError(f"无效的光照设置: {map_info.light}")
-        if map_info.fire_damage < 0:
-            raise ValueError(f"无效的火焰伤害: {map_info.fire_damage}")
-        if map_info.lightning_damage < 0:
-            raise ValueError(f"无效的闪电伤害: {map_info.lightning_damage}")
-        if map_info.map_dark_light < 0:
-            raise ValueError(f"无效的地图暗光设置: {map_info.map_dark_light}")
-        if map_info.mine_index < 0:
-            raise ValueError(f"无效的矿区索引: {map_info.mine_index}")
-        if map_info.music < 0:
-            raise ValueError(f"无效的音乐索引: {map_info.music}")
-        if self.version >= 110 and map_info.weather_particles < 0 or map_info.weather_particles > 3:
-            raise ValueError(f"无效的天气设置: {map_info.weather_particles}")
-        if self.version >= 111 and map_info.gt_index < 0:
-            raise ValueError(f"无效的GT索引: {map_info.gt_index}")       

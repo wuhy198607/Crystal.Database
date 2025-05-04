@@ -8,7 +8,7 @@
             "name": "Debug MirDB Parser",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/data_handler/mir_db_parser.py",
+            "program": "${workspaceFolder}/data_handler/envir.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/data_handler",
             "env": {

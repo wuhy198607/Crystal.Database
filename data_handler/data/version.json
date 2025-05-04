@@ -1,4 +1,12 @@
 {
   "version": 112,
-  "custom_version": 0
+  "custom_version": 0,
+  "map_index": 476,
+  "item_index": 1349,
+  "monster_index": 564,
+  "npc_index": 386,
+  "quest_index": 312,
+  "gameshop_index": 109,
+  "conquest_index": 1,
+  "respawn_timer_index": 771
 }

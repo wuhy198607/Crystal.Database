@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-from binary import BinaryReader
+from binary import BinaryReader, BinaryWriter
 from enum import Enum
 @dataclass
 class Point:
@@ -12,6 +12,10 @@ class Point:
         x = BinaryReader.read_int32(f)
         y = BinaryReader.read_int32(f)
         return Point(x, y)
+    @staticmethod
+    def write_point(f, point):
+        BinaryWriter.write_int32(f, point.x)
+        BinaryWriter.write_int32(f, point.y)
 class Stat(Enum):
     MinAC = 0
     MaxAC = 1
