@@ -42,26 +42,25 @@ class Envir:
         self.conquest_index = 0
         self.respawn_timer_index = 0
         self.custom_version = 0
-        self.maps = []
-        self.monsters = []
-        self.items = []
-        self.npcs = []
-        self.quests = []
-        self.dragons = []  # 添加dragon列表
-        self.magics = []  # 添加魔法信息列表
-        self.respawn_timers = []
-        self.conquests = []
-        self.gameshop_items = []
+        self.maps: List[Map] = []
+        self.monsters: List[Monster] = []
+        self.items: List[Item] = []
+        self.npcs: List[NPC] = []
+        self.quests: List[Quest] = []
+        self.dragons: List[Dragon] = []  # 添加dragon列表
+        self.magics: List[Magic] = []  # 添加魔法信息列表
+        self.respawn_timers: List[RespawnTimer] = []
+        self.conquests: List[Conquest] = []
+        self.gameshop_items: List[GameShopItem] = []
 
-
-    def load_dragon_drops(self, dragon):
+    def load_dragon_drops(self, dragon, db_path):
         """加载龙掉落信息"""
         # 清空所有掉落列表
         for level_drops in dragon.drops:
             level_drops.clear()
             
         # 确保掉落文件目录存在
-        drop_path = os.path.join(os.path.dirname(self.db_path), Settings.DropPath)
+        drop_path = os.path.join(os.path.dirname(db_path), Settings.DropPath)
         if not os.path.exists(drop_path):
             print(f"掉落文件目录不存在: {drop_path}")
             return
@@ -116,13 +115,13 @@ class Envir:
             return None
 
     
-    def load_quest_info(self, quest, clear=False):
+    def load_quest_info(self, quest, dbpath, clear=False):
         """加载任务详细信息"""
         if clear:
             self.clear_quest_info(quest)
             
         # 确保任务文件目录存在
-        quest_path = os.path.join(os.path.dirname(self.db_path), Settings.QuestPath)
+        quest_path = os.path.join(os.path.dirname(dbpath), Settings.QuestPath)
         if not os.path.exists(quest_path):
             print(f"任务文件目录不存在: {quest_path}")
             return
@@ -488,7 +487,7 @@ class Envir:
                 try:
                     dragon_info = Dragon.read(f)
                     # 加载掉落信息
-                    envir.load_dragon_drops(dragon_info)
+                    envir.load_dragon_drops(dragon_info,db_path)
                     envir.dragons.append(dragon_info)
                     print(f"\n龙信息:")
                     print(f"  启用状态: {dragon_info.enabled}")
@@ -608,7 +607,7 @@ class Envir:
                 # 读取刷新计时器信息
                 try:
                     respawn_timer = RespawnTimer.read(f)
-                    envir.respawn_timer = respawn_timer
+                    envir.respawn_timers.append(respawn_timer)
                     print(f"\n刷新计时器信息:")
                     print(f"  基础刷新率: {respawn_timer.base_spawn_rate}")
                     print(f"  当前刷新计数器: {respawn_timer.current_tick_counter}")
@@ -1009,11 +1008,10 @@ class Envir:
                 conquest.control_points = conquest_info['control_points']
                 
                 self.conquests.append(conquest)
-        pass
 
     def _load_respawn_timer(self, json_dir):
         """加载刷新计时器信息"""
-        respawn_timer_path = os.path.join(json_dir, 'respawn_timer.json')
+        respawn_timer_path = os.path.join(json_dir, 'respawn_timers.json')
         with open(respawn_timer_path, 'r', encoding='utf-8') as read_f:
             respawn_timer_data = json.load(read_f)
             for respawn_timer_info in respawn_timer_data:
@@ -1024,27 +1022,26 @@ class Envir:
                 respawn_timer.last_user_count = respawn_timer_info['last_user_count']
                 respawn_timer.current_delay = respawn_timer_info['current_delay']
                 respawn_timer.respawn_options = respawn_timer_info['respawn_options']   
-                self.respawn_timer.append(respawn_timer)
+                self.respawn_timers.append(respawn_timer)
         pass
 
-    @staticmethod
-    def save_to_json(envir, output_path):
+    def save_to_json(self, output_path):
         """保存数据到多个JSON文件，使用UTF-8编码"""
         # 创建输出目录
         os.makedirs(output_path, exist_ok=True)
         
         # 保存版本信息
         version_data = {
-            'version': envir.version,
-            'custom_version': envir.custom_version,
-            "map_index": envir.map_index,
-            "item_index": envir.item_index,
-            "monster_index": envir.monster_index,
-            "npc_index": envir.npc_index,
-            "quest_index": envir.quest_index,
-            "gameshop_index": envir.gameshop_index,
-            "conquest_index": envir.conquest_index,
-            "respawn_timer_index": envir.respawn_timer_index,
+            'version': self.version,
+            'custom_version': self.custom_version,
+            "map_index": self.map_index,
+            "item_index": self.item_index,
+            "monster_index": self.monster_index,
+            "npc_index": self.npc_index,
+            "quest_index": self.quest_index,
+            "gameshop_index": self.gameshop_index,
+            "conquest_index": self.conquest_index,
+            "respawn_timer_index": self.respawn_timer_index,
         }
         version_path = os.path.join(output_path, 'version.json')
         with open(version_path, 'w', encoding='utf-8') as f:
@@ -1089,7 +1086,7 @@ class Envir:
                 'need_bridle': m.need_bridle,
                 'no_fight': m.no_fight,
                 'music': m.music
-            } for m in envir.maps
+            } for m in self.maps
         ]
         maps_path = os.path.join(output_path, 'maps.json')
         with open(maps_path, 'w', encoding='utf-8') as f:
@@ -1126,7 +1123,7 @@ class Envir:
                 'experience': m.experience,
                 'light': m.light,
                 'drop_path': m.drop_path
-            } for m in envir.monsters
+            } for m in self.monsters
         ]
         monsters_path = os.path.join(output_path, 'monsters.json')
         with open(monsters_path, 'w', encoding='utf-8') as f:
@@ -1160,7 +1157,7 @@ class Envir:
                 'conquest_visible': n.conquest_visible,
                 'collect_quest_indexes': n.collect_quest_indexes,
                 'finish_quest_indexes': n.finish_quest_indexes
-            } for n in envir.npcs
+            } for n in self.npcs
         ]
         npcs_path = os.path.join(output_path, 'npcs.json')
         with open(npcs_path, 'w', encoding='utf-8') as f:
@@ -1229,7 +1226,7 @@ class Envir:
                         'count': r.count
                     } for r in q.select_rewards
                 ]
-            } for q in envir.quests
+            } for q in self.quests
         ]
         quests_path = os.path.join(output_path, 'quests.json')
         with open(quests_path, 'w', encoding='utf-8') as f:
@@ -1271,7 +1268,7 @@ class Envir:
                 'tool_tip': i.tool_tip,
                 'slots': i.slots,
                 'stats': {stat.name: i.stats[stat] for stat in Stat}
-            } for i in envir.items
+            } for i in self.items
         ]
         items_path = os.path.join(output_path, 'items.json')
         with open(items_path, 'w', encoding='utf-8') as f:
@@ -1300,12 +1297,61 @@ class Envir:
                         } for drop in level_drops
                     ] for level_drops in d.drops
                 ]
-            } for d in envir.dragons
+            } for d in self.dragons
         ]
         dragons_path = os.path.join(output_path, 'dragons.json')
         with open(dragons_path, 'w', encoding='utf-8') as f:
             json.dump(dragons_data, f, ensure_ascii=False, indent=2)
-
+        #增加magic信息
+        magics_data = [
+            {
+                'name': m.name,
+                'spell': m.spell.name,
+                'base_cost': m.base_cost,
+                'level_cost': m.level_cost,
+                'icon': m.icon,
+                'level1': m.level1, 
+                'level2': m.level2,
+                'level3': m.level3,
+                'need1': m.need1,
+                'need2': m.need2,
+                'need3': m.need3,
+                'delay_base': m.delay_base,
+                'delay_reduction': m.delay_reduction,
+                'power_base': m.power_base,
+                'power_bonus': m.power_bonus,
+                'mpower_base': m.mpower_base,
+                'mpower_bonus': m.mpower_bonus,
+                'range': m.range,
+                'multiplier_base': m.multiplier_base,   
+                'multiplier_bonus': m.multiplier_bonus,
+            } for m in self.magics
+        ]
+        magics_path = os.path.join(output_path, 'magics.json')
+        with open(magics_path, 'w', encoding='utf-8') as f:
+            json.dump(magics_data, f, ensure_ascii=False, indent=2) 
+        #增加game_shop信息
+        game_shop_data = [
+            {
+                'item_index': g.item_index,
+                'g_index': g.g_index,
+                'gold_price': g.gold_price,
+                'credit_price': g.credit_price,
+                'count': g.count,
+                'class_name': g.class_name,
+                'category': g.category,
+                'stock': g.stock,
+                'i_stock': g.i_stock,
+                'deal': g.deal,
+                'top_item': g.top_item,
+                'date': g.date,
+                'can_buy_gold': g.can_buy_gold,
+                'can_buy_credit': g.can_buy_credit,
+            }    for g in self.gameshop_items
+        ]
+        game_shop_path = os.path.join(output_path, 'gameshop_items.json')
+        with open(game_shop_path, 'w', encoding='utf-8') as f:
+            json.dump(game_shop_data, f, ensure_ascii=False, indent=2)
         # 保存征服信息
         conquests_data = [
             {
@@ -1388,68 +1434,30 @@ class Envir:
                         'file_name': p.file_name
                     } for p in c.control_points
                 ]
-            } for c in envir.conquests
+            } for c in self.conquests
         ]
         conquests_path = os.path.join(output_path, 'conquests.json')
         with open(conquests_path, 'w', encoding='utf-8') as f:
             json.dump(conquests_data, f, ensure_ascii=False, indent=2)
 
-        # 保存刷新计时器信息
-        if hasattr(envir, 'respawn_timer') and envir.respawn_timer:
-            respawn_timer_data = {
-                'base_spawn_rate': envir.respawn_timer.base_spawn_rate,
-                'current_tick_counter': envir.respawn_timer.current_tick_counter,
-                'last_tick': envir.respawn_timer.last_tick,
-                'last_user_count': envir.respawn_timer.last_user_count,
-                'current_delay': envir.respawn_timer.current_delay,
+        respawn_timers_data = [
+            {
+                'base_spawn_rate': r.base_spawn_rate,
+                'current_tick_counter': r.current_tick_counter,
+                'last_tick': r.last_tick,
+                'last_user_count': r.last_user_count,   
+                'current_delay': r.current_delay,
                 'respawn_options': [
                     {
                         'user_count': option.user_count,
                         'delay_loss': option.delay_loss
-                    } for option in envir.respawn_timer.respawn_options
+                    } for option in r.respawn_options
                 ]
-            }
-            respawn_timer_path = os.path.join(output_path, 'respawn_timer.json')
-            with open(respawn_timer_path, 'w', encoding='utf-8') as f:
-                json.dump(respawn_timer_data, f, ensure_ascii=False, indent=2)
-
-
-
-    def load_dragon_drops(self, dragon):
-        """加载龙掉落信息"""
-        # 清空所有掉落列表
-        for level_drops in dragon.drops:
-            level_drops.clear()
-            
-        # 确保掉落文件目录存在
-        drop_path = os.path.join(os.path.dirname(self.db_path), Settings.DropPath)
-        if not os.path.exists(drop_path):
-            print(f"掉落文件目录不存在: {drop_path}")
-            return
-            
-        file_path = os.path.join(drop_path, "DragonItem.txt")
-        if not os.path.exists(file_path):
-            print(f"龙掉落文件不存在: {file_path}")
-            return
-            
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith(';'):
-                        continue
-                        
-                    drop = self.parse_dragon_drop(line)
-                    if drop and 0 < drop.level <= len(dragon.drops):
-                        dragon.drops[drop.level - 1].append(drop)
-                        
-            # 对每个等级的掉落列表进行排序
-            for level_drops in dragon.drops:
-                level_drops.sort(key=lambda d: (d.gold == 0, d.item.type if d.item else 0))
-                
-        except Exception as e:
-            print(f"加载龙掉落信息时出错: {str(e)}")
-            raise
+            } for r in self.respawn_timers  
+        ]
+        respawn_timers_path = os.path.join(output_path, 'respawn_timers.json')
+        with open(respawn_timers_path, 'w', encoding='utf-8') as f:
+            json.dump(respawn_timers_data, f, ensure_ascii=False, indent=2) 
 
     def parse_dragon_drop(self, line):
         """解析龙掉落信息"""
@@ -1523,7 +1531,6 @@ class Envir:
                 quest.write(f)
                 
             # 写入龙信息
-            BinaryWriter.write_int32(f, len(self.dragons))
             for dragon in self.dragons:
                 dragon.write(f)
                 
@@ -1534,8 +1541,8 @@ class Envir:
                 
             # 写入商城物品信息
             BinaryWriter.write_int32(f, len(self.gameshop_items))
-            for item in self.gameshop_items:
-                item.write(f)
+            for game_shop in self.gameshop_items:
+                game_shop.write(f)
                 
             # 写入征服信息
             BinaryWriter.write_int32(f, len(self.conquests))
@@ -1543,8 +1550,8 @@ class Envir:
                 conquest.write(f)
                 
             # 写入刷新计时器信息
-            if hasattr(self, 'respawn_timer') and self.respawn_timer:
-                self.respawn_timer.write(f)
+            for respawn_timer in self.respawn_timers:
+                respawn_timer.write(f)
                 
         except Exception as e:
             print(f"保存数据库时出错: {str(e)}")
@@ -1566,8 +1573,8 @@ def main():
         envir = Envir.load(args.db_path)
         if envir:
             print("\n保存解析结果到JSON文件...")
-        Envir.save_to_json(envir, args.output)
-        print("完成!")
+            envir.save_to_json(args.output)
+            print("完成!")
     elif args.option == 'save':
         Envir.load_json_to_db( args.output,args.db_path)
 

@@ -9,6 +9,10 @@ class SafeZoneInfo:
     location: Point = field(default_factory=Point)
     size: int = 0  # 应该是uint16
     start_point: bool = False
+    def write(self,f):
+        Point.write_point(f, self.location)
+        BinaryWriter.write_uint16(f, self.size)
+        BinaryWriter.write_bool(f, self.start_point)
 
 
 @dataclass
@@ -21,7 +25,15 @@ class MovementInfo:
     conquest_index: int = 0
     show_on_big_map: bool = False
     icon: int = 0
-
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.map_index)
+        Point.write_point(f, self.source)
+        Point.write_point(f, self.destination)
+        BinaryWriter.write_bool(f, self.need_hole)
+        BinaryWriter.write_bool(f, self.need_move)
+        BinaryWriter.write_int32(f, self.conquest_index)    
+        BinaryWriter.write_bool(f, self.show_on_big_map)
+        BinaryWriter.write_int32(f, self.icon)
 @dataclass
 class RespawnInfo:
     monster_index: int = 0
@@ -35,6 +47,12 @@ class RespawnInfo:
     respawn_index: int = 0
     save_respawn_time: bool = False
     respawn_ticks: int = 0  # 应该是uint16
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.monster_index)
+        Point.write_point(f, self.location)
+        BinaryWriter.write_uint16(f, self.count)
+        BinaryWriter.write_uint16(f, self.spread)
+        BinaryWriter.write_uint16(f, self.delay)
 
 @dataclass
 class MineZone:
@@ -82,31 +100,38 @@ class Map:
         self.fire_damage = 0
         self.lightning_damage = 0
         
-        self.safe_zones = []
-        self.movements = []
-        self.respawns = []
-        self.npcs = []
-        self.mine_zones = []
-        self.active_coords = []
-        self.weather_particles = 0
+        self.safe_zones: List[SafeZoneInfo] = []
+        self.movements: List[MovementInfo] = []
+        self.respawns: List[RespawnInfo] = []
+        self.mine_zones: List[MineZone] = []
+        self.active_coords: List[ActiveCoord] = []
+        self.weather_particles = 0  
     def write(self, f):
         """写入地图信息"""
+        # 写入基本信息
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_string(f, self.filename)
         BinaryWriter.write_string(f, self.title)
         BinaryWriter.write_uint16(f, self.mini_map)
         BinaryWriter.write_byte(f, self.light)
         BinaryWriter.write_uint16(f, self.big_map)
+
+        # 写入安全区
         BinaryWriter.write_int32(f, len(self.safe_zones))
         for safe_zone in self.safe_zones:
-            self.write_safe_zone(f, safe_zone)
+            safe_zone.write(f)
+
+        # 写入重生点
         BinaryWriter.write_int32(f, len(self.respawns))
         for respawn in self.respawns:
-            self.write_respawn_info(f, respawn)
-        BinaryWriter.write_uint16(f, self.music)
-        BinaryWriter.write_byte(f, self.map_dark_light)
-        BinaryWriter.write_byte(f, self.mine_index)
-        BinaryWriter.write_byte(f, self.gt_index)   
+            respawn.write(f)
+
+        # 写入移动点
+        BinaryWriter.write_int32(f, len(self.movements))
+        for movement in self.movements:
+            movement.write(f)
+
+        # 写入布尔属性
         BinaryWriter.write_bool(f, self.no_teleport)
         BinaryWriter.write_bool(f, self.no_reconnect)
         BinaryWriter.write_string(f, self.no_reconnect_map)
@@ -118,36 +143,33 @@ class Map:
         BinaryWriter.write_bool(f, self.no_throw_item)
         BinaryWriter.write_bool(f, self.no_drop_player)
         BinaryWriter.write_bool(f, self.no_drop_monster)
-        BinaryWriter.write_bool(f, self.no_names)   
-        BinaryWriter.write_bool(f, self.no_mount)
-        BinaryWriter.write_bool(f, self.need_bridle)
+        BinaryWriter.write_bool(f, self.no_names)
         BinaryWriter.write_bool(f, self.fight)
-        BinaryWriter.write_bool(f, self.need_hole)
         BinaryWriter.write_bool(f, self.fire)
-        BinaryWriter.write_bool(f, self.lightning)
-        BinaryWriter.write_bool(f, self.no_town_teleport)
-        BinaryWriter.write_bool(f, self.no_reincarnation)
-        BinaryWriter.write_bool(f, self.gt)
         BinaryWriter.write_int32(f, self.fire_damage)
+        BinaryWriter.write_bool(f, self.lightning)
         BinaryWriter.write_int32(f, self.lightning_damage)
         BinaryWriter.write_byte(f, self.map_dark_light)
-        
-        BinaryWriter.write_int32(f, len(self.movements))
-        for movement in self.movements:
-            movement.write(f)   
-       
-        BinaryWriter.write_int32(f, len(self.npcs))
-        for npc in self.npcs:
-            npc.write(f)
+
+        # 写入矿区
         BinaryWriter.write_int32(f, len(self.mine_zones))
         for mine_zone in self.mine_zones:
             mine_zone.write(f)
-        BinaryWriter.write_int32(f, len(self.active_coords))
-        for active_coord in self.active_coords:
-            active_coord.write(f)   
+
+        # 写入其他属性
+        BinaryWriter.write_byte(f, self.mine_index)
+        BinaryWriter.write_bool(f, self.no_mount)
+        BinaryWriter.write_bool(f, self.need_bridle)
+        BinaryWriter.write_bool(f, self.no_fight)
+        BinaryWriter.write_uint16(f, self.music)
+
+        # 写入版本相关属性
+        BinaryWriter.write_bool(f, self.no_town_teleport)
+        BinaryWriter.write_bool(f, self.no_reincarnation)
         BinaryWriter.write_uint16(f, self.weather_particles)
-        
-        
+        BinaryWriter.write_bool(f, self.gt)
+        BinaryWriter.write_byte(f, self.gt_index)
+
     def validate(self):
         """验证地图信息的有效性"""
         if self.index < 0:
@@ -190,8 +212,7 @@ class Map:
             print(f"读取安全区信息时出错: {str(e)}")
             print(f"当前文件位置: {f.tell()}")
             raise
-    @staticmethod
-    def write_safe_zone(f, safe_zone):
+    def write_safe_zone(self,f,safe_zone):
         """写入安全区信息"""
         Point.write_point(f, safe_zone.location)
         BinaryWriter.write_uint16(f, safe_zone.size)
@@ -222,8 +243,7 @@ class Map:
             print(f"读取重生点信息时出错: {str(e)}")
             print(f"当前文件位置: {f.tell()}")
             raise
-    @staticmethod
-    def write_respawn_info(f, respawn):
+    def write_respawn_info(self,f,respawn):
         """写入重生点信息"""
         BinaryWriter.write_int32(f, respawn.monster_index)
         Point.write_point(f, respawn.location)

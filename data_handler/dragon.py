@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 from map import Point
 import os
 from item import Item
@@ -33,7 +33,20 @@ class Dragon:
             self.drop_area_top = Point(75, 45)
         if self.drop_area_bottom.x == 0 and self.drop_area_bottom.y == 0:
             self.drop_area_bottom = Point(86, 57)
-
+    def write(self,f):
+        BinaryWriter.write_bool(f, self.enabled)
+        BinaryWriter.write_string(f, self.map_file_name)
+        BinaryWriter.write_string(f, self.monster_name)
+        BinaryWriter.write_string(f, self.body_name)
+        self.location.write(f)
+        self.drop_area_top.write(f)
+        self.drop_area_bottom.write(f)
+        BinaryWriter.write_int32(f, self.level)
+        BinaryWriter.write_int32(f, self.experience)
+        BinaryWriter.write_int32(f, len(self.exps))
+        for exp in self.exps:   
+            BinaryWriter.write_int64(f, exp)
+        
     @staticmethod
     def read(f):
         """读取龙信息"""

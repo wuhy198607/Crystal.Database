@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter    
 from enum import Enum
 from common import Point
 @dataclass
@@ -30,6 +30,31 @@ class NPC:
     conquest_visible: bool = True
     collect_quest_indexes: List[int] = field(default_factory=list)
     finish_quest_indexes: List[int] = field(default_factory=list)
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_string(f, self.file_name)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.map_index)
+        self.location.write(f)
+        BinaryWriter.write_uint16(f, self.rate)
+        BinaryWriter.write_bool(f, self.time_visible)
+        BinaryWriter.write_byte(f, self.hour_start)
+        BinaryWriter.write_byte(f, self.minute_start)
+        BinaryWriter.write_byte(f, self.hour_end)
+        BinaryWriter.write_byte(f, self.minute_end)
+        BinaryWriter.write_int16(f, self.min_lev)
+        BinaryWriter.write_int16(f, self.max_lev)
+        BinaryWriter.write_string(f, self.day_of_week)
+        BinaryWriter.write_string(f, self.class_required)
+        BinaryWriter.write_bool(f, self.sabuk)
+        BinaryWriter.write_int32(f, self.flag_needed)
+        BinaryWriter.write_int32(f, self.conquest)
+        BinaryWriter.write_bool(f, self.show_on_big_map)
+        BinaryWriter.write_int32(f, self.big_map_icon)
+        BinaryWriter.write_bool(f, self.can_teleport_to)
+        BinaryWriter.write_bool(f, self.conquest_visible)
+                
+
     @staticmethod
     def read(f):
         """读取NPC信息"""

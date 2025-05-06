@@ -6,7 +6,6 @@ class BinaryReader:
         """读取32位整数，使用小端字节序（little-endian）"""
         try:
             data = f.read(4)
-            print(f"读取int32原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('<i', data)[0]
         except Exception as e:
             print(f"读取int32时出错: {str(e)}")
@@ -19,7 +18,6 @@ class BinaryReader:
         """读取16位整数，使用小端字节序（little-endian）"""
         try:
             data = f.read(2)
-            print(f"读取int16原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('<h', data)[0]
         except Exception as e:
             print(f"读取int16时出错: {str(e)}")
@@ -32,7 +30,6 @@ class BinaryReader:
         """读取无符号16位整数，使用小端字节序（little-endian）"""
         try:
             data = f.read(2)
-            print(f"读取uint16原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('<H', data)[0]
         except Exception as e:
             print(f"读取uint16时出错: {str(e)}")
@@ -60,7 +57,6 @@ class BinaryReader:
         """读取无符号32位整数，使用小端字节序（little-endian）"""
         try:
             data = f.read(4)
-            print(f"读取uint32原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('<I', data)[0]
         except Exception as e:
             print(f"读取uint32时出错: {str(e)}")
@@ -73,7 +69,6 @@ class BinaryReader:
         """读取一个字节"""
         try:
             data = f.read(1)
-            print(f"读取byte原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('B', data)[0]
         except Exception as e:
             print(f"读取byte时出错: {str(e)}")
@@ -86,7 +81,6 @@ class BinaryReader:
         """读取布尔值"""
         try:
             data = f.read(1)
-            print(f"读取bool原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('?', data)[0]
         except Exception as e:
             print(f"读取bool时出错: {str(e)}")
@@ -103,7 +97,6 @@ class BinaryReader:
             shift = 0
             while True:
                 data = f.read(1)
-                print(f"读取字符串长度原始字节: {' '.join(f'{b:02x}' for b in data)}")
                 b = struct.unpack('B', data)[0]
                 length |= (b & 0x7F) << shift
                 if (b & 0x80) == 0:
@@ -115,7 +108,6 @@ class BinaryReader:
             
             # 读取字符串数据
             data = f.read(length)
-            print(f"读取字符串数据原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return data.decode('latin1')
             
         except Exception as e:
@@ -140,7 +132,6 @@ class BinaryReader:
         """读取64位整数"""
         try:
             data = f.read(8)
-            print(f"读取int64原始字节: {' '.join(f'{b:02x}' for b in data)}")
             return struct.unpack('<q', data)[0]
         except Exception as e:
             print(f"读取int64时出错: {str(e)}")
@@ -155,7 +146,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<i', value)
             f.write(data)
-            print(f"写入int32原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入int32时出错: {str(e)}")
             raise
@@ -166,7 +156,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<h', value)
             f.write(data)
-            print(f"写入int16原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入int16时出错: {str(e)}")
             raise
@@ -177,7 +166,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<H', value)
             f.write(data)
-            print(f"写入uint16原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入uint16时出错: {str(e)}")
             raise
@@ -188,7 +176,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<Q', value)
             f.write(data)
-            print(f"写入uint64原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入uint64时出错: {str(e)}")
             raise
@@ -199,7 +186,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<I', value)
             f.write(data)
-            print(f"写入uint32原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入uint32时出错: {str(e)}")
             raise
@@ -210,7 +196,6 @@ class BinaryWriter:
         try:
             data = struct.pack('B', value)
             f.write(data)
-            print(f"写入byte原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入byte时出错: {str(e)}")
             raise
@@ -221,7 +206,6 @@ class BinaryWriter:
         try:
             data = struct.pack('?', value)
             f.write(data)
-            print(f"写入bool原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入bool时出错: {str(e)}")
             raise
@@ -244,11 +228,9 @@ class BinaryWriter:
                 if length > 0:
                     b |= 0x80
                 f.write(struct.pack('B', b))
-                print(f"写入字符串长度原始字节: {b:02x}")
             
             # 写入字符串数据
             f.write(data)
-            print(f"写入字符串数据原始字节: {' '.join(f'{b:02x}' for b in data)}")
             
         except Exception as e:
             print(f"写入字符串时出错: {str(e)}")
@@ -261,7 +243,6 @@ class BinaryWriter:
         try:
             data = struct.pack('<f', value)
             f.write(data)
-            print(f"写入float原始字节: {' '.join(f'{b:02x}' for b in data)}")
         except Exception as e:
             print(f"写入float时出错: {str(e)}")
             raise

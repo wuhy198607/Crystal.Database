@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 from enum import Enum
 
 class Spell(Enum):
@@ -31,6 +31,28 @@ class Magic:
     range: int = 9
     multiplier_base: float = 1.0
     multiplier_bonus: float = 0.0
+    def write(self,f):
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_byte(f, self.spell.value)
+        BinaryWriter.write_byte(f, self.base_cost)
+        BinaryWriter.write_byte(f, self.level_cost)
+        BinaryWriter.write_byte(f, self.icon)
+        BinaryWriter.write_byte(f, self.level1)
+        BinaryWriter.write_byte(f, self.level2)
+        BinaryWriter.write_byte(f, self.level3)
+        BinaryWriter.write_uint16(f, self.need1)
+        BinaryWriter.write_uint16(f, self.need2)
+        BinaryWriter.write_uint16(f, self.need3)    
+        BinaryWriter.write_uint32(f, self.delay_base)   
+        BinaryWriter.write_uint32(f, self.delay_reduction)
+        BinaryWriter.write_uint16(f, self.power_base)
+        BinaryWriter.write_uint16(f, self.power_bonus)
+        BinaryWriter.write_uint16(f, self.mpower_base)
+        BinaryWriter.write_uint16(f, self.mpower_bonus) 
+        BinaryWriter.write_byte(f, self.range)
+        BinaryWriter.write_float(f, self.multiplier_base)
+        BinaryWriter.write_float(f, self.multiplier_bonus)
+            
 
     @staticmethod
     def read(f):

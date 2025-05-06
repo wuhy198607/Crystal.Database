@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from enum import Enum
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 from map import Point
 
 class ConquestType(Enum):
@@ -91,7 +91,56 @@ class Conquest:
     conquest_sieges: List[ConquestSiegeInfo] = field(default_factory=list)
     conquest_flags: List[ConquestFlagInfo] = field(default_factory=list)
     control_points: List[ConquestFlagInfo] = field(default_factory=list)
-
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_bool(f, self.full_map)
+        self.location.write(f)
+        BinaryWriter.write_uint16(f, self.size)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.map_index)
+        BinaryWriter.write_int32(f, self.palace_index)
+        BinaryWriter.write_int32(f, self.guard_index)
+        BinaryWriter.write_int32(f, self.gate_index)
+        BinaryWriter.write_int32(f, self.wall_index)
+        BinaryWriter.write_int32(f, self.siege_index)
+        BinaryWriter.write_int32(f, self.flag_index)
+        BinaryWriter.write_byte(f, self.start_hour)
+        BinaryWriter.write_int32(f, self.war_length)
+        BinaryWriter.write_byte(f, self.type.value)
+        BinaryWriter.write_byte(f, self.game.value)
+        BinaryWriter.write_bool(f, self.monday) 
+        BinaryWriter.write_bool(f, self.tuesday)
+        BinaryWriter.write_bool(f, self.wednesday)
+        BinaryWriter.write_bool(f, self.thursday)
+        BinaryWriter.write_bool(f, self.friday)
+        BinaryWriter.write_bool(f, self.saturday)
+        BinaryWriter.write_bool(f, self.sunday) 
+        self.king_location.write(f)
+        BinaryWriter.write_uint16(f, self.king_size)
+        BinaryWriter.write_int32(f, self.control_point_index)
+        BinaryWriter.write_int32(f, len(self.extra_maps))
+        for map_index in self.extra_maps:
+            BinaryWriter.write_int32(f, map_index)  
+        BinaryWriter.write_int32(f, len(self.conquest_guards))
+        for guard in self.conquest_guards:
+            guard.write(f)
+        BinaryWriter.write_int32(f, len(self.conquest_gates))
+        for gate in self.conquest_gates:
+            gate.write(f)       
+        BinaryWriter.write_int32(f, len(self.conquest_walls))
+        for wall in self.conquest_walls:
+            wall.write(f)
+        BinaryWriter.write_int32(f, len(self.conquest_sieges))
+        for siege in self.conquest_sieges:
+            siege.write(f)
+        BinaryWriter.write_int32(f, len(self.conquest_flags))
+        for flag in self.conquest_flags:
+            flag.write(f)
+        BinaryWriter.write_int32(f, len(self.control_points))
+        for point in self.control_points:
+            point.write(f)  
+        
+        
     @staticmethod
     def read(f):
         """读取征服信息"""

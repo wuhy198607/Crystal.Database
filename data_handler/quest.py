@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 from enum import Enum
 from item import Item
 from monster import Monster 
@@ -80,6 +80,24 @@ class Quest:
     credit_reward: int = 0
     fixed_rewards: List[QuestItemReward] = field(default_factory=list)  
     select_rewards: List[QuestItemReward] = field(default_factory=list)
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_string(f, self.group)
+        BinaryWriter.write_string(f, self.file_name)
+        BinaryWriter.write_int32(f, self.required_min_level)    
+        BinaryWriter.write_int32(f, self.required_max_level)
+        BinaryWriter.write_int32(f, self.required_quest)
+        BinaryWriter.write_byte(f, self.required_class.value)
+        BinaryWriter.write_byte(f, self.type.value)
+        BinaryWriter.write_string(f, self.goto_message)
+        BinaryWriter.write_string(f, self.kill_message)
+        BinaryWriter.write_string(f, self.item_message)
+        BinaryWriter.write_string(f, self.flag_message)
+        BinaryWriter.write_int32(f, self.time_limit_in_seconds)
+        
+            
+        
         
     @staticmethod
     def read(f):

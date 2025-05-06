@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 from enum import Enum
 from common import Stats, Stat
 @dataclass
@@ -32,6 +32,25 @@ class Monster:
     experience: int = 0
     light: int = 0
     drop_path: str = ""
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_uint16(f, self.image)
+        BinaryWriter.write_byte(f, self.ai)
+        BinaryWriter.write_byte(f, self.effect)
+        BinaryWriter.write_uint16(f, self.level)
+        BinaryWriter.write_byte(f, self.view_range)
+        BinaryWriter.write_byte(f, self.cool_eye)
+        self.stats.write(f)
+        BinaryWriter.write_byte(f, self.light)
+        BinaryWriter.write_uint16(f, self.attack_speed)
+        BinaryWriter.write_uint16(f, self.move_speed)   
+        BinaryWriter.write_uint32(f, self.experience)
+        BinaryWriter.write_bool(f, self.can_push)
+        BinaryWriter.write_bool(f, self.can_tame)
+        BinaryWriter.write_bool(f, self.auto_rev)
+        BinaryWriter.write_bool(f, self.undead)
+        BinaryWriter.write_string(f, self.drop_path)
     @staticmethod
     def read_stats(f):
         """读取状态信息"""

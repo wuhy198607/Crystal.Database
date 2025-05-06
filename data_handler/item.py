@@ -192,12 +192,12 @@ class Item:
         """写入物品信息"""
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_string(f, self.name)
-        BinaryWriter.write_byte(f, self.type)
-        BinaryWriter.write_byte(f, self.grade)
-        BinaryWriter.write_byte(f, self.required_type)
-        BinaryWriter.write_byte(f, self.required_class)
-        BinaryWriter.write_byte(f, self.required_gender)
-        BinaryWriter.write_byte(f, self.set)
+        BinaryWriter.write_byte(f,  self.type.value)
+        BinaryWriter.write_byte(f, self.grade.value )
+        BinaryWriter.write_byte(f, self.required_type.value)
+        BinaryWriter.write_byte(f, self.required_class.value)
+        BinaryWriter.write_byte(f, self.required_gender.value)
+        BinaryWriter.write_byte(f, self.set.value)
         BinaryWriter.write_int16(f, self.shape)
         BinaryWriter.write_byte(f, self.weight)
         BinaryWriter.write_byte(f, self.light)
@@ -232,8 +232,8 @@ class Item:
         if self.global_drop_notify:
             boolean_byte |= 0x20    
         BinaryWriter.write_byte(f, boolean_byte)
-        BinaryWriter.write_int16(f, self.bind)
-        BinaryWriter.write_int16(f, self.unique)
+        BinaryWriter.write_int16(f, self.bind.value)
+        BinaryWriter.write_int16(f, self.unique.value)
         BinaryWriter.write_byte(f, self.random_stats_id)
         BinaryWriter.write_bool(f, self.can_fast_run)
         BinaryWriter.write_bool(f, self.can_awakening)
@@ -243,10 +243,10 @@ class Item:
         
     def write_stats(self, f):
         """写入状态信息"""
-        BinaryWriter.write_int32(f, len(self.stats))
-        for stat, value in self.stats.items():
+        BinaryWriter.write_int32(f, len(self.stats.values))
+        for stat in self.stats.values:
             BinaryWriter.write_byte(f, stat.value)
-            BinaryWriter.write_int32(f, value)
+            BinaryWriter.write_int32(f, self.stats[stat])
 
     @staticmethod
     def read_stats(f):

@@ -1,11 +1,15 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 
 @dataclass
 class RespawnTickOption:
     user_count: int = 1
     delay_loss: float = 1.0
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.user_count)
+        BinaryWriter.write_float(f, self.delay_loss)
+    
 
 @dataclass
 class RespawnTimer:
@@ -15,7 +19,16 @@ class RespawnTimer:
     last_user_count: int = 0  # 上次用户数量
     current_delay: int = 0  # 当前延迟
     respawn_options: List[RespawnTickOption] = field(default_factory=list)
-
+    def write(self,f):
+        BinaryWriter.write_byte(f, self.base_spawn_rate)
+        BinaryWriter.write_uint64(f, self.current_tick_counter)
+        BinaryWriter.write_uint64(f, self.last_tick)
+        BinaryWriter.write_int32(f, self.last_user_count)
+        BinaryWriter.write_int32(f, self.current_delay)
+        BinaryWriter.write_int32(f, len(self.respawn_options))
+        for option in self.respawn_options:
+            option.write(f)
+        
     @staticmethod
     def read(f):
         """读取刷新计时器信息"""

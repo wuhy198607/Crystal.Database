@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-from binary import BinaryReader
+from binary import BinaryReader,BinaryWriter
 
 @dataclass
 class GameShopItem:
@@ -18,7 +18,21 @@ class GameShopItem:
     date: int = 0  # 使用int存储DateTime.ToBinary
     can_buy_gold: bool = False
     can_buy_credit: bool = False
-
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.item_index)
+        BinaryWriter.write_int32(f, self.g_index)
+        BinaryWriter.write_uint32(f, self.gold_price)
+        BinaryWriter.write_uint32(f, self.credit_price)
+        BinaryWriter.write_uint16(f, self.count)
+        BinaryWriter.write_string(f, self.class_name)
+        BinaryWriter.write_string(f, self.category)
+        BinaryWriter.write_int32(f, self.stock)
+        BinaryWriter.write_bool(f, self.i_stock)
+        BinaryWriter.write_bool(f, self.deal)
+        BinaryWriter.write_bool(f, self.top_item)   
+        BinaryWriter.write_int64(f, self.date)
+        BinaryWriter.write_bool(f, self.can_buy_gold)
+        BinaryWriter.write_bool(f, self.can_buy_credit) 
     @staticmethod
     def read(f):
         """读取商城物品信息"""

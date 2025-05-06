@@ -27,7 +27,7 @@
             "id": "dbPath",
             "type": "promptString",
             "description": "请输入数据库路径",
-            "default": "../Jev/Server.MirDB.bak"
+            "default": "../Jev/Server.MirDB.bak1"
         },
         {
             "id": "outputDir",
@@ -40,7 +40,7 @@
             "type": "pickString",
             "description": "请选择操作类型",
             "options": ["load", "save"],
-            "default": "load"
+                "default": "save"
         }
     ]
 }
