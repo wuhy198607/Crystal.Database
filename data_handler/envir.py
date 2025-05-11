@@ -12,7 +12,7 @@ from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone
 from  item import Item,ItemType,ItemGrade,RequiredType,RequiredClass,RequiredGender,ItemSet,BindMode,SpecialItemMode
 from  monster import Monster,DropInfo
 from  npc import NPC
-from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemReward, RequiredClass
+from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemReward, RequiredClass, QuestType
 from dragon import Dragon, DragonDropInfo
 from magic import Magic, Spell
 from gameshop_item import GameShopItem
@@ -867,8 +867,8 @@ class Envir:
                 quest.required_min_level = quest_info['required_min_level']
                 quest.required_max_level = quest_info['required_max_level']
                 quest.required_quest = quest_info['required_quest']
-                quest.required_class = quest_info['required_class']
-                quest.type = quest_info['type']
+                quest.required_class = RequiredClass.from_value(quest_info['required_class'])
+                quest.type = QuestType.from_value(quest_info['type'])
                 quest.goto_message = quest_info['goto_message']
                 quest.kill_message = quest_info['kill_message']
                 quest.item_message = quest_info['item_message']
@@ -1306,7 +1306,7 @@ class Envir:
         magics_data = [
             {
                 'name': m.name,
-                'spell': m.spell.name,
+                'spell': m.spell.value,
                 'base_cost': m.base_cost,
                 'level_cost': m.level_cost,
                 'icon': m.icon,

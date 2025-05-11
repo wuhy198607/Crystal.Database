@@ -44,6 +44,8 @@ class ItemType(Enum):
     Pets = 35
     Transform = 36
     Deco = 37
+
+
 @dataclass
 class ItemGrade(Enum):
     None_ = 0
@@ -51,6 +53,7 @@ class ItemGrade(Enum):
     Rare = 2
     Legendary = 3
     Mythical = 4
+            
 @dataclass
 class RequiredType(Enum):
     Level = 0

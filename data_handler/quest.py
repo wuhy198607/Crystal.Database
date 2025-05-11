@@ -4,7 +4,7 @@ from binary import BinaryReader,BinaryWriter
 from enum import Enum
 from item import Item
 from monster import Monster 
-
+@dataclass
 class QuestType(Enum):
     General = 0
     Daily = 1
@@ -13,7 +13,24 @@ class QuestType(Enum):
     Story = 4
     Achievement = 5
     Tutorial = 6
-
+    @staticmethod
+    def from_value(value):
+        if value == 0:
+            return QuestType.General
+        elif value == 1:
+            return QuestType.Daily
+        elif value == 2:    
+            return QuestType.Weekly
+        elif value == 3:
+            return QuestType.Repeatable
+        elif value == 4:
+            return QuestType.Story
+        elif value == 5:
+            return QuestType.Achievement    
+        elif value == 6:
+            return QuestType.Tutorial
+        else:
+            raise ValueError(f"无效的任务类型值 {value}")
 @dataclass
 class QuestItemTask:
     item: 'Item' = None
@@ -43,6 +60,22 @@ class RequiredClass(Enum):
     Taoist = 3
     Assassin = 4
     Archer = 5
+    @staticmethod
+    def from_value(value):
+        if value == 0:
+            return RequiredClass.None_
+        elif value == 1:
+            return RequiredClass.Warrior
+        elif value == 2:
+            return RequiredClass.Wizard
+        elif value == 3:
+            return RequiredClass.Taoist
+        elif value == 4:
+            return RequiredClass.Assassin
+        elif value == 5:
+            return RequiredClass.Archer
+        else:
+            raise ValueError(f"无效的职业要求值 {value}")
 @dataclass
 class Quest:
     index: int = 0
@@ -88,6 +121,7 @@ class Quest:
         BinaryWriter.write_int32(f, self.required_min_level)    
         BinaryWriter.write_int32(f, self.required_max_level)
         BinaryWriter.write_int32(f, self.required_quest)
+
         BinaryWriter.write_byte(f, self.required_class.value)
         BinaryWriter.write_byte(f, self.type.value)
         BinaryWriter.write_string(f, self.goto_message)
