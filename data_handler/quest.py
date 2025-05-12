@@ -5,6 +5,7 @@ from enum import Enum
 from item import Item
 from monster import Monster 
 @dataclass
+@dataclass
 class QuestType(Enum):
     General = 0
     Daily = 1
