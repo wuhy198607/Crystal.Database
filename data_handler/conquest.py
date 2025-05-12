@@ -23,6 +23,12 @@ class ConquestArcherInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        self.location.write(f)
+        BinaryWriter.write_int32(f, self.mob_index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.repair_cost)
 
 @dataclass
 class ConquestGateInfo:
@@ -31,6 +37,13 @@ class ConquestGateInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        self.location.write(f)
+        BinaryWriter.write_int32(f, self.mob_index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.repair_cost)
+
 
 @dataclass
 class ConquestWallInfo:
@@ -39,6 +52,13 @@ class ConquestWallInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        self.location.write(f)
+        BinaryWriter.write_int32(f, self.mob_index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.repair_cost)
+
 
 @dataclass
 class ConquestSiegeInfo:
@@ -47,6 +67,13 @@ class ConquestSiegeInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        self.location.write(f)
+        BinaryWriter.write_int32(f, self.mob_index)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_int32(f, self.repair_cost)
+
 
 @dataclass
 class ConquestFlagInfo:
@@ -54,6 +81,12 @@ class ConquestFlagInfo:
     location: Point = field(default_factory=Point)
     name: str = ""
     file_name: str = ""
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.index)
+        self.location.write(f)
+        BinaryWriter.write_string(f, self.name)
+        BinaryWriter.write_string(f, self.file_name)
+    
 
 @dataclass
 class Conquest:

@@ -159,7 +159,24 @@ class BinaryWriter:
         except Exception as e:
             print(f"写入int16时出错: {str(e)}")
             raise
-
+    @staticmethod
+    def write_int32(f, value):
+        """写入32位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<i', value)
+            f.write(data)
+        except Exception as e:
+            print(f"写入int32时出错: {str(e)}")
+            raise
+    @staticmethod
+    def write_int64(f, value):
+        """写入64位整数，使用小端字节序（little-endian）"""
+        try:
+            data = struct.pack('<q', value)
+            f.write(data)
+        except Exception as e:
+            print(f"写入int64时出错: {str(e)}")
+            raise
     @staticmethod
     def write_uint16(f, value):
         """写入无符号16位整数，使用小端字节序（little-endian）"""

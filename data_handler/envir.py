@@ -16,7 +16,7 @@ from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemR
 from dragon import Dragon, DragonDropInfo
 from magic import Magic, Spell
 from gameshop_item import GameShopItem
-from conquest import Conquest, ConquestType, ConquestGame
+from conquest import Conquest, ConquestType, ConquestGame, ConquestArcherInfo, ConquestGateInfo, ConquestWallInfo, ConquestSiegeInfo, ConquestFlagInfo
 from respawn_timer import RespawnTimer, RespawnTickOption
 from common import Stat,Stats
 
@@ -867,8 +867,8 @@ class Envir:
                 quest.required_min_level = quest_info['required_min_level']
                 quest.required_max_level = quest_info['required_max_level']
                 quest.required_quest = quest_info['required_quest']
-                quest.required_class = RequiredClass.from_value(quest_info['required_class'])
-                quest.type = QuestType.from_value(quest_info['type'])
+                quest.required_class = RequiredClass[quest_info['required_class']]
+                quest.type = QuestType[quest_info['type']]
                 quest.goto_message = quest_info['goto_message']
                 quest.kill_message = quest_info['kill_message']
                 quest.item_message = quest_info['item_message']
@@ -918,7 +918,7 @@ class Envir:
             for magic_info in magic_data:
                 magic = Magic()
                 magic.name = magic_info['name']
-                magic.spell = magic_info['spell']
+                magic.spell = Spell[magic_info['spell']]
                 magic.base_cost = magic_info['base_cost']
                 magic.level_cost = magic_info['level_cost']
                 magic.icon = magic_info['icon']
@@ -984,13 +984,45 @@ class Envir:
                 conquest.wall_index = conquest_info['wall_index']
                 conquest.siege_index = conquest_info['siege_index']
                 conquest.flag_index = conquest_info['flag_index']
-                conquest.conquest_guards = conquest_info['conquest_guards']
                 conquest.extra_maps = conquest_info['extra_maps']
-                conquest.conquest_gates = conquest_info['conquest_gates']
-                conquest.conquest_walls = conquest_info['conquest_walls']
-                conquest.conquest_sieges = conquest_info['conquest_sieges']
-                conquest.conquest_flags = conquest_info['conquest_flags']
-                conquest.control_points = conquest_info['control_points']
+                for guard_info in conquest_info['conquest_guards']:
+                    guard = ConquestArcherInfo()
+                    guard.index = guard_info['index']
+                    guard.location = Point(guard_info['location']['x'], guard_info['location']['y'])
+                    guard.mob_index = guard_info['mob_index']
+                    guard.name = guard_info['name']
+                    guard.repair_cost = guard_info['repair_cost']
+                    conquest.conquest_guards.append(guard)
+                for gate_info in conquest_info['conquest_gates']:
+                    gate = ConquestGateInfo()
+                    gate.index = gate_info['index']
+                    gate.location = Point(gate_info['location']['x'], gate_info['location']['y'])
+                    gate.mob_index = gate_info['mob_index']
+                    gate.name = gate_info['name']
+                    gate.repair_cost = gate_info['repair_cost']
+                    conquest.conquest_gates.append(gate)
+                for wall_info in conquest_info['conquest_walls']:
+                    wall = ConquestWallInfo()
+                    wall.index = wall_info['index']
+                    wall.location = Point(wall_info['location']['x'], wall_info['location']['y'])
+                    wall.mob_index = wall_info['mob_index']
+                    wall.name = wall_info['name']
+                    wall.repair_cost = wall_info['repair_cost']
+                    conquest.conquest_walls.append(wall)
+                for flag_info in conquest_info['conquest_flags']:
+                    flag = ConquestFlagInfo()
+                    flag.index = flag_info['index']
+                    flag.location = Point(flag_info['location']['x'], flag_info['location']['y'])
+                    flag.name = flag_info['name']
+                    flag.file_name = flag_info['file_name']
+                    conquest.conquest_flags.append(flag)
+                for control_point_info in conquest_info['control_points']:
+                    control_point = ConquestFlagInfo()
+                    control_point.index = control_point_info['index']
+                    control_point.location = Point(control_point_info['location']['x'], control_point_info['location']['y'])
+                    control_point.name = control_point_info['name']
+                    control_point.file_name = control_point_info['file_name']
+                    conquest.control_points.append(control_point)
                 conquest.start_hour = conquest_info['start_hour']
                 conquest.war_length = conquest_info['war_length']
                 conquest.type = ConquestType[conquest_info['type']]
@@ -1021,7 +1053,11 @@ class Envir:
                 respawn_timer.last_tick = respawn_timer_info['last_tick']
                 respawn_timer.last_user_count = respawn_timer_info['last_user_count']
                 respawn_timer.current_delay = respawn_timer_info['current_delay']
-                respawn_timer.respawn_options = respawn_timer_info['respawn_options']   
+                for respawn_option_info in respawn_timer_info['respawn_options']:
+                    respawn_option = RespawnTickOption()
+                    respawn_option.user_count = respawn_option_info['user_count']
+                    respawn_option.delay_loss = respawn_option_info['delay_loss']
+                    respawn_timer.respawn_options.append(respawn_option)
                 self.respawn_timers.append(respawn_timer)
         pass
 
@@ -1306,7 +1342,7 @@ class Envir:
         magics_data = [
             {
                 'name': m.name,
-                'spell': m.spell.value,
+                'spell': m.spell.name,
                 'base_cost': m.base_cost,
                 'level_cost': m.level_cost,
                 'icon': m.icon,
