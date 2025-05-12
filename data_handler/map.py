@@ -10,7 +10,7 @@ class SafeZoneInfo:
     size: int = 0  # 应该是uint16
     start_point: bool = False
     def write(self,f):
-        Point.write_point(f, self.location)
+        self.location.write(f)
         BinaryWriter.write_uint16(f, self.size)
         BinaryWriter.write_bool(f, self.start_point)
 
@@ -27,8 +27,8 @@ class MovementInfo:
     icon: int = 0
     def write(self,f):
         BinaryWriter.write_int32(f, self.map_index)
-        Point.write_point(f, self.source)
-        Point.write_point(f, self.destination)
+        self.source.write(f)
+        self.destination.write(f)
         BinaryWriter.write_bool(f, self.need_hole)
         BinaryWriter.write_bool(f, self.need_move)
         BinaryWriter.write_int32(f, self.conquest_index)    
@@ -49,7 +49,7 @@ class RespawnInfo:
     respawn_ticks: int = 0  # 应该是uint16
     def write(self,f):
         BinaryWriter.write_int32(f, self.monster_index)
-        Point.write_point(f, self.location)
+        self.location.write(f)
         BinaryWriter.write_uint16(f, self.count)
         BinaryWriter.write_uint16(f, self.spread)
         BinaryWriter.write_uint16(f, self.delay)

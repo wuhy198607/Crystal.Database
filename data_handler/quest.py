@@ -4,7 +4,7 @@ from binary import BinaryReader,BinaryWriter
 from enum import Enum
 from item import Item
 from monster import Monster 
-
+@dataclass
 class QuestType(Enum):
     General = 0
     Daily = 1
@@ -13,28 +13,40 @@ class QuestType(Enum):
     Story = 4
     Achievement = 5
     Tutorial = 6
-
+    def write(self,f):
+        BinaryWriter.write_byte(f, self.value)
 @dataclass
 class QuestItemTask:
     item: 'Item' = None
     count: int = 0
     message: str = ""
-
+    def write(self,f):
+        self.item.write(f)
+        BinaryWriter.write_int32(f, self.count)
+        BinaryWriter.write_string(f, self.message)
 @dataclass
 class QuestKillTask:
     monster: 'Monster' = None
     count: int = 0
     message: str = ""
-
+    def write(self,f):
+        self.monster.write(f)
+        BinaryWriter.write_int32(f, self.count)
+        BinaryWriter.write_string(f, self.message)
 @dataclass
 class QuestFlagTask:
     number: int = 0
     message: str = ""
-
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.number)
+        BinaryWriter.write_string(f, self.message)
 @dataclass
 class QuestItemReward:
     item: 'Item' = None
     count: int = 0
+    def write(self,f):
+        self.item.write(f)
+        BinaryWriter.write_int32(f, self.count)
 @dataclass  
 class RequiredClass(Enum):
     None_ = 0
@@ -43,6 +55,8 @@ class RequiredClass(Enum):
     Taoist = 3
     Assassin = 4
     Archer = 5
+    def write(self,f):
+        BinaryWriter.write_byte(f, self.value)
 @dataclass
 class Quest:
     index: int = 0
@@ -88,8 +102,8 @@ class Quest:
         BinaryWriter.write_int32(f, self.required_min_level)    
         BinaryWriter.write_int32(f, self.required_max_level)
         BinaryWriter.write_int32(f, self.required_quest)
-        BinaryWriter.write_byte(f, self.required_class.value)
-        BinaryWriter.write_byte(f, self.type.value)
+        self.required_class.write(f)
+        self.type.write(f)
         BinaryWriter.write_string(f, self.goto_message)
         BinaryWriter.write_string(f, self.kill_message)
         BinaryWriter.write_string(f, self.item_message)

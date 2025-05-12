@@ -12,10 +12,9 @@ class Point:
         x = BinaryReader.read_int32(f)
         y = BinaryReader.read_int32(f)
         return Point(x, y)
-    @staticmethod
-    def write_point(f, point):
-        BinaryWriter.write_int32(f, point.x)
-        BinaryWriter.write_int32(f, point.y)
+    def write(self,f):
+        BinaryWriter.write_int32(f, self.x)
+        BinaryWriter.write_int32(f, self.y)
 class Stat(Enum):
     MinAC = 0
     MaxAC = 1
@@ -93,7 +92,11 @@ class Stats:
                 del self.values[key]
             return
         self.values[key] = value
-
+    def write(self,f):
+        BinaryWriter.write_int32(f, len(self.values))
+        for stat, value in self.values.items():
+            BinaryWriter.write_int32(f, stat.value)
+            BinaryWriter.write_int32(f, value)
     def add(self, stats):
         for stat, value in stats.values.items():
             self[stat] += value
