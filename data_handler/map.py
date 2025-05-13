@@ -5,7 +5,6 @@ from common import Point
 
 @dataclass
 class SafeZoneInfo:
-    info: Optional['Map'] = None
     location: Point = field(default_factory=Point)
     size: int = 0  # 应该是uint16
     start_point: bool = False
@@ -53,12 +52,22 @@ class RespawnInfo:
         BinaryWriter.write_uint16(f, self.count)
         BinaryWriter.write_uint16(f, self.spread)
         BinaryWriter.write_uint16(f, self.delay)
+        BinaryWriter.write_byte(f, self.direction)
+        BinaryWriter.write_string(f, self.route_path)
+        BinaryWriter.write_uint16(f, self.random_delay)
+        BinaryWriter.write_int32(f, self.respawn_index)
+        BinaryWriter.write_bool(f, self.save_respawn_time)
+        BinaryWriter.write_uint16(f, self.respawn_ticks)
 
 @dataclass
 class MineZone:
     location: Point = field(default_factory=Point)
     size: int = 0
     mine_index: int = 0
+    def write(self,f):
+        self.location.write(f)
+        BinaryWriter.write_int32(f,self.size)
+        BinaryWriter.write_byte(f,self.mine_index)
 
 @dataclass
 class Map:
@@ -104,7 +113,6 @@ class Map:
         self.movements: List[MovementInfo] = []
         self.respawns: List[RespawnInfo] = []
         self.mine_zones: List[MineZone] = []
-        self.active_coords: List[ActiveCoord] = []
         self.weather_particles = 0  
     def write(self, f):
         """写入地图信息"""
@@ -210,13 +218,7 @@ class Map:
             return safe_zone
         except Exception as e:
             print(f"读取安全区信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
-    def write_safe_zone(self,f,safe_zone):
-        """写入安全区信息"""
-        Point.write_point(f, safe_zone.location)
-        BinaryWriter.write_uint16(f, safe_zone.size)
-        BinaryWriter.write_bool(f, safe_zone.start_point)
     @staticmethod
     def read_respawn_info( f):
         """读取重生点信息"""
@@ -241,19 +243,7 @@ class Map:
             return respawn
         except Exception as e:
             print(f"读取重生点信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
-    def write_respawn_info(self,f,respawn):
-        """写入重生点信息"""
-        BinaryWriter.write_int32(f, respawn.monster_index)
-        Point.write_point(f, respawn.location)
-        BinaryWriter.write_uint16(f, respawn.count)
-        BinaryWriter.write_uint16(f, respawn.spread)
-        BinaryWriter.write_uint16(f, respawn.delay)
-        BinaryWriter.write_byte(f, respawn.direction)
-        BinaryWriter.write_string(f, respawn.route_path)
-        BinaryWriter.write_uint16(f, respawn.random_delay)
-        BinaryWriter.write_int32(f, respawn.respawn_index)  
         
     @staticmethod
     def read_movement_info(f):    
@@ -274,7 +264,6 @@ class Map:
             return movement
         except Exception as e:
             print(f"读取移动点信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
     @staticmethod
     def read_mine_zone( f):
@@ -292,11 +281,8 @@ class Map:
     def read(f):
         """读取地图信息"""
         try:
-            # 获取当前文件位置，但不移动指针
-            current_pos = f.tell()
             map_info = Map()
             print(f"\n开始读取地图信息:")
-            print(f"当前位置: {current_pos}")
             
             # 读取基本信息
             try:
@@ -319,53 +305,41 @@ class Map:
                 print(f"大地图: {map_info.big_map}")
             except Exception as e:
                 print(f"读取基本信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
                 raise
             
             # 读取安全区
             try:
                 safe_zone_count = BinaryReader.read_int32(f)
                 print(f"\n安全区数量: {safe_zone_count}")
-                print(f"读取安全区前位置: {f.tell()}")
                 
                 for i in range(safe_zone_count):
                     safe_zone = Map.read_safe_zone(f)
-                    safe_zone.info = map_info
                     map_info.safe_zones.append(safe_zone)
-                    print(f"读取安全区 {i+1}/{safe_zone_count} 后位置: {f.tell()}")
             except Exception as e:
                 print(f"读取安全区信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
                 raise
             
             # 读取重生点
             try:
                 respawn_count = BinaryReader.read_int32(f)
                 print(f"\n重生点数量: {respawn_count}")
-                print(f"读取重生点前位置: {f.tell()}")
-                
                 for i in range(respawn_count):
                     respawn = Map.read_respawn_info(f)
                     map_info.respawns.append(respawn)
-                    print(f"读取重生点 {i+1}/{respawn_count} 后位置: {f.tell()}")
             except Exception as e:
                 print(f"读取重生点信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
                 raise
             
             # 读取移动点
             try:
                 movement_count = BinaryReader.read_int32(f)
                 print(f"\n移动点数量: {movement_count}")
-                print(f"读取移动点前位置: {f.tell()}")
                 
                 for i in range(movement_count):
                     movement = Map.read_movement_info(f)
                     map_info.movements.append(movement)
-                    print(f"读取移动点 {i+1}/{movement_count} 后位置: {f.tell()}")
             except Exception as e:
                 print(f"读取移动点信息时出错: {str(e)}")
-                print(f"当前文件位置: {f.tell()}")
                 raise
             
             # 读取布尔属性
@@ -397,8 +371,6 @@ class Map:
             try:
                 mine_zone_count = BinaryReader.read_int32(f)
                 print(f"读取矿区数量: {mine_zone_count}")
-                if mine_zone_count > 1000:  # 添加合理性检查
-                    raise ValueError(f"矿区数量异常: {mine_zone_count}")
                 for i in range(mine_zone_count):
                     try:
                         mine_zone = Map.read_mine_zone(f)
@@ -441,5 +413,4 @@ class Map:
         
         except Exception as e:
             print(f"读取地图信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise

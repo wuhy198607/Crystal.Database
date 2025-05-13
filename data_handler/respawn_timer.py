@@ -36,7 +36,6 @@ class RespawnTimer:
             respawn = RespawnTimer()
             
             # 读取基本信息
-            print(f"\n开始读取刷新计时器信息，当前位置: {f.tell()}")
             respawn.base_spawn_rate = BinaryReader.read_byte(f)
             print(f"读取基础刷新率: {respawn.base_spawn_rate}")
             
@@ -63,5 +62,4 @@ class RespawnTimer:
             return respawn
         except Exception as e:
             print(f"读取刷新计时器信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise 

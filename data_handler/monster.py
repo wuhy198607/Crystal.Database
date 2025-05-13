@@ -73,7 +73,6 @@ class Monster:
             return stats
         except Exception as e:
             print(f"读取状态信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise   
     @staticmethod
     def read(f):
@@ -82,7 +81,6 @@ class Monster:
             monster = Monster()
             
             # 读取基本信息
-            print(f"\n开始读取怪物信息，当前位置: {f.tell()}")
             monster.index = BinaryReader.read_int32(f)
             print(f"读取怪物索引: {monster.index}")
             
@@ -138,9 +136,7 @@ class Monster:
             monster.drop_path = BinaryReader.read_string(f)
             print(f"读取掉落路径: {monster.drop_path}")
 
-            print(f"怪物信息读取完成，当前位置: {f.tell()}")
             return monster
         except Exception as e:
             print(f"读取怪物信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise

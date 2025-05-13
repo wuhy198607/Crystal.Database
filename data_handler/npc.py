@@ -62,7 +62,6 @@ class NPC:
             npc = NPC()
             
             # 读取基本信息
-            print(f"\n开始读取NPC信息，当前位置: {f.tell()}")
             npc.index = BinaryReader.read_int32(f)
             print(f"读取NPC索引: {npc.index}")
             
@@ -124,5 +123,4 @@ class NPC:
             return npc
         except Exception as e:
             print(f"读取NPC信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise

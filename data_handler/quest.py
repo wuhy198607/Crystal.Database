@@ -121,7 +121,6 @@ class Quest:
             quest = Quest()
             
             # 读取基本信息
-            print(f"\n开始读取任务信息，当前位置: {f.tell()}")
             quest.index = BinaryReader.read_int32(f)
             print(f"读取任务索引: {quest.index}")
             
@@ -184,6 +183,5 @@ class Quest:
             return quest
         except Exception as e:
             print(f"读取任务信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
     

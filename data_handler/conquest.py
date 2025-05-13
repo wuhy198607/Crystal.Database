@@ -181,7 +181,6 @@ class Conquest:
             conquest = Conquest()
             
             # 读取基本信息
-            print(f"\n开始读取征服信息，当前位置: {f.tell()}")
             conquest.index = BinaryReader.read_int32(f)
             print(f"读取索引: {conquest.index}")
             
@@ -352,5 +351,4 @@ class Conquest:
             return conquest
         except Exception as e:
             print(f"读取征服信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise 

@@ -54,7 +54,6 @@ class Dragon:
             dragon = Dragon()
             
             # 读取基本信息
-            print(f"\n开始读取龙信息，当前位置: {f.tell()}")
             dragon.enabled = BinaryReader.read_bool(f)
             print(f"读取启用状态: {dragon.enabled}")
             
@@ -96,7 +95,6 @@ class Dragon:
             return dragon
         except Exception as e:
             print(f"读取龙信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
 
     

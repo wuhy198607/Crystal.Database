@@ -6,9 +6,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from enum import Enum
 import re
-import random
 from binary import BinaryReader, BinaryWriter
-from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone
+from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone  
 from  item import Item,ItemType,ItemGrade,RequiredType,RequiredClass,RequiredGender,ItemSet,BindMode,SpecialItemMode
 from  monster import Monster,DropInfo
 from  npc import NPC
@@ -708,6 +707,38 @@ class Envir:
                     safe_zone.size = sz['size']
                     safe_zone.start_point = sz['start_point']
                     map_obj.safe_zones.append(safe_zone)
+                for r in map_info['respawns']:
+                    respawn = RespawnInfo()
+                    respawn.monster_index = r['monster_index']
+                    respawn.location = Point(r['location']['x'], r['location']['y'])
+                    respawn.count = r['count']
+                    respawn.spread = r['spread']
+                    respawn.delay = r['delay']
+                    respawn.direction = r['direction']
+                    respawn.route_path = r['route_path']
+                    respawn.random_delay = r['random_delay']
+                    respawn.respawn_index = r['respawn_index']
+                    respawn.save_respawn_time = r['save_respawn_time']
+                    respawn.respawn_ticks = r['respawn_ticks']
+                    map_obj.respawns.append(respawn)
+                for mv in map_info['movements']:
+                    movement = MovementInfo()
+                    movement.map_index = mv['map_index']
+                    movement.map_index = mv['map_index']
+                    movement.source = Point(mv['source']['x'], mv['source']['y'])
+                    movement.destination = Point(mv['destination']['x'], mv['destination']['y'])
+                    movement.need_hole = mv['need_hole']
+                    movement.need_move = mv['need_move']
+                    movement.conquest_index = mv['conquest_index']
+                    movement.show_on_big_map = mv['show_on_big_map']
+                    movement.icon = mv['icon']
+                    map_obj.movements.append(movement)
+                for mz in map_info['mine_zones']:
+                    mine_zone = MineZone()
+                    mine_zone.location = Point(mz['location']['x'], mz['location']['y'])
+                    mine_zone.size = mz['size']
+                    mine_zone.mine_index = mz['mine_index']
+                    map_obj.mine_zones.append(mine_zone)
                 # 加载其他属性
                 map_obj.no_teleport = map_info['no_teleport']
                 map_obj.no_reconnect = map_info['no_reconnect']
@@ -1099,6 +1130,34 @@ class Envir:
                         'start_point': sz.start_point
                     } for sz in m.safe_zones
                 ],
+                'respawns': [
+                    {
+                        'monster_index': r.monster_index,
+                        'location': {'x': r.location.x, 'y': r.location.y},
+                        'count': r.count,
+                        'spread': r.spread,
+                        'delay': r.delay,
+                        'direction': r.direction,
+                        'route_path': r.route_path,
+                        'random_delay': r.random_delay,
+                        'respawn_index': r.respawn_index,
+                        'save_respawn_time': r.save_respawn_time,
+                        'respawn_ticks': r.respawn_ticks
+                    } for r in m.respawns
+                ],
+                'movements': [
+                    {
+                        'map_index': mv.map_index,
+                        'source': {'x': mv.source.x, 'y': mv.source.y},
+                        'destination': {'x': mv.destination.x, 'y': mv.destination.y},
+                        'need_hole': mv.need_hole,
+                        'need_move': mv.need_move,
+                        'conquest_index': mv.conquest_index,
+                        'show_on_big_map': mv.show_on_big_map,
+                        'icon': mv.icon
+                    } for mv in m.movements
+                ],
+
                 'no_teleport': m.no_teleport,
                 'no_reconnect': m.no_reconnect,
                 'no_reconnect_map': m.no_reconnect_map,
@@ -1117,6 +1176,13 @@ class Envir:
                 'lightning': m.lightning,
                 'lightning_damage': m.lightning_damage,
                 'map_dark_light': m.map_dark_light,
+                'mine_zones': [
+                    {
+                        'location': {'x': mz.location.x, 'y': mz.location.y},
+                        'size': mz.size,
+                        'mine_index': mz.mine_index
+                    } for mz in m.mine_zones
+                ],
                 'mine_index': m.mine_index,
                 'no_mount': m.no_mount,
                 'need_bridle': m.need_bridle,

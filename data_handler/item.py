@@ -275,7 +275,6 @@ class Item:
             return stats
         except Exception as e:
             print(f"读取状态信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
     @staticmethod
     def read(f):
@@ -284,7 +283,6 @@ class Item:
             item_info = Item()
             
             # 读取基本信息
-            print(f"\n开始读取物品信息，当前位置: {f.tell()}")
             item_info.index = BinaryReader.read_int32(f)
             print(f"读取物品索引: {item_info.index}")
             
@@ -406,11 +404,7 @@ class Item:
             if is_tooltip:
                 item_info.tool_tip = BinaryReader.read_string(f)
                 print(f"读取工具提示: {item_info.tool_tip}")
-
-
-            print(f"物品信息读取完成，当前位置: {f.tell()}")
             return item_info
         except Exception as e:
             print(f"读取物品信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise

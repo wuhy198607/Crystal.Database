@@ -112,7 +112,6 @@ class BinaryReader:
             
         except Exception as e:
             print(f"读取字符串时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
 
     @staticmethod
@@ -140,15 +139,6 @@ class BinaryReader:
             raise
 
 class BinaryWriter:
-    @staticmethod
-    def write_int32(f, value):
-        """写入32位整数，使用小端字节序（little-endian）"""
-        try:
-            data = struct.pack('<i', value)
-            f.write(data)
-        except Exception as e:
-            print(f"写入int32时出错: {str(e)}")
-            raise
 
     @staticmethod
     def write_int16(f, value):
@@ -251,7 +241,6 @@ class BinaryWriter:
             
         except Exception as e:
             print(f"写入字符串时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise
 
     @staticmethod

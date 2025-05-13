@@ -40,7 +40,6 @@ class GameShopItem:
             item = GameShopItem()
             
             # 读取基本信息
-            print(f"\n开始读取商城物品信息，当前位置: {f.tell()}")
             item.item_index = BinaryReader.read_int32(f)
             print(f"读取物品索引: {item.item_index}")
             
@@ -83,9 +82,7 @@ class GameShopItem:
             item.can_buy_credit = BinaryReader.read_bool(f)
             print(f"读取可否用元宝购买: {item.can_buy_credit}")
             
-            print(f"商城物品信息读取完成，当前位置: {f.tell()}")
             return item
         except Exception as e:
             print(f"读取商城物品信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise 

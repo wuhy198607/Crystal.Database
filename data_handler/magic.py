@@ -61,7 +61,6 @@ class Magic:
             magic = Magic()
             
             # 读取基本信息
-            print(f"\n开始读取魔法信息，当前位置: {f.tell()}")
             magic.name = BinaryReader.read_string(f)
             print(f"读取魔法名称: {magic.name}")
             
@@ -125,9 +124,7 @@ class Magic:
             magic.multiplier_bonus = BinaryReader.read_float(f)
             print(f"读取倍数奖励: {magic.multiplier_bonus}")
             
-            print(f"魔法信息读取完成，当前位置: {f.tell()}")
             return magic
         except Exception as e:
             print(f"读取魔法信息时出错: {str(e)}")
-            print(f"当前文件位置: {f.tell()}")
             raise 
