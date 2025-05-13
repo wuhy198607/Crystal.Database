@@ -229,20 +229,24 @@ class BinaryWriter:
             length = len(data)
             
             # 写入7位编码的长度
-            while length > 0:
-                b = length & 0x7F
-                length >>= 7
-                if length > 0:
-                    b |= 0x80
-                f.write(struct.pack('B', b))
+            if length == 0:
+                f.write(struct.pack('B', 0))
+            else:
+                temp_length = length
+                while temp_length > 0:
+                    b = temp_length & 0x7F
+                    temp_length >>= 7
+                    if temp_length > 0:
+                        b |= 0x80
+                    f.write(struct.pack('B', b))
             
-            # 写入字符串数据
-            f.write(data)
+            # 写入实际的字符串数据
+            if length > 0:
+                f.write(data)
             
         except Exception as e:
             print(f"写入字符串时出错: {str(e)}")
             raise
-
     @staticmethod
     def write_float(f, value):
         """写入浮点数"""
