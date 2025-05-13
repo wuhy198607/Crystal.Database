@@ -222,27 +222,24 @@ class BinaryWriter:
         """写入字符串，使用7位编码的长度前缀格式"""
         try:
             if not value:
-                value = ""
+                # 写入长度为0的字符串
+                f.write(struct.pack('B', 0))
+                return
             
-            # 将字符串编码为字节
+            # 1. 将字符串编码为字节
             data = value.encode('latin1')
             length = len(data)
             
-            # 写入7位编码的长度
-            if length == 0:
-                f.write(struct.pack('B', 0))
-            else:
-                temp_length = length
-                while temp_length > 0:
-                    b = temp_length & 0x7F
-                    temp_length >>= 7
-                    if temp_length > 0:
-                        b |= 0x80
-                    f.write(struct.pack('B', b))
+            # 2. 写入7位编码的长度
+            while length > 0:
+                b = length & 0x7F
+                length >>= 7
+                if length > 0:
+                    b |= 0x80
+                f.write(struct.pack('B', b))
             
-            # 写入实际的字符串数据
-            if length > 0:
-                f.write(data)
+            # 3. 写入实际的字符串数据
+            f.write(data)
             
         except Exception as e:
             print(f"写入字符串时出错: {str(e)}")

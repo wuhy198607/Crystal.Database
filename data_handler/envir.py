@@ -1369,7 +1369,7 @@ class Envir:
                 'random_stats': i.random_stats,
                 'tool_tip': i.tool_tip,
                 'slots': i.slots,
-                'stats': {stat.name: i.stats[stat] for stat in Stat}
+                'stats': {stat.name: i.stats[stat] for stat in Stat},
             } for i in self.items
         ]
         items_path = os.path.join(output_path, 'items.json')

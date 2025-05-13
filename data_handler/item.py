@@ -244,7 +244,11 @@ class Item:
         BinaryWriter.write_bool(f, self.can_awakening)
         BinaryWriter.write_byte(f, self.slots)
         self.write_stats(f)
-        BinaryWriter.write_bool(f, self.tool_tip)
+        if(self.tool_tip != ""):
+            BinaryWriter.write_bool(f, True)
+            BinaryWriter.write_string(f, self.tool_tip)
+        else:
+            BinaryWriter.write_bool(f, False)
         
     def write_stats(self, f):
         """写入状态信息"""
