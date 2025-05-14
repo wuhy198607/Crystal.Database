@@ -2,6 +2,9 @@ Jev.rar
 
 # Data files
 data/
-./pycache/
-./__pycache__/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
 
