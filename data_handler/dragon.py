@@ -20,8 +20,6 @@ class Dragon:
     location: Point = field(default_factory=Point)
     drop_area_top: Point = field(default_factory=Point)
     drop_area_bottom: Point = field(default_factory=Point)
-    level: int = 1
-    experience: int = 0
     exps: List[int] = field(default_factory=lambda: [10000 * (i + 1) for i in range(12)])  # 12级经验值
     drops: List[List[DragonDropInfo]] = field(default_factory=lambda: [[] for _ in range(13)])  # 13级掉落
 
@@ -41,11 +39,9 @@ class Dragon:
         self.location.write(f)
         self.drop_area_top.write(f)
         self.drop_area_bottom.write(f)
-        BinaryWriter.write_int32(f, self.level)
-        BinaryWriter.write_int32(f, self.experience)
-        BinaryWriter.write_int32(f, len(self.exps))
         for exp in self.exps:   
             BinaryWriter.write_int64(f, exp)
+        
         
     @staticmethod
     def read(f):

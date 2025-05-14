@@ -41,7 +41,7 @@ class Monster:
         BinaryWriter.write_uint16(f, self.level)
         BinaryWriter.write_byte(f, self.view_range)
         BinaryWriter.write_byte(f, self.cool_eye)
-        self.stats.write(f)
+        Monster.write_stats(f,self.stats)
         BinaryWriter.write_byte(f, self.light)
         BinaryWriter.write_uint16(f, self.attack_speed)
         BinaryWriter.write_uint16(f, self.move_speed)   
@@ -73,7 +73,23 @@ class Monster:
             return stats
         except Exception as e:
             print(f"读取状态信息时出错: {str(e)}")
-            raise   
+            raise 
+
+    @staticmethod
+    def write_stats(f, stats):
+        """写入状态信息"""
+        try:
+            # 写入状态数量
+            BinaryWriter.write_int32(f, len(stats.values))
+            
+            # 写入每个状态
+            for stat, value in stats.values.items():
+                BinaryWriter.write_byte(f, stat.value)
+                BinaryWriter.write_int32(f, value)
+        except Exception as e:
+            print(f"写入状态信息时出错: {str(e)}")
+            raise
+      
     @staticmethod
     def read(f):
         """读取怪物信息"""

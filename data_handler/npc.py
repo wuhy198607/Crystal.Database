@@ -21,7 +21,6 @@ class NPC:
     max_lev: int = 0
     day_of_week: str = ""
     class_required: str = ""
-    sabuk: bool = False
     flag_needed: int = 0
     conquest: int = 0
     show_on_big_map: bool = False
@@ -32,10 +31,17 @@ class NPC:
     finish_quest_indexes: List[int] = field(default_factory=list)
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
+        BinaryWriter.write_int32(f, self.map_index)
+        BinaryWriter.write_int32(f, len(self.collect_quest_indexes))
+        for quest_index in self.collect_quest_indexes:
+            BinaryWriter.write_int32(f, quest_index)
+        BinaryWriter.write_int32(f, len(self.finish_quest_indexes))
+        for quest_index in self.finish_quest_indexes:
+            BinaryWriter.write_int32(f, quest_index)
         BinaryWriter.write_string(f, self.file_name)
         BinaryWriter.write_string(f, self.name)
-        BinaryWriter.write_int32(f, self.map_index)
         self.location.write(f)
+        BinaryWriter.write_uint16(f, self.image)
         BinaryWriter.write_uint16(f, self.rate)
         BinaryWriter.write_bool(f, self.time_visible)
         BinaryWriter.write_byte(f, self.hour_start)
@@ -46,14 +52,13 @@ class NPC:
         BinaryWriter.write_int16(f, self.max_lev)
         BinaryWriter.write_string(f, self.day_of_week)
         BinaryWriter.write_string(f, self.class_required)
-        BinaryWriter.write_bool(f, self.sabuk)
-        BinaryWriter.write_int32(f, self.flag_needed)
         BinaryWriter.write_int32(f, self.conquest)
+        BinaryWriter.write_int32(f, self.flag_needed)
         BinaryWriter.write_bool(f, self.show_on_big_map)
         BinaryWriter.write_int32(f, self.big_map_icon)
         BinaryWriter.write_bool(f, self.can_teleport_to)
         BinaryWriter.write_bool(f, self.conquest_visible)
-                
+
 
     @staticmethod
     def read(f):

@@ -137,6 +137,24 @@ class Conquest:
         BinaryWriter.write_int32(f, self.wall_index)
         BinaryWriter.write_int32(f, self.siege_index)
         BinaryWriter.write_int32(f, self.flag_index)
+        BinaryWriter.write_int32(f, len(self.conquest_guards))
+        for guard in self.conquest_guards:
+            guard.write(f)
+        BinaryWriter.write_int32(f, len(self.extra_maps))
+        for map_index in self.extra_maps:
+            BinaryWriter.write_int32(f, map_index)  
+        BinaryWriter.write_int32(f, len(self.conquest_gates))
+        for gate in self.conquest_gates:
+            gate.write(f) 
+        BinaryWriter.write_int32(f, len(self.conquest_walls))
+        for wall in self.conquest_walls:
+            wall.write(f)
+        BinaryWriter.write_int32(f, len(self.conquest_sieges))
+        for siege in self.conquest_sieges:
+            siege.write(f)
+        BinaryWriter.write_int32(f, len(self.conquest_flags))
+        for flag in self.conquest_flags:
+            flag.write(f)
         BinaryWriter.write_byte(f, self.start_hour)
         BinaryWriter.write_int32(f, self.war_length)
         BinaryWriter.write_byte(f, self.type.value)
@@ -151,24 +169,6 @@ class Conquest:
         self.king_location.write(f)
         BinaryWriter.write_uint16(f, self.king_size)
         BinaryWriter.write_int32(f, self.control_point_index)
-        BinaryWriter.write_int32(f, len(self.extra_maps))
-        for map_index in self.extra_maps:
-            BinaryWriter.write_int32(f, map_index)  
-        BinaryWriter.write_int32(f, len(self.conquest_guards))
-        for guard in self.conquest_guards:
-            guard.write(f)
-        BinaryWriter.write_int32(f, len(self.conquest_gates))
-        for gate in self.conquest_gates:
-            gate.write(f)       
-        BinaryWriter.write_int32(f, len(self.conquest_walls))
-        for wall in self.conquest_walls:
-            wall.write(f)
-        BinaryWriter.write_int32(f, len(self.conquest_sieges))
-        for siege in self.conquest_sieges:
-            siege.write(f)
-        BinaryWriter.write_int32(f, len(self.conquest_flags))
-        for flag in self.conquest_flags:
-            flag.write(f)
         BinaryWriter.write_int32(f, len(self.control_points))
         for point in self.control_points:
             point.write(f)  

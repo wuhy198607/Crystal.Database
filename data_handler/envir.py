@@ -495,8 +495,6 @@ class Envir:
                     print(f"  身体名称: {dragon_info.body_name}")
                     print(f"  位置: ({dragon_info.location.x}, {dragon_info.location.y})")
                     print(f"  掉落区域: ({dragon_info.drop_area_top.x}, {dragon_info.drop_area_top.y}) - ({dragon_info.drop_area_bottom.x}, {dragon_info.drop_area_bottom.y})")
-                    print(f"  等级: {dragon_info.level}")
-                    print(f"  经验值: {dragon_info.experience}")
                     for j, exp in enumerate(dragon_info.exps):
                         print(f"  等级 {j+1} 经验值: {exp}")
                     for j, level_drops in enumerate(dragon_info.drops):
@@ -874,7 +872,6 @@ class Envir:
                 npc.max_lev = npc_info['max_lev']
                 npc.day_of_week = npc_info['day_of_week']
                 npc.class_required = npc_info['class_required']
-                npc.sabuk = npc_info['sabuk']
                 npc.flag_needed = npc_info['flag_needed']
                 npc.conquest = npc_info['conquest']
                 npc.show_on_big_map = npc_info['show_on_big_map']
@@ -923,8 +920,6 @@ class Envir:
                 dragon.location = Point(dragon_info['location']['x'], dragon_info['location']['y'])
                 dragon.drop_area_top = Point(dragon_info['drop_area_top']['x'], dragon_info['drop_area_top']['y'])
                 dragon.drop_area_bottom = Point(dragon_info['drop_area_bottom']['x'], dragon_info['drop_area_bottom']['y'])
-                dragon.level = dragon_info['level']
-                dragon.experience = dragon_info['experience']
                 dragon.exps = dragon_info['exps']
                 # 加载掉落信息
                 for level_drops in dragon_info['drops']:
@@ -1250,7 +1245,6 @@ class Envir:
                 'max_lev': n.max_lev,
                 'day_of_week': n.day_of_week,
                 'class_required': n.class_required,
-                'sabuk': n.sabuk,
                 'flag_needed': n.flag_needed,
                 'conquest': n.conquest,
                 'show_on_big_map': n.show_on_big_map,
@@ -1386,8 +1380,6 @@ class Envir:
                 'location': {'x': d.location.x, 'y': d.location.y},
                 'drop_area_top': {'x': d.drop_area_top.x, 'y': d.drop_area_top.y},
                 'drop_area_bottom': {'x': d.drop_area_bottom.x, 'y': d.drop_area_bottom.y},
-                'level': d.level,
-                'experience': d.experience,
                 'exps': d.exps,
                 'drops': [
                     [

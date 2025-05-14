@@ -147,7 +147,6 @@ class Quest:
             # 读取职业要求，如果值无效则设置为None
             try:
                 required_class_value = BinaryReader.read_byte(f)
-                print(f"读取byte原始字节: {required_class_value:02x}")
                 quest.required_class = RequiredClass(required_class_value)
             except ValueError:
                 print(f"警告: 无效的职业要求值 {required_class_value}，将设置为 None")
