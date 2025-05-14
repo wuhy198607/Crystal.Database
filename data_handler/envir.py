@@ -1671,7 +1671,7 @@ def main():
             print("完成!")
     elif args.option == 'save':
         Envir.load_json_to_db( args.output,args.db_path)
-
+        print("完成!")
 
 if __name__ == "__main__":
     main() 
