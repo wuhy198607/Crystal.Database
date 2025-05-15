@@ -6,6 +6,12 @@ from binary import BinaryReader,BinaryWriter
 class RespawnTickOption:
     user_count: int = 1
     delay_loss: float = 1.0
+    def compare(self,other: 'RespawnTickOption'):
+        if self.user_count != other.user_count:
+            return False
+        if self.delay_loss != other.delay_loss:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.user_count)
         BinaryWriter.write_float(f, self.delay_loss)
@@ -15,20 +21,11 @@ class RespawnTickOption:
 class RespawnTimer:
     base_spawn_rate: int = 20  # 基础刷新率（分钟）
     current_tick_counter: int = 0  # 当前刷新计数器
-    last_tick: int = 0  # 上次刷新时间
-    last_user_count: int = 0  # 上次用户数量
-    current_delay: int = 0  # 当前延迟
     respawn_options: List[RespawnTickOption] = field(default_factory=list)
     def compare(self,other: 'RespawnTimer'):
         if self.base_spawn_rate != other.base_spawn_rate:
             return False
         if self.current_tick_counter != other.current_tick_counter:
-            return False
-        if self.last_tick != other.last_tick:
-            return False
-        if self.last_user_count != other.last_user_count:
-            return False
-        if self.current_delay != other.current_delay:
             return False
         if len(self.respawn_options) != len(other.respawn_options):
             return False
@@ -39,9 +36,6 @@ class RespawnTimer:
     def write(self,f):
         BinaryWriter.write_byte(f, self.base_spawn_rate)
         BinaryWriter.write_uint64(f, self.current_tick_counter)
-        BinaryWriter.write_uint64(f, self.last_tick)
-        BinaryWriter.write_int32(f, self.last_user_count)
-        BinaryWriter.write_int32(f, self.current_delay)
         BinaryWriter.write_int32(f, len(self.respawn_options))
         for option in self.respawn_options:
             option.write(f)
@@ -71,10 +65,6 @@ class RespawnTimer:
                 print(f"读取刷新选项 {i+1}/{option_count}:")
                 print(f"  用户数量: {option.user_count}")
                 print(f"  延迟损失: {option.delay_loss}")
-            
-            # 计算当前延迟
-            respawn.current_delay = int(round(respawn.base_spawn_rate * 60000))
-            print(f"计算当前延迟: {respawn.current_delay}")
             
             return respawn
         except Exception as e:

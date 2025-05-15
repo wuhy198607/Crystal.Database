@@ -18,6 +18,36 @@ class GameShopItem:
     date: int = 0  # 使用int存储DateTime.ToBinary
     can_buy_gold: bool = False
     can_buy_credit: bool = False
+    def compare(self,other: 'GameShopItem'):
+        if self.item_index != other.item_index:
+            return False
+        if self.g_index != other.g_index:
+            return False
+        if self.gold_price != other.gold_price:
+            return False
+        if self.credit_price != other.credit_price:
+            return False
+        if self.count != other.count:
+            return 
+        if self.class_name != other.class_name:
+            return False
+        if self.category != other.category:
+            return False
+        if self.stock != other.stock:
+            return False
+        if self.i_stock != other.i_stock:
+            return False
+        if self.deal != other.deal:
+            return False
+        if self.top_item != other.top_item:
+            return False
+        if self.date != other.date:
+            return False
+        if self.can_buy_gold != other.can_buy_gold:
+            return False
+        if self.can_buy_credit != other.can_buy_credit:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.item_index)
         BinaryWriter.write_int32(f, self.g_index)
@@ -41,46 +71,32 @@ class GameShopItem:
             
             # 读取基本信息
             item.item_index = BinaryReader.read_int32(f)
-            print(f"读取物品索引: {item.item_index}")
             
             item.g_index = BinaryReader.read_int32(f)
-            print(f"读取商品索引: {item.g_index}")
             
             item.gold_price = BinaryReader.read_uint32(f)
-            print(f"读取金币价格: {item.gold_price}")
             
             item.credit_price = BinaryReader.read_uint32(f)
-            print(f"读取元宝价格: {item.credit_price}")
             
             item.count = BinaryReader.read_uint16(f)
-            print(f"读取数量: {item.count}")
             
             item.class_name = BinaryReader.read_string(f)
-            print(f"读取职业: {item.class_name}")
             
             item.category = BinaryReader.read_string(f)
-            print(f"读取分类: {item.category}")
             
             item.stock = BinaryReader.read_int32(f)
-            print(f"读取库存: {item.stock}")
             
             item.i_stock = BinaryReader.read_bool(f)
-            print(f"读取是否限量: {item.i_stock}")
             
             item.deal = BinaryReader.read_bool(f)
-            print(f"读取是否特价: {item.deal}")
             
             item.top_item = BinaryReader.read_bool(f)
-            print(f"读取是否置顶: {item.top_item}")
             
             item.date = BinaryReader.read_int64(f)
-            print(f"读取日期: {item.date}")
             
             item.can_buy_gold = BinaryReader.read_bool(f)
-            print(f"读取可否用金币购买: {item.can_buy_gold}")
             
             item.can_buy_credit = BinaryReader.read_bool(f)
-            print(f"读取可否用元宝购买: {item.can_buy_credit}")
             
             return item
         except Exception as e:

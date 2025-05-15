@@ -31,6 +31,48 @@ class Magic:
     range: int = 9
     multiplier_base: float = 1.0
     multiplier_bonus: float = 0.0
+    def compare(self,other: 'Magic'):
+        if self.name != other.name:
+            return False
+        if self.spell != other.spell:
+            return False
+        if self.base_cost != other.base_cost:
+            return False
+        if self.level_cost != other.level_cost:
+            return False
+        if self.icon != other.icon:
+            return False
+        if self.level1 != other.level1:
+            return False
+        if self.level2 != other.level2:
+            return False
+        if self.level3 != other.level3:
+            return False
+        if self.need1 != other.need1:
+            return False
+        if self.need2 != other.need2:
+            return False
+        if self.need3 != other.need3:
+            return False
+        if self.delay_base != other.delay_base:
+            return False
+        if self.delay_reduction != other.delay_reduction:
+            return False
+        if self.power_base != other.power_base:
+            return False
+        if self.power_bonus != other.power_bonus:
+            return False
+        if self.mpower_base != other.mpower_base:
+            return False
+        if self.mpower_bonus != other.mpower_bonus:
+            return False
+        if self.range != other.range:
+            return False
+        if self.multiplier_base != other.multiplier_base:
+            return False
+        if self.multiplier_bonus != other.multiplier_bonus:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_string(f, self.name)
         BinaryWriter.write_byte(f, self.spell.value)

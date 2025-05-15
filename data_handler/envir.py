@@ -390,7 +390,7 @@ class Envir:
                     except Exception as e:
                         print(f"读取地图 {i+1} 时出错: {str(e)}")
                         continue
-
+                print(f"当前文本已经到达{f.tell()}")
                 print("\n=== 物品信息 ===")
                 # 读取物品信息（全量读取）
                 item_count = BinaryReader.read_int32(f)
@@ -410,7 +410,7 @@ class Envir:
                     except Exception as e:
                         print(f"读取物品 {i+1} 时出错: {str(e)}")
                         continue
-                
+                print(f"当前文本已经到达{f.tell()}")
                 print("\n=== 怪物信息 ===")
                 # 读取怪物信息（全量读取）
                 monster_count = BinaryReader.read_int32(f)
@@ -431,6 +431,7 @@ class Envir:
                     except Exception as e:
                         print(f"读取怪物 {i+1} 时出错: {str(e)}")
                         continue
+                print(f"当前文本已经到达{f.tell()}")
 
                 print("\n=== NPC信息 ===")
                 # 读取NPC信息
@@ -452,6 +453,7 @@ class Envir:
                     except Exception as e:
                         print(f"读取NPC {i+1} 时出错: {str(e)}")
                         continue
+                print(f"当前文本已经到达{f.tell()}")
 
                 print("\n=== 任务信息 ===")
                 # 读取任务信息
@@ -480,6 +482,7 @@ class Envir:
                     except Exception as e:
                         print(f"读取任务 {i+1} 时出错: {str(e)}")
                         continue
+                print(f"当前文本已经到达{f.tell()}")
 
                 print("\n=== 龙信息 ===")
                 # 读取龙信息
@@ -504,7 +507,8 @@ class Envir:
                     # 移除continue语句
 
               
-                
+                print(f"当前文本已经到达{f.tell()}")
+
                 print("\n=== 魔法信息 ===")
                 # 读取魔法数量
                 magic_count = BinaryReader.read_int32(f)
@@ -539,6 +543,7 @@ class Envir:
                         print(f"  倍数奖励: {magic_info.multiplier_bonus}")
                     except Exception as e:
                         print(f"读取魔法信息 {i+1} 时出错: {str(e)}")
+                print(f"当前文本已经到达{f.tell()}")
 
                 print("\n=== 商城信息 ===")
                 # 读取商城物品数量
@@ -567,14 +572,8 @@ class Envir:
                         print(f"  可否用元宝购买: {item.can_buy_credit}")
                     except Exception as e:
                         print(f"读取商城物品 {i+1} 时出错: {str(e)}")
-
-                print("\n=== 数据读取完成 ===")
-                print(f"成功加载地图数量: {len(envir.maps)}")
-                print(f"成功加载物品数量: {len(envir.items)}")
-                print(f"成功加载怪物数量: {len(envir.monsters)}")
-                print(f"成功加载NPC数量: {len(envir.npcs)}")
-                print(f"成功加载任务数量: {len(envir.quests)}")
-                print(f"成功加载龙数量: {len(envir.dragons)}")
+                print(f"当前文本已经到达{f.tell()}")
+             
 
                 print("\n=== 征服信息 ===")
                 # 读取征服信息
@@ -615,7 +614,17 @@ class Envir:
                         print(f"    延迟损失: {option.delay_loss}")
                 except Exception as e:
                     print(f"读取刷新计时器信息时出错: {str(e)}")
-
+                print("\n=== 数据读取完成 ===")
+                print(f"成功加载地图数量: {len(envir.maps)}")
+                print(f"成功加载物品数量: {len(envir.items)}")
+                print(f"成功加载怪物数量: {len(envir.monsters)}")
+                print(f"成功加载NPC数量: {len(envir.npcs)}")
+                print(f"成功加载任务数量: {len(envir.quests)}")
+                print(f"成功加载龙数量: {len(envir.dragons)}")
+                print(f"成功加载魔法数量: {len(envir.magics)}")
+                print(f"成功加载商城物品数量: {len(envir.gameshop_items)}")
+                print(f"成功加载征服数量: {len(envir.conquests)}")
+                print(f"成功加载刷新计时器数量: {len(envir.respawn_timers)}")
         except Exception as e:
             print(f"加载数据库时出错: {str(e)}")
             return None
@@ -705,7 +714,6 @@ class Envir:
             else:
                 print(f"{display_name}: 不一致 - {source1_name}: {value1}, {source2_name}: {value2}")
                 is_consistent = False
-                
         # 比较数据数量
         collections_to_compare = [
             ('maps', '地图'),
@@ -754,6 +762,7 @@ class Envir:
                 if not monster1.compare(monster2):
                     print(f"怪物 {i+1} 不一致")
                     is_consistent = False
+        
         if len(envir1.npcs) == len(envir2.npcs):
             for i, (npc1, npc2) in enumerate(zip(envir1.npcs, envir2.npcs)):
                 if not npc1.compare(npc2):
@@ -763,6 +772,26 @@ class Envir:
             for i, (quest1, quest2) in enumerate(zip(envir1.quests, envir2.quests)):
                 if not quest1.compare(quest2):
                     print(f"任务 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.dragons) == len(envir2.dragons):
+            for i, (dragon1, dragon2) in enumerate(zip(envir1.dragons, envir2.dragons)):
+                if not dragon1.compare(dragon2):
+                    print(f"龙 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.magics) == len(envir2.magics):
+            for i, (magic1, magic2) in enumerate(zip(envir1.magics, envir2.magics)):
+                if not magic1.compare(magic2):
+                    print(f"魔法 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.gameshop_items) == len(envir2.gameshop_items):
+            for i, (gameshop_item1, gameshop_item2) in enumerate(zip(envir1.gameshop_items, envir2.gameshop_items)):
+                if not gameshop_item1.compare(gameshop_item2):
+                    print(f"商城物品 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.conquests) == len(envir2.conquests):
+            for i, (conquest1, conquest2) in enumerate(zip(envir1.conquests, envir2.conquests)):
+                if not conquest1.compare(conquest2):
+                    print(f"征服 {i+1} 不一致")
                     is_consistent = False
         if len(envir1.respawn_timers) == len(envir2.respawn_timers):
             for i, (respawn_timer1, respawn_timer2) in enumerate(zip(envir1.respawn_timers, envir2.respawn_timers)):
@@ -954,7 +983,6 @@ class Envir:
                 item.bind = BindMode[item_info['bind']]
                 item.unique = SpecialItemMode[item_info['unique']]
                 item.random_stats_id = item_info['random_stats_id']
-                item.random_stats = item_info['random_stats']
                 item.tool_tip = item_info['tool_tip']
                 item.slots = item_info['slots']
                 # 加载状态信息
@@ -1231,9 +1259,6 @@ class Envir:
                 respawn_timer = RespawnTimer()
                 respawn_timer.base_spawn_rate = respawn_timer_info['base_spawn_rate']
                 respawn_timer.current_tick_counter = respawn_timer_info['current_tick_counter']
-                respawn_timer.last_tick = respawn_timer_info['last_tick']
-                respawn_timer.last_user_count = respawn_timer_info['last_user_count']
-                respawn_timer.current_delay = respawn_timer_info['current_delay']
                 for respawn_option_info in respawn_timer_info['respawn_options']:
                     respawn_option = RespawnTickOption()
                     respawn_option.user_count = respawn_option_info['user_count']
@@ -1515,7 +1540,6 @@ class Envir:
                 'bind': i.bind.name,
                 'unique': i.unique.name,
                 'random_stats_id': i.random_stats_id,
-                'random_stats': i.random_stats,
                 'tool_tip': i.tool_tip,
                 'slots': i.slots,
                 'stats': {stat.name: i.stats[stat] for stat in Stat},
@@ -1693,9 +1717,6 @@ class Envir:
             {
                 'base_spawn_rate': r.base_spawn_rate,
                 'current_tick_counter': r.current_tick_counter,
-                'last_tick': r.last_tick,
-                'last_user_count': r.last_user_count,   
-                'current_delay': r.current_delay,
                 'respawn_options': [
                     {
                         'user_count': option.user_count,

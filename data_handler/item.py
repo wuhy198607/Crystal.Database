@@ -189,7 +189,6 @@ class Item:
     bind: BindMode = field(default_factory=lambda: BindMode.None_)
     unique: SpecialItemMode = field(default_factory=lambda: SpecialItemMode.None_)
     random_stats_id: int = 0
-    random_stats: Dict = None
     tool_tip: str = ""
     slots: int = 0
     stats: Stats = None
@@ -248,8 +247,6 @@ class Item:
         if self.unique != other.unique:
             return False
         if self.random_stats_id != other.random_stats_id:
-            return False
-        if self.random_stats != other.random_stats:
             return False
         if self.tool_tip != other.tool_tip:
             return False

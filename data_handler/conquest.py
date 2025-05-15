@@ -23,6 +23,18 @@ class ConquestArcherInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def compare(self,other: 'ConquestArcherInfo'):
+        if self.index != other.index:
+            return False
+        if self.location != other.location:
+            return False
+        if self.mob_index != other.mob_index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.repair_cost != other.repair_cost:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         self.location.write(f)
@@ -37,6 +49,18 @@ class ConquestGateInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def compare(self,other: 'ConquestGateInfo'):
+        if self.index != other.index:
+            return False
+        if self.location != other.location:
+            return False
+        if self.mob_index != other.mob_index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.repair_cost != other.repair_cost:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         self.location.write(f)
@@ -52,6 +76,18 @@ class ConquestWallInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def compare(self,other: 'ConquestWallInfo'):
+        if self.index != other.index:
+            return False
+        if self.location != other.location:
+            return False
+        if self.mob_index != other.mob_index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.repair_cost != other.repair_cost:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         self.location.write(f)
@@ -67,6 +103,18 @@ class ConquestSiegeInfo:
     mob_index: int = 0
     name: str = ""
     repair_cost: int = 0
+    def compare(self,other: 'ConquestSiegeInfo'):
+        if self.index != other.index:
+            return False
+        if self.location != other.location:
+            return False
+        if self.mob_index != other.mob_index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.repair_cost != other.repair_cost:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         self.location.write(f)
@@ -81,6 +129,16 @@ class ConquestFlagInfo:
     location: Point = field(default_factory=Point)
     name: str = ""
     file_name: str = ""
+    def compare(self,other: 'ConquestFlagInfo'):
+        if self.index != other.index:
+            return False
+        if self.location != other.location:
+            return False
+        if self.name != other.name:
+            return False
+        if self.file_name != other.file_name:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         self.location.write(f)
@@ -124,6 +182,95 @@ class Conquest:
     conquest_sieges: List[ConquestSiegeInfo] = field(default_factory=list)
     conquest_flags: List[ConquestFlagInfo] = field(default_factory=list)
     control_points: List[ConquestFlagInfo] = field(default_factory=list)
+    def compare(self,other: 'Conquest'):
+        if self.index != other.index:
+            return False
+        if self.full_map != other.full_map:
+            return False
+        if self.location != other.location:
+            return False
+        if self.size != other.size:
+            return False
+        if self.name != other.name:
+            return False
+        if self.map_index != other.map_index:
+            return False
+        if self.palace_index != other.palace_index:
+            return False
+        if self.guard_index != other.guard_index:
+            return False
+        if self.gate_index != other.gate_index:
+            return False
+        if self.wall_index != other.wall_index:
+            return False
+        if self.siege_index != other.siege_index:
+            return False
+        if self.flag_index != other.flag_index:
+            return False
+        if len(self.conquest_guards) != len(other.conquest_guards):
+            return False
+        for i, guard in enumerate(self.conquest_guards):
+            if not guard.compare(other.conquest_guards[i]):
+                return False
+        if len(self.extra_maps) != len(other.extra_maps):
+            return False
+        for i, map_index in enumerate(self.extra_maps):
+            if map_index != other.extra_maps[i]:
+                return False
+        if len(self.conquest_gates) != len(other.conquest_gates):
+            return False
+        for i, gate in enumerate(self.conquest_gates):
+            if not gate.compare(other.conquest_gates[i]):
+                return False
+        if len(self.conquest_walls) != len(other.conquest_walls):
+            return False
+        for i, wall in enumerate(self.conquest_walls):
+            if not wall.compare(other.conquest_walls[i]):
+                return False
+        if len(self.conquest_sieges) != len(other.conquest_sieges):
+            return False
+        for i, siege in enumerate(self.conquest_sieges):
+            if not siege.compare(other.conquest_sieges[i]):
+                return False
+        if len(self.conquest_flags) != len(other.conquest_flags):
+            return False
+        for i, flag in enumerate(self.conquest_flags):
+            if not flag.compare(other.conquest_flags[i]):
+                return False
+        if len(self.control_points) != len(other.control_points):
+            return False
+        for i, point in enumerate(self.control_points):
+            if not point.compare(other.control_points[i]):
+                return False
+        if self.start_hour != other.start_hour:
+            return False
+        if self.war_length != other.war_length:
+            return False
+        if self.type != other.type:
+            return False
+        if self.game != other.game:
+            return False
+        if self.monday != other.monday:
+            return False
+        if self.tuesday != other.tuesday:
+            return False
+        if self.wednesday != other.wednesday:
+            return False
+        if self.thursday != other.thursday:
+            return False
+        if self.friday != other.friday:
+            return False
+        if self.saturday != other.saturday:
+            return False
+        if self.sunday != other.sunday:
+            return False
+        if self.king_location != other.king_location:
+            return False
+        if self.king_size != other.king_size:
+            return False
+        if self.control_point_index != other.control_point_index:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_bool(f, self.full_map)

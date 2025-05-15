@@ -22,7 +22,26 @@ class Dragon:
     drop_area_bottom: Point = field(default_factory=Point)
     exps: List[int] = field(default_factory=lambda: [10000 * (i + 1) for i in range(12)])  # 12级经验值
     drops: List[List[DragonDropInfo]] = field(default_factory=lambda: [[] for _ in range(13)])  # 13级掉落
-
+    def compare(self,other: 'Dragon'):
+        if self.enabled != other.enabled:
+            return False
+        if self.map_file_name != other.map_file_name:
+            return False
+        if self.monster_name != other.monster_name:
+            return False
+        if self.body_name != other.body_name:
+            return False
+        if self.location != other.location:
+            return False
+        if self.drop_area_top != other.drop_area_top:
+            return False
+        if self.drop_area_bottom != other.drop_area_bottom:
+            return False
+        if self.exps != other.exps:
+            return False
+        if self.drops != other.drops:
+            return False
+        return True
     def __post_init__(self):
         # 设置默认位置
         if self.location.x == 0 and self.location.y == 0:
