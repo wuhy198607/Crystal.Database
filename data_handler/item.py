@@ -193,6 +193,75 @@ class Item:
     tool_tip: str = ""
     slots: int = 0
     stats: Stats = None
+    def compare(self, other: 'Item') -> bool:
+        """比较两个物品信息是否一致"""
+        if self.index != other.index:
+            return False
+        if self.name != other.name:
+            return False    
+        if self.type != other.type:
+            return False
+        if self.grade != other.grade:
+            return False
+        if self.required_type != other.required_type:
+            return False
+        if self.required_class != other.required_class:
+            return False
+        if self.required_gender != other.required_gender:
+            return False
+        if self.set != other.set:
+            return False    
+        if self.shape != other.shape:
+            return False
+        if self.weight != other.weight:
+            return False
+        if self.light != other.light:
+            return False
+        if self.required_amount != other.required_amount:
+            return False
+        if self.image != other.image:
+            return False
+        if self.durability != other.durability:
+            return False
+        if self.stack_size != other.stack_size:
+            return False
+        if self.price != other.price:
+            return False
+        if self.start_item != other.start_item:
+            return False
+        if self.effect != other.effect:
+            return False
+        if self.need_identify != other.need_identify:
+            return False
+        if self.show_group_pickup != other.show_group_pickup:
+            return False
+        if self.class_based != other.class_based:
+            return False
+        if self.level_based != other.level_based:
+            return False
+        if self.can_mine != other.can_mine:
+            return False
+        if self.global_drop_notify != other.global_drop_notify:
+            return False
+        if self.bind != other.bind:
+            return False
+        if self.unique != other.unique:
+            return False
+        if self.random_stats_id != other.random_stats_id:
+            return False
+        if self.random_stats != other.random_stats:
+            return False
+        if self.tool_tip != other.tool_tip:
+            return False
+        if self.slots != other.slots:
+            return False
+        if self.stats != other.stats:
+            return False
+        return True
+            
+            
+            
+
     def write(self, f):
         """写入物品信息"""
         BinaryWriter.write_int32(f, self.index)

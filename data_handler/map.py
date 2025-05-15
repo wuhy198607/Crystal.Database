@@ -114,6 +114,78 @@ class Map:
         self.respawns: List[RespawnInfo] = []
         self.mine_zones: List[MineZone] = []
         self.weather_particles = 0  
+    def compare(self, other: 'Map') -> bool:
+        """比较两个地图信息是否一致"""
+        if (self.index != other.index or 
+            self.filename != other.filename or 
+            self.title != other.title or
+            self.mini_map != other.mini_map or
+            self.big_map != other.big_map or
+            self.light != other.light or
+            self.no_teleport != other.no_teleport or
+            self.no_reconnect != other.no_reconnect or
+            self.no_reconnect_map != other.no_reconnect_map or
+            self.no_random != other.no_random or
+            self.no_escape != other.no_escape or
+            self.no_recall != other.no_recall or
+            self.no_drug != other.no_drug or
+            self.no_position != other.no_position or
+            self.no_throw_item != other.no_throw_item or
+            self.no_drop_player != other.no_drop_player or
+            self.no_drop_monster != other.no_drop_monster or
+            self.no_names != other.no_names or
+            self.fight != other.fight or
+            self.fire != other.fire or
+            self.fire_damage != other.fire_damage or
+            self.lightning != other.lightning or
+            self.lightning_damage != other.lightning_damage or
+            self.map_dark_light != other.map_dark_light or
+            self.mine_index != other.mine_index or
+            self.no_mount != other.no_mount or
+            self.need_bridle != other.need_bridle or
+            self.no_fight != other.no_fight or
+            self.music != other.music or
+            len(self.safe_zones) != len(other.safe_zones) or
+            len(self.respawns) != len(other.respawns) or
+            len(self.movements) != len(other.movements) or
+            len(self.mine_zones) != len(other.mine_zones)):
+            return False
+        
+        # 比较安全区域
+        for sz1, sz2 in zip(self.safe_zones, other.safe_zones):
+            if sz1.location != sz2.location or sz1.size != sz2.size or sz1.start_point != sz2.start_point:
+                return False
+            
+        # 比较重生点
+        for r1, r2 in zip(self.respawns, other.respawns):
+            if (r1.monster_index != r2.monster_index or 
+                r1.location != r2.location or 
+                r1.count != r2.count or
+                r1.spread != r2.spread or
+                r1.delay != r2.delay or
+                r1.direction != r2.direction or
+                r1.route_path != r2.route_path):
+                return False
+            
+        # 比较移动点
+        for m1, m2 in zip(self.movements, other.movements):
+            if (m1.map_index != m2.map_index or 
+                m1.source != m2.source or 
+                m1.destination != m2.destination or
+                m1.need_hole != m2.need_hole or
+                m1.need_move != m2.need_move or
+                m1.conquest_index != m2.conquest_index):
+                return False
+            
+        # 比较矿区
+        for mz1, mz2 in zip(self.mine_zones, other.mine_zones):
+            if mz1.location != mz2.location or mz1.size != mz2.size or mz1.mine_index != mz2.mine_index:
+                return False
+            
+        return True
+            
+            
+    
     def write(self, f):
         """写入地图信息"""
         # 写入基本信息

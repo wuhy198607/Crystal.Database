@@ -28,7 +28,7 @@ class Settings:
 
 
 
-
+@dataclass
 class Envir:
     def __init__(self):
         self.version = 0
@@ -324,7 +324,7 @@ class Envir:
             
         return QuestItemReward(item=item_info, count=count)
     @staticmethod
-    def load(db_path):
+    def load(db_path)-> 'Envir':
         
         """加载数据库文件"""
         if not os.path.exists(db_path):
@@ -640,8 +640,9 @@ class Envir:
         except Exception as e:
             print(f"保存数据库时出错: {str(e)}")
             return False
+            
     @staticmethod
-    def load_json(json_dir):
+    def load_json(json_dir)-> 'Envir':
         """从JSON文件加载数据
         
         Args:
@@ -660,6 +661,160 @@ class Envir:
         envir._load_conquests(json_dir)
         envir._load_respawn_timer(json_dir)
         return envir
+        
+    @staticmethod
+    def compare_envirs(envir1: 'Envir', envir2: 'Envir', source1_name="数据源1", source2_name="数据源2"):
+        """比较两个Envir实例的数据是否一致
+        
+        Args:
+            envir1: 第一个Envir实例
+            envir2: 第二个Envir实例
+            source1_name: 第一个数据源的显示名称
+            source2_name: 第二个数据源的显示名称
+            
+        Returns:
+            bool: 如果数据一致返回True，否则返回False
+        """
+        if not envir1 or not envir2: 
+            print("数据加载失败")
+            return False
+            
+        # 比较基本属性
+        fields_to_compare = [
+            ('version', '版本'),
+            ('custom_version', '自定义版本'),
+            ('map_index', '地图索引'),
+            ('item_index', '物品索引'), 
+            ('monster_index', '怪物索引'),
+            ('npc_index', 'NPC索引'),
+            ('quest_index', '任务索引'),
+            ('gameshop_index', '商城索引'),
+            ('conquest_index', '征服索引'),
+            ('respawn_timer_index', '重生索引')
+        ]
+        
+        is_consistent = True
+        
+        print(f"\n=== 基本属性比较 ===")
+        for field, display_name in fields_to_compare:
+            value1 = getattr(envir1, field)
+            value2 = getattr(envir2, field)
+            
+            if value1 == value2:
+                print(f"{display_name}: 一致 ({value1})")
+            else:
+                print(f"{display_name}: 不一致 - {source1_name}: {value1}, {source2_name}: {value2}")
+                is_consistent = False
+                
+        # 比较数据数量
+        collections_to_compare = [
+            ('maps', '地图'),
+            ('items', '物品'),
+            ('monsters', '怪物'),
+            ('npcs', 'NPC'),
+            ('quests', '任务'),
+            ('dragons', '龙'),
+            ('magics', '魔法'),
+            ('gameshop_items', '商城物品'),
+            ('conquests', '征服'),
+            ('respawn_timers', '重生计时器')
+        ]
+        
+        print(f"\n=== 数据数量比较 ===")
+        for collection, display_name in collections_to_compare:
+            count1 = len(getattr(envir1, collection))
+            count2 = len(getattr(envir2, collection))
+            
+            if count1 == count2:
+                print(f"{display_name}数量: 一致 ({count1})")
+            else:
+                print(f"{display_name}数量: 不一致 - {source1_name}: {count1}, {source2_name}: {count2}")
+                is_consistent = False
+                
+        # 详细比较各个数据对象
+        print(f"\n=== 详细数据比较 ===")
+        
+        # 比较地图
+        if len(envir1.maps) == len(envir2.maps):
+            for i, (map1, map2) in enumerate(zip(envir1.maps, envir2.maps)):
+                if not map1.compare(map2):
+                    print(f"地图 {i+1} 不一致")
+                    is_consistent = False
+        
+        # 比较物品
+        if len(envir1.items) == len(envir2.items):
+            for i, (item1, item2) in enumerate(zip(envir1.items, envir2.items)):
+                if not item1.compare(item2):
+                    print(f"物品 {i+1} 不一致")
+                    is_consistent = False
+        
+        # 比较怪物
+        if len(envir1.monsters) == len(envir2.monsters):
+            for i, (monster1, monster2) in enumerate(zip(envir1.monsters, envir2.monsters)):
+                if not monster1.compare(monster2):
+                    print(f"怪物 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.npcs) == len(envir2.npcs):
+            for i, (npc1, npc2) in enumerate(zip(envir1.npcs, envir2.npcs)):
+                if not npc1.compare(npc2):
+                    print(f"NPC {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.quests) == len(envir2.quests):
+            for i, (quest1, quest2) in enumerate(zip(envir1.quests, envir2.quests)):
+                if not quest1.compare(quest2):
+                    print(f"任务 {i+1} 不一致")
+                    is_consistent = False
+        if len(envir1.respawn_timers) == len(envir2.respawn_timers):
+            for i, (respawn_timer1, respawn_timer2) in enumerate(zip(envir1.respawn_timers, envir2.respawn_timers)):
+                if not respawn_timer1.compare(respawn_timer2):
+                    print(f"重生计时器 {i+1} 不一致")
+                    is_consistent = False
+                    
+        # 比较结果
+        if is_consistent:
+            print(f"\n数据比较结果: {source1_name} 和 {source2_name} 数据一致")
+        else:
+            print(f"\n数据比较结果: {source1_name} 和 {source2_name} 存在数据不一致")
+            
+        return is_consistent
+
+    @staticmethod
+    def compare(source1, source2, source1_type="db", source2_type="json"):
+        """比较两个数据源的数据是否一致
+        
+        Args:
+            source1: 第一个数据源的路径（数据库文件路径或JSON目录路径）
+            source2: 第二个数据源的路径（数据库文件路径或JSON目录路径）
+            source1_type: 第一个数据源的类型（"db"或"json"）
+            source2_type: 第二个数据源的类型（"db"或"json"）
+            
+        Returns:
+            bool: 如果数据一致返回True，否则返回False
+        """
+        print(f"开始比较数据...")
+        print(f"数据源1: {source1} (类型: {source1_type})")
+        print(f"数据源2: {source2} (类型: {source2_type})")
+        
+        # 加载第一个数据源
+        envir1 = None
+        if source1_type == "db":
+            envir1 = Envir.load(source1)
+        else:
+            envir1 = Envir.load_json(source1)
+            
+        # 加载第二个数据源
+        envir2 = None
+        if source2_type == "db":
+            envir2 = Envir.load(source2)
+        else:
+            envir2 = Envir.load_json(source2)
+            
+        return Envir.compare_envirs(
+            envir1, 
+            envir2,
+            f"{source1_type.upper()}({source1})",
+            f"{source2_type.upper()}({source2})"
+        )
 
     def _load_version_info(self, json_dir):
         """加载版本信息
@@ -1166,7 +1321,7 @@ class Envir:
                 'no_drop_monster': m.no_drop_monster,
                 'no_names': m.no_names,
                 'fight': m.fight,
-                'fire': m.fight,
+                'fire': m.fire,
                 'fire_damage': m.fire_damage,
                 'lightning': m.lightning,
                 'lightning_damage': m.lightning_damage,
@@ -1655,23 +1810,40 @@ class Envir:
 def main():
     # 创建命令行参数解析器
     parser = argparse.ArgumentParser(description='处理游戏数据库文件')
-    parser.add_argument('--db_path', type=str, default=os.path.join("../Jev", "Server.MirDB.bak"),
-                        help='数据库文件路径')
-    parser.add_argument('--output', type=str, default='data',
-                        help='输出JSON文件的目录')
+    parser.add_argument('--source1', type=str, default=os.path.join("../Jev", "Server.MirDB.bak"),
+                        help='第一个数据源的路径')
+    parser.add_argument('--source2', type=str, default='data',
+                        help='第二个数据源的路径')
     parser.add_argument('--option', type=str, default='load',
-                        help='load: 加载数据库, save: 保存数据库')
+                        help='load: 加载数据库, save: 保存数据库, compare: 比较数据')
+    parser.add_argument('--source1_type', type=str, choices=['db', 'json'], default='db',
+                        help='第一个数据源的类型 (db 或 json)')
+    parser.add_argument('--source2_type', type=str, choices=['db', 'json'], default='json',
+                        help='第二个数据源的类型 (db 或 json)')
+    
     # 解析命令行参数
     args = parser.parse_args()
+    
     if args.option == 'load':       
-        envir = Envir.load(args.db_path)
+        envir = Envir.load(args.source1)
         if envir:
             print("\n保存解析结果到JSON文件...")
-            envir.save_to_json(args.output)
+            envir.save_to_json(args.source2)
             print("完成!")
     elif args.option == 'save':
-        Envir.load_json_to_db( args.output,args.db_path)
+        Envir.load_json_to_db(args.source2, args.source1)
         print("完成!")
+    elif args.option == 'compare':
+        # 使用指定的数据源进行比较
+        result = Envir.compare(args.source1, args.source2, args.source1_type, args.source2_type)
+        
+        if result:
+            print("数据比较完成: 所有数据一致!")
+        else:
+            print("数据比较完成: 发现数据不一致，请检查详细输出信息。")
+    else:
+        print(f"未知选项: {args.option}")
+        print("可用选项: load, save, compare")
 
 if __name__ == "__main__":
     main() 

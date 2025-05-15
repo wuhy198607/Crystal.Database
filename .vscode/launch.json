@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -15,32 +12,48 @@
                 "PYTHONPATH": "${workspaceFolder}"
             },
             "args": [
-                "--db_path", "${input:dbPath}",
-                "--output", "${input:outputDir}",
-                "--option", "${input:optionType}"
+                "--source1", "${input:source1Path}",
+                "--source2", "${input:source2Path}",
+                "--option", "${input:optionType}",
+                "--source1_type", "${input:source1Type}",
+                "--source2_type", "${input:source2Type}"
             ],
             "justMyCode": false
-        },
+        }
     ],
     "inputs": [
         {
-            "id": "dbPath",
+            "id": "source1Path",
             "type": "promptString",
-            "description": "请输入数据库路径",
-            "default": "../Jev/Server.MirDB.bak1"
+            "description": "请输入第一个数据源路径",
+            "default": "../Jev/Server.MirDB.bak"
         },
         {
-            "id": "outputDir",
+            "id": "source2Path",
             "type": "promptString",
-            "description": "请输入输出目录",
+            "description": "请输入第二个数据源路径",
             "default": "data"
         },
         {
             "id": "optionType",
             "type": "pickString",
             "description": "请选择操作类型",
-            "options": ["load", "save"],
-                "default": "save"
+            "options": ["load", "save", "compare"],
+            "default": "compare"
+        },
+        {
+            "id": "source1Type",
+            "type": "pickString",
+            "description": "请选择第一个数据源类型",
+            "options": ["db", "json"],
+            "default": "db"
+        },
+        {
+            "id": "source2Type",
+            "type": "pickString",
+            "description": "请选择第二个数据源类型",
+            "options": ["db", "json"],
+            "default": "json"
         }
     ]
-}
+} 

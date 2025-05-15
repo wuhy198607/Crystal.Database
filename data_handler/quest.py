@@ -21,6 +21,14 @@ class QuestItemTask:
     item: 'Item' = None
     count: int = 0
     message: str = ""
+    def compare(self,other: 'QuestItemTask'):
+        if self.item != other.item:
+            return False
+        if self.count != other.count:
+            return False
+        if self.message != other.message:
+            return False
+        return True
     def write(self,f):
         self.item.write(f)
         BinaryWriter.write_int32(f, self.count)
@@ -30,6 +38,14 @@ class QuestKillTask:
     monster: 'Monster' = None
     count: int = 0
     message: str = ""
+    def compare(self,other: 'QuestKillTask'):
+        if self.monster != other.monster:
+            return False
+        if self.count != other.count:
+            return False
+        if self.message != other.message:
+            return False
+        return True
     def write(self,f):
         self.monster.write(f)
         BinaryWriter.write_int32(f, self.count)
@@ -95,6 +111,74 @@ class Quest:
     credit_reward: int = 0
     fixed_rewards: List[QuestItemReward] = field(default_factory=list)  
     select_rewards: List[QuestItemReward] = field(default_factory=list)
+    def compare(self,other: 'Quest'):
+        if self.index != other.index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.group != other.group:
+            return False
+        if self.file_name != other.file_name:
+            return False
+        if self.required_min_level != other.required_min_level:
+            return False
+        if self.required_max_level != other.required_max_level:
+            return False
+        if self.required_quest != other.required_quest:
+            return False
+        if self.required_class != other.required_class:
+            return False
+        if self.type != other.type:
+            return False
+        if self.goto_message != other.goto_message:
+            return False
+        if self.kill_message != other.kill_message:
+            return False
+        if self.item_message != other.item_message:
+            return False
+        if self.flag_message != other.flag_message:
+            return False
+        if self.time_limit_in_seconds != other.time_limit_in_seconds:
+            return False
+        if len(self.description) != len(other.description):
+            return False
+        for i, desc in enumerate(self.description):
+            if desc != other.description[i]:
+                return False
+        if len(self.task_description) != len(other.task_description):
+            return False
+        for i, task in enumerate(self.task_description):
+            if task != other.task_description[i]:
+                return False
+        if len(self.return_description) != len(other.return_description):
+            return False
+        for i, desc in enumerate(self.return_description):
+            if desc != other.return_description[i]:
+                return False
+        if len(self.completion_description) != len(other.completion_description):
+            return False
+        for i, desc in enumerate(self.completion_description):
+            if desc != other.completion_description[i]:
+                return False
+        if len(self.carry_items) != len(other.carry_items):
+            return False
+        for i, item in enumerate(self.carry_items):
+            if not item.compare(other.carry_items[i]):
+                return False
+        if len(self.kill_tasks) != len(other.kill_tasks):
+            return False
+        for i, task in enumerate(self.kill_tasks):
+            if not task.compare(other.kill_tasks[i]):
+                return False
+        if len(self.item_tasks) != len(other.item_tasks):
+            return False
+        for i, task in enumerate(self.item_tasks):
+            if not task.compare(other.item_tasks[i]):
+                return False
+        if len(self.flag_tasks) != len(other.flag_tasks):
+            return False
+
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_string(f, self.name)

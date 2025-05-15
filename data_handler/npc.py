@@ -29,6 +29,56 @@ class NPC:
     conquest_visible: bool = True
     collect_quest_indexes: List[int] = field(default_factory=list)
     finish_quest_indexes: List[int] = field(default_factory=list)
+    def compare(self,other):
+        if self.index != other.index:
+            return False
+        if self.map_index != other.map_index:
+            return False
+        if self.collect_quest_indexes != other.collect_quest_indexes:
+            return False
+        if self.finish_quest_indexes != other.finish_quest_indexes:
+            return False
+        if self.file_name != other.file_name:
+            return False
+        if self.name != other.name:
+            return False
+        if self.location != other.location:
+            return False
+        if self.image != other.image:
+            return False
+        if self.rate != other.rate:
+            return False    
+        if self.time_visible != other.time_visible:
+            return False
+        if self.hour_start != other.hour_start:
+            return False
+        if self.minute_start != other.minute_start:
+            return False
+        if self.hour_end != other.hour_end:
+            return False
+        if self.minute_end != other.minute_end:
+            return False
+        if self.min_lev != other.min_lev:
+            return False
+        if self.max_lev != other.max_lev:
+            return False
+        if self.day_of_week != other.day_of_week:
+            return False
+        if self.class_required != other.class_required:
+            return False
+        if self.flag_needed != other.flag_needed:
+            return False
+        if self.conquest != other.conquest:
+            return False
+        if self.show_on_big_map != other.show_on_big_map:
+            return False
+        if self.big_map_icon != other.big_map_icon:
+            return False
+        if self.can_teleport_to != other.can_teleport_to:
+            return False
+        if self.conquest_visible != other.conquest_visible:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_int32(f, self.map_index)

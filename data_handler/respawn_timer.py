@@ -19,6 +19,23 @@ class RespawnTimer:
     last_user_count: int = 0  # 上次用户数量
     current_delay: int = 0  # 当前延迟
     respawn_options: List[RespawnTickOption] = field(default_factory=list)
+    def compare(self,other: 'RespawnTimer'):
+        if self.base_spawn_rate != other.base_spawn_rate:
+            return False
+        if self.current_tick_counter != other.current_tick_counter:
+            return False
+        if self.last_tick != other.last_tick:
+            return False
+        if self.last_user_count != other.last_user_count:
+            return False
+        if self.current_delay != other.current_delay:
+            return False
+        if len(self.respawn_options) != len(other.respawn_options):
+            return False
+        for i, option in enumerate(self.respawn_options):
+            if not option.compare(other.respawn_options[i]):
+                return False
+        return True
     def write(self,f):
         BinaryWriter.write_byte(f, self.base_spawn_rate)
         BinaryWriter.write_uint64(f, self.current_tick_counter)

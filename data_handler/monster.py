@@ -32,6 +32,43 @@ class Monster:
     experience: int = 0
     light: int = 0
     drop_path: str = ""
+    def compare(self, other: 'Monster') -> bool:
+        """比较两个怪物信息是否一致"""
+        if self.index != other.index:
+            return False
+        if self.name != other.name:
+            return False
+        if self.image != other.image:
+            return False
+        if self.ai != other.ai:
+            return False
+        if self.effect != other.effect:
+            return False
+        if self.level != other.level:
+            return False
+        if self.view_range != other.view_range:
+            return False
+        if self.cool_eye != other.cool_eye:
+            return False
+        if self.stats != other.stats:
+            return False
+        if self.drops != other.drops:
+            return False
+        if self.has_spawn_script != other.has_spawn_script:
+            return False
+        if self.has_die_script != other.has_die_script:
+            return False
+        if self.attack_speed != other.attack_speed:
+            return False
+        if self.move_speed != other.move_speed:
+            return False
+        if self.experience != other.experience:
+            return False
+        if self.light != other.light:
+            return False
+        if self.drop_path != other.drop_path:
+            return False
+        return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.index)
         BinaryWriter.write_string(f, self.name)
