@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from binary import BinaryReader, BinaryWriter
 from enum import Enum
-from common import Stats, Stat
+from common import Stats, Stat, RequiredClass
 @dataclass
 class ItemType(Enum):
     Nothing = 0
@@ -68,14 +68,8 @@ class RequiredType(Enum):
     MinDC = 9
     MinMC = 10
     MinSC = 11
-@dataclass  
-class RequiredClass(Enum):
-    None_ = 0
-    Warrior = 1
-    Wizard = 2
-    Taoist = 3
-    Assassin = 4
-    Archer = 5
+
+
 @dataclass
 class RequiredGender(Enum):
     None_ = 0
@@ -189,6 +183,7 @@ class Item:
     bind: BindMode = field(default_factory=lambda: BindMode.None_)
     unique: SpecialItemMode = field(default_factory=lambda: SpecialItemMode.None_)
     random_stats_id: int = 0
+    is_tooltip: bool = False
     tool_tip: str = ""
     slots: int = 0
     stats: Stats = None
@@ -279,16 +274,6 @@ class Item:
         BinaryWriter.write_uint32(f, self.price)
         BinaryWriter.write_bool(f, self.start_item)
         BinaryWriter.write_byte(f, self.effect)
-        # #         # 读取布尔值组合字节
-        #     bools = BinaryReader.read_byte(f)
-        #     print(f"读取布尔值组合字节: {bools:02x}")
-        #     item_info.need_identify = (bools & 0x01) == 0x01
-        #     item_info.show_group_pickup = (bools & 0x02) == 0x02
-        #     item_info.class_based = (bools & 0x04) == 0x04
-        #     item_info.level_based = (bools & 0x08) == 0x08
-        #     item_info.can_mine = (bools & 0x10) == 0x10
-        #     item_info.global_drop_notify = (bools & 0x20) == 0x20
-        #     print(f"解析布尔值组合: need_identify={item_info.need_identify}, show_group_pickup={item_info.show_group_pickup}, class_based={item_info.class_based}, level_based={item_info.level_based}, can_mine={item_info.can_mine}, global_drop_notify={item_info.global_drop_notify}")
         boolean_byte = 0
         if self.need_identify:
             boolean_byte |= 0x01
@@ -310,7 +295,7 @@ class Item:
         BinaryWriter.write_bool(f, self.can_awakening)
         BinaryWriter.write_byte(f, self.slots)
         self.write_stats(f)
-        if(self.tool_tip != ""):
+        if(self.is_tooltip):
             BinaryWriter.write_bool(f, True)
             BinaryWriter.write_string(f, self.tool_tip)
         else:
@@ -354,126 +339,95 @@ class Item:
             
             # 读取基本信息
             item_info.index = BinaryReader.read_int32(f)
-            print(f"读取物品索引: {item_info.index}")
-            
             item_info.name = BinaryReader.read_string(f)
-            print(f"读取物品名称: {item_info.name}")
             
             # 读取枚举值，如果值不匹配则设置为默认值
             try:
                 item_info.type = ItemType(BinaryReader.read_byte(f))
-                print(f"读取物品类型: {item_info.type}")
             except ValueError:
                 item_info.type = ItemType.Nothing
                 
             try:
                 item_info.grade = ItemGrade(BinaryReader.read_byte(f))
-                print(f"读取物品等级: {item_info.grade}")
             except ValueError:
                 item_info.grade = ItemGrade.None_
                 
             try:
                 item_info.required_type = RequiredType(BinaryReader.read_byte(f))
-                print(f"读取需求类型: {item_info.required_type}")
             except ValueError:
                 item_info.required_type = RequiredType.Level
                 
-            try:
-                item_info.required_class = RequiredClass(BinaryReader.read_byte(f))
-                print(f"读取需求职业: {item_info.required_class}")
-            except ValueError:
-                item_info.required_class = RequiredClass.None_
-                
+            # 直接读取原始值，因为可能是位掩码组合
+            item_info.required_class = RequiredClass(BinaryReader.read_byte(f))
+
             try:
                 item_info.required_gender = RequiredGender(BinaryReader.read_byte(f))
-                print(f"读取需求性别: {item_info.required_gender}")
             except ValueError:
                 item_info.required_gender = RequiredGender.None_
                 
             try:
                 item_info.set = ItemSet(BinaryReader.read_byte(f))
-                print(f"读取物品套装: {item_info.set}")
             except ValueError:
                 item_info.set = ItemSet.None_
                 
             item_info.shape = BinaryReader.read_int16(f)
-            print(f"读取物品形状: {item_info.shape}")
             
             item_info.weight = BinaryReader.read_byte(f)
-            print(f"读取物品重量: {item_info.weight}")
             
             item_info.light = BinaryReader.read_byte(f)
-            print(f"读取物品光照: {item_info.light}")
             
             item_info.required_amount = BinaryReader.read_byte(f)
-            print(f"读取需求数量: {item_info.required_amount}")
             
             item_info.image = BinaryReader.read_uint16(f)
-            print(f"读取物品图像: {item_info.image}")
             
             item_info.durability = BinaryReader.read_uint16(f)
-            print(f"读取物品耐久: {item_info.durability}")
 
             item_info.stack_size = BinaryReader.read_uint16(f)
-            print(f"读取堆叠大小: {item_info.stack_size}")
 
             item_info.price = BinaryReader.read_uint32(f)
-            print(f"读取物品价格: {item_info.price}")
 
 
             item_info.start_item = BinaryReader.read_bool(f)
-            print(f"读取起始物品: {item_info.start_item}")
 
 
             item_info.effect = BinaryReader.read_byte(f)
-            print(f"读取物品效果: {item_info.effect}")
 
 
             # 读取布尔值组合字节
             bools = BinaryReader.read_byte(f)
-            print(f"读取布尔值组合字节: {bools:02x}")
             item_info.need_identify = (bools & 0x01) == 0x01
             item_info.show_group_pickup = (bools & 0x02) == 0x02
             item_info.class_based = (bools & 0x04) == 0x04
             item_info.level_based = (bools & 0x08) == 0x08
             item_info.can_mine = (bools & 0x10) == 0x10
             item_info.global_drop_notify = (bools & 0x20) == 0x20
-            print(f"解析布尔值组合: need_identify={item_info.need_identify}, show_group_pickup={item_info.show_group_pickup}, class_based={item_info.class_based}, level_based={item_info.level_based}, can_mine={item_info.can_mine}, global_drop_notify={item_info.global_drop_notify}")
 
 
             try:
                 item_info.bind = BindMode(BinaryReader.read_int16(f))
-                print(f"读取绑定模式: {item_info.bind}")
             except ValueError:
                 item_info.bind = BindMode.None_
 
 
             try:
                 item_info.unique = SpecialItemMode(BinaryReader.read_int16(f))
-                print(f"读取特殊物品模式: {item_info.unique}")
             except ValueError:
                 item_info.unique = SpecialItemMode.None_
 
             item_info.random_stats_id = BinaryReader.read_byte(f)
-            print(f"读取随机属性ID: {item_info.random_stats_id}")
             
             item_info.can_fast_run = BinaryReader.read_bool(f)
-            print(f"读取可以快速奔跑: {item_info.can_fast_run}")
             
             item_info.can_awakening = BinaryReader.read_bool(f)
-            print(f"读取可以觉醒: {item_info.can_awakening}")
 
             item_info.slots = BinaryReader.read_byte(f)
-            print(f"读取插槽数量: {item_info.slots}")
 
-            print("开始读取新版本属性...")
             new_stats = Item.read_stats(f)
             item_info.stats = new_stats
 
-            is_tooltip = BinaryReader.read_bool(f)
-            if is_tooltip:
+            item_info.is_tooltip = BinaryReader.read_bool(f)
+            if item_info.is_tooltip:
                 item_info.tool_tip = BinaryReader.read_string(f)
-                print(f"读取工具提示: {item_info.tool_tip}")
             return item_info
         except Exception as e:
             print(f"读取物品信息时出错: {str(e)}")

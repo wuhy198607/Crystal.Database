@@ -4,6 +4,16 @@ from typing import List, Dict
 from binary import BinaryReader, BinaryWriter
 from enum import Enum
 @dataclass
+class RequiredClass(Enum):
+    None_ = 0
+    Warrior = 1
+    Wizard = 2
+    Taoist = 4
+    Assassin = 8
+    Archer = 16
+    WarWizTao = 7
+    All = 31
+@dataclass
 class Point:
     x: int = 0
     y: int = 0

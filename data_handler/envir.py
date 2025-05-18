@@ -8,16 +8,16 @@ from enum import Enum
 import re
 from binary import BinaryReader, BinaryWriter
 from  map import Map, Point, SafeZoneInfo, MovementInfo, RespawnInfo, MineZone  
-from  item import Item,ItemType,ItemGrade,RequiredType,RequiredClass,RequiredGender,ItemSet,BindMode,SpecialItemMode
+from  item import Item,ItemType,ItemGrade,RequiredType,RequiredGender,ItemSet,BindMode,SpecialItemMode
 from  monster import Monster,DropInfo
 from  npc import NPC
-from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemReward, RequiredClass, QuestType
+from quest import Quest, QuestKillTask, QuestFlagTask, QuestItemTask, QuestItemReward, QuestType
 from dragon import Dragon, DragonDropInfo
 from magic import Magic, Spell
 from gameshop_item import GameShopItem
 from conquest import Conquest, ConquestType, ConquestGame, ConquestArcherInfo, ConquestGateInfo, ConquestWallInfo, ConquestSiegeInfo, ConquestFlagInfo
 from respawn_timer import RespawnTimer, RespawnTickOption
-from common import Stat,Stats
+from common import Stat,Stats,RequiredClass
 
 class Settings:
     """设置类，用于定义各种路径"""
@@ -367,7 +367,6 @@ class Envir:
                 
                 print(f"重生索引: {envir.respawn_timer_index}")
 
-                print("\n=== 地图信息 ===")
                 # 读取地图信息
                 map_count = BinaryReader.read_int32(f)
                 print(f"地图总数: {map_count}")
@@ -377,16 +376,6 @@ class Envir:
                     try:
                         map_info = Map.read(f)
                         envir.maps.append(map_info)
-                        print(f"\n地图 {i+1}/{map_count}:")
-                        print(f"  索引: {map_info.index}")
-                        print(f"  文件名: {map_info.filename}")
-                        print(f"  标题: {map_info.title}")
-                        print(f"  小地图: {map_info.mini_map}")
-                        print(f"  大地图: {map_info.big_map}")
-                        print(f"  安全区域数量: {len(map_info.safe_zones)}")
-                        print(f"  重生点数量: {len(map_info.respawns)}")
-                        print(f"  移动点数量: {len(map_info.movements)}")
-                        print(f"  矿区数量: {len(map_info.mine_zones)}")
                     except Exception as e:
                         print(f"读取地图 {i+1} 时出错: {str(e)}")
                         continue
@@ -400,13 +389,6 @@ class Envir:
                     try:
                         item_info = Item.read(f)
                         envir.items.append(item_info)
-                        print(f"  索引: {item_info.index}")
-                        print(f"  名称: {item_info.name}")
-                        print(f"  类型: {item_info.type}")
-                        print(f"  等级: {item_info.grade}")
-                        print(f"  价格: {item_info.price}")
-                        print(f"  耐久: {item_info.durability}")
-                        print(f"  堆叠: {item_info.stack_size}")
                     except Exception as e:
                         print(f"读取物品 {i+1} 时出错: {str(e)}")
                         continue
@@ -420,14 +402,6 @@ class Envir:
                     try:
                         monster_info = Monster.read(f)
                         envir.monsters.append(monster_info)
-                        print(f"\n怪物 {i+1}/{monster_count}:")
-                        print(f"  索引: {monster_info.index}")
-                        print(f"  名称: {monster_info.name}")
-                        print(f"  等级: {monster_info.level}")
-                        print(f"  掉落物数量: {len(monster_info.drops)}")
-                        print(f"  攻击速度: {monster_info.attack_speed}")
-                        print(f"  移动速度: {monster_info.move_speed}")
-                        print(f"  经验值: {monster_info.experience}")
                     except Exception as e:
                         print(f"读取怪物 {i+1} 时出错: {str(e)}")
                         continue
@@ -442,14 +416,6 @@ class Envir:
                     try:
                         npc_info = NPC.read(f)
                         envir.npcs.append(npc_info)
-                        print(f"\nNPC {i+1}/{npc_count}:")
-                        print(f"  索引: {npc_info.index}")
-                        print(f"  名称: {npc_info.name}")
-                        print(f"  文件名: {npc_info.file_name}")
-                        print(f"  地图索引: {npc_info.map_index}")
-                        print(f"  位置: ({npc_info.location.x}, {npc_info.location.y})")
-                        print(f"  收集任务数量: {len(npc_info.collect_quest_indexes)}")
-                        print(f"  完成任务数量: {len(npc_info.finish_quest_indexes)}")
                     except Exception as e:
                         print(f"读取NPC {i+1} 时出错: {str(e)}")
                         continue
@@ -465,20 +431,6 @@ class Envir:
                         quest_info = Quest.read(f)
                         envir.load_quest_info(quest_info,db_path)
                         envir.quests.append(quest_info)
-                        print(f"\n任务 {i+1}/{quest_count}:")
-                        print(f"  索引: {quest_info.index}")
-                        print(f"  名称: {quest_info.name}")
-                        print(f"  组: {quest_info.group}")
-                        print(f"  类型: {quest_info.type}")
-                        print(f"  最低等级: {quest_info.required_min_level}")
-                        print(f"  最高等级: {quest_info.required_max_level}")
-                        print(f"  前置任务: {quest_info.required_quest}")
-                        print(f"  职业要求: {quest_info.required_class}")
-                        print(f"  击杀任务数量: {len(quest_info.kill_tasks)}")
-                        print(f"  物品任务数量: {len(quest_info.item_tasks)}")
-                        print(f"  标记任务数量: {len(quest_info.flag_tasks)}")
-                        print(f"  固定奖励数量: {len(quest_info.fixed_rewards)}")
-                        print(f"  可选奖励数量: {len(quest_info.select_rewards)}")
                     except Exception as e:
                         print(f"读取任务 {i+1} 时出错: {str(e)}")
                         continue
@@ -491,13 +443,6 @@ class Envir:
                     # 加载掉落信息
                     envir.load_dragon_drops(dragon_info,db_path)
                     envir.dragons.append(dragon_info)
-                    print(f"\n龙信息:")
-                    print(f"  启用状态: {dragon_info.enabled}")
-                    print(f"  地图文件名: {dragon_info.map_file_name}")
-                    print(f"  怪物名称: {dragon_info.monster_name}")
-                    print(f"  身体名称: {dragon_info.body_name}")
-                    print(f"  位置: ({dragon_info.location.x}, {dragon_info.location.y})")
-                    print(f"  掉落区域: ({dragon_info.drop_area_top.x}, {dragon_info.drop_area_top.y}) - ({dragon_info.drop_area_bottom.x}, {dragon_info.drop_area_bottom.y})")
                     for j, exp in enumerate(dragon_info.exps):
                         print(f"  等级 {j+1} 经验值: {exp}")
                     for j, level_drops in enumerate(dragon_info.drops):
@@ -520,27 +465,6 @@ class Envir:
                     try:
                         magic_info = Magic.read(f)
                         envir.magics.append(magic_info)
-                        print(f"\n魔法信息 {i+1}/{magic_count}:")
-                        print(f"  名称: {magic_info.name}")
-                        print(f"  类型: {magic_info.spell}")
-                        print(f"  基础消耗: {magic_info.base_cost}")
-                        print(f"  等级消耗: {magic_info.level_cost}")
-                        print(f"  图标: {magic_info.icon}")
-                        print(f"  等级1: {magic_info.level1}")
-                        print(f"  等级2: {magic_info.level2}")
-                        print(f"  等级3: {magic_info.level3}")
-                        print(f"  需求1: {magic_info.need1}")
-                        print(f"  需求2: {magic_info.need2}")
-                        print(f"  需求3: {magic_info.need3}")
-                        print(f"  基础延迟: {magic_info.delay_base}")
-                        print(f"  延迟减少: {magic_info.delay_reduction}")
-                        print(f"  基础力量: {magic_info.power_base}")
-                        print(f"  力量奖励: {magic_info.power_bonus}")
-                        print(f"  基础魔法力量: {magic_info.mpower_base}")
-                        print(f"  魔法力量奖励: {magic_info.mpower_bonus}")
-                        print(f"  范围: {magic_info.range}")
-                        print(f"  基础倍数: {magic_info.multiplier_base}")
-                        print(f"  倍数奖励: {magic_info.multiplier_bonus}")
                     except Exception as e:
                         print(f"读取魔法信息 {i+1} 时出错: {str(e)}")
                 print(f"当前文本已经到达{f.tell()}")
@@ -556,20 +480,6 @@ class Envir:
                     try:
                         item = GameShopItem.read(f)
                         envir.gameshop_items.append(item)
-                        print(f"\n商城物品 {i+1}/{gameshop_count}:")
-                        print(f"  物品索引: {item.item_index}")
-                        print(f"  商品索引: {item.g_index}")
-                        print(f"  金币价格: {item.gold_price}")
-                        print(f"  元宝价格: {item.credit_price}")
-                        print(f"  数量: {item.count}")
-                        print(f"  职业: {item.class_name}")
-                        print(f"  分类: {item.category}")
-                        print(f"  库存: {item.stock}")
-                        print(f"  是否限量: {item.i_stock}")
-                        print(f"  是否特价: {item.deal}")
-                        print(f"  是否置顶: {item.top_item}")
-                        print(f"  可否用金币购买: {item.can_buy_gold}")
-                        print(f"  可否用元宝购买: {item.can_buy_credit}")
                     except Exception as e:
                         print(f"读取商城物品 {i+1} 时出错: {str(e)}")
                 print(f"当前文本已经到达{f.tell()}")
@@ -585,35 +495,17 @@ class Envir:
                     try:
                         conquest_info = Conquest.read(f)
                         envir.conquests.append(conquest_info)
-                        print(f"\n征服信息 {i+1}/{conquest_count}:")
-                        print(f"  索引: {conquest_info.index}")
-                        print(f"  名称: {conquest_info.name}")
-                        print(f"  地图索引: {conquest_info.map_index}")
-                        print(f"  宫殿索引: {conquest_info.palace_index}")
-                        print(f"  守卫数量: {len(conquest_info.conquest_guards)}")
-                        print(f"  城门数量: {len(conquest_info.conquest_gates)}")
-                        print(f"  城墙数量: {len(conquest_info.conquest_walls)}")
-                        print(f"  攻城数量: {len(conquest_info.conquest_sieges)}")
-                        print(f"  旗帜数量: {len(conquest_info.conquest_flags)}")
-                        print(f"  控制点数量: {len(conquest_info.control_points)}")
                     except Exception as e:
                         print(f"读取征服信息 {i+1} 时出错: {str(e)}")
-
+                print(f"当前文本已经到达{f.tell()}")
                 print("\n=== 刷新计时器信息 ===")
                 # 读取刷新计时器信息
                 try:
                     respawn_timer = RespawnTimer.read(f)
                     envir.respawn_timers.append(respawn_timer)
-                    print(f"\n刷新计时器信息:")
-                    print(f"  基础刷新率: {respawn_timer.base_spawn_rate}")
-                    print(f"  当前刷新计数器: {respawn_timer.current_tick_counter}")
-                    print(f"  刷新选项数量: {len(respawn_timer.respawn_options)}")
-                    for i, option in enumerate(respawn_timer.respawn_options):
-                        print(f"  选项 {i+1}:")
-                        print(f"    用户数量: {option.user_count}")
-                        print(f"    延迟损失: {option.delay_loss}")
                 except Exception as e:
                     print(f"读取刷新计时器信息时出错: {str(e)}")
+                print(f"当前文本已经到达{f.tell()}")
                 print("\n=== 数据读取完成 ===")
                 print(f"成功加载地图数量: {len(envir.maps)}")
                 print(f"成功加载物品数量: {len(envir.items)}")
@@ -983,6 +875,7 @@ class Envir:
                 item.bind = BindMode[item_info['bind']]
                 item.unique = SpecialItemMode[item_info['unique']]
                 item.random_stats_id = item_info['random_stats_id']
+                item.is_tooltip = item_info['is_tooltip']
                 item.tool_tip = item_info['tool_tip']
                 item.slots = item_info['slots']
                 # 加载状态信息
@@ -1540,6 +1433,7 @@ class Envir:
                 'bind': i.bind.name,
                 'unique': i.unique.name,
                 'random_stats_id': i.random_stats_id,
+                'is_tooltip': i.is_tooltip,
                 'tool_tip': i.tool_tip,
                 'slots': i.slots,
                 'stats': {stat.name: i.stats[stat] for stat in Stat},

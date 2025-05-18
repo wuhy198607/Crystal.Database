@@ -4,7 +4,7 @@ from binary import BinaryReader,BinaryWriter
 from enum import Enum
 from item import Item
 from monster import Monster 
-@dataclass
+from common import RequiredClass
 @dataclass
 class QuestType(Enum):
     General = 0
@@ -64,16 +64,7 @@ class QuestItemReward:
     def write(self,f):
         self.item.write(f)
         BinaryWriter.write_int32(f, self.count)
-@dataclass  
-class RequiredClass(Enum):
-    None_ = 0
-    Warrior = 1
-    Wizard = 2
-    Taoist = 3
-    Assassin = 4
-    Archer = 5
-    def write(self,f):
-        BinaryWriter.write_byte(f, self.value)
+        
 @dataclass
 class Quest:
     index: int = 0
@@ -187,7 +178,7 @@ class Quest:
         BinaryWriter.write_int32(f, self.required_min_level)    
         BinaryWriter.write_int32(f, self.required_max_level)
         BinaryWriter.write_int32(f, self.required_quest)
-        self.required_class.write(f)
+        BinaryWriter.write_byte(f, self.required_class.value)
         self.type.write(f)
         BinaryWriter.write_string(f, self.goto_message)
         BinaryWriter.write_string(f, self.kill_message)
@@ -206,27 +197,21 @@ class Quest:
             
             # 读取基本信息
             quest.index = BinaryReader.read_int32(f)
-            print(f"读取任务索引: {quest.index}")
-            
+
             quest.name = BinaryReader.read_string(f)
-            print(f"读取任务名称: {quest.name}")
             
             quest.group = BinaryReader.read_string(f)
-            print(f"读取任务组: {quest.group}")
+            
             
             quest.file_name = BinaryReader.read_string(f)
-            print(f"读取文件名: {quest.file_name}")
             
             quest.required_min_level = BinaryReader.read_int32(f)
-            print(f"读取最低等级要求: {quest.required_min_level}")
             
             quest.required_max_level = BinaryReader.read_int32(f)
             if quest.required_max_level == 0:
                 quest.required_max_level = 65535  # ushort.MaxValue
-            print(f"读取最高等级要求: {quest.required_max_level}")
             
             quest.required_quest = BinaryReader.read_int32(f)
-            print(f"读取前置任务: {quest.required_quest}")
             
             # 读取职业要求，如果值无效则设置为None
             try:
@@ -235,7 +220,6 @@ class Quest:
             except ValueError:
                 print(f"警告: 无效的职业要求值 {required_class_value}，将设置为 None")
                 quest.required_class = RequiredClass.None_
-            print(f"读取职业要求: {quest.required_class}")
             
             # 读取任务类型，如果值无效则设置为General
             try:
@@ -244,23 +228,17 @@ class Quest:
             except ValueError:
                 print(f"警告: 无效的任务类型值 {quest_type_value}，将设置为 General")
                 quest.type = QuestType.General
-            print(f"读取任务类型: {quest.type}")
             
             quest.goto_message = BinaryReader.read_string(f)
-            print(f"读取前往消息: {quest.goto_message}")
             
             quest.kill_message = BinaryReader.read_string(f)
-            print(f"读取击杀消息: {quest.kill_message}")
-            
+
             quest.item_message = BinaryReader.read_string(f)
-            print(f"读取物品消息: {quest.item_message}")
             
             quest.flag_message = BinaryReader.read_string(f)
-            print(f"读取标记消息: {quest.flag_message}")
-            
+
         
             quest.time_limit_in_seconds = BinaryReader.read_int32(f)
-            print(f"读取时间限制: {quest.time_limit_in_seconds}")
    
             
             return quest

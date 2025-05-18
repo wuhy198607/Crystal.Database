@@ -118,41 +118,32 @@ class NPC:
             
             # 读取基本信息
             npc.index = BinaryReader.read_int32(f)
-            print(f"读取NPC索引: {npc.index}")
             
             npc.map_index = BinaryReader.read_int32(f)
-            print(f"读取地图索引: {npc.map_index}")
             
             # 读取任务索引列表
             collect_count = BinaryReader.read_int32(f)
-            print(f"收集任务数量: {collect_count}")
             for i in range(collect_count):
                 quest_index = BinaryReader.read_int32(f)
                 npc.collect_quest_indexes.append(quest_index)
                 
             finish_count = BinaryReader.read_int32(f)
-            print(f"完成任务数量: {finish_count}")
             for i in range(finish_count):
                 quest_index = BinaryReader.read_int32(f)
                 npc.finish_quest_indexes.append(quest_index)
                 
             npc.file_name = BinaryReader.read_string(f)
-            print(f"读取文件名: {npc.file_name}")
             
             npc.name = BinaryReader.read_string(f)
-            print(f"读取名称: {npc.name}")
             
             # 读取位置
             x = BinaryReader.read_int32(f)
             y = BinaryReader.read_int32(f)
             npc.location = Point(x, y)
-            print(f"读取位置: ({x}, {y})")
             
             npc.image = BinaryReader.read_uint16(f)
-            print(f"读取图像ID: {npc.image}")
             
             npc.rate = BinaryReader.read_uint16(f)
-            print(f"读取比率: {npc.rate}")
             
             npc.time_visible = BinaryReader.read_bool(f)
             npc.hour_start = BinaryReader.read_byte(f)

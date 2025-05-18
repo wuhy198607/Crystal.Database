@@ -14,7 +14,7 @@ class RespawnTickOption:
         return True
     def write(self,f):
         BinaryWriter.write_int32(f, self.user_count)
-        BinaryWriter.write_float(f, self.delay_loss)
+        BinaryWriter.write_double(f, self.delay_loss)
     
 
 @dataclass
@@ -41,30 +41,24 @@ class RespawnTimer:
             option.write(f)
         
     @staticmethod
-    def read(f):
+    def  read(f):
         """读取刷新计时器信息"""
         try:
             respawn = RespawnTimer()
             
             # 读取基本信息
             respawn.base_spawn_rate = BinaryReader.read_byte(f)
-            print(f"读取基础刷新率: {respawn.base_spawn_rate}")
             
             respawn.current_tick_counter = BinaryReader.read_uint64(f)
-            print(f"读取当前刷新计数器: {respawn.current_tick_counter}")
             
             # 读取刷新选项列表
             option_count = BinaryReader.read_int32(f)
-            print(f"读取刷新选项数量: {option_count}")
-            
+
             for i in range(option_count):
                 option = RespawnTickOption()
                 option.user_count = BinaryReader.read_int32(f)
-                option.delay_loss = BinaryReader.read_float(f)
+                option.delay_loss = BinaryReader.read_double(f)
                 respawn.respawn_options.append(option)
-                print(f"读取刷新选项 {i+1}/{option_count}:")
-                print(f"  用户数量: {option.user_count}")
-                print(f"  延迟损失: {option.delay_loss}")
             
             return respawn
         except Exception as e:

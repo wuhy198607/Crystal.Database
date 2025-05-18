@@ -138,6 +138,18 @@ class BinaryReader:
                 print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
             raise
 
+    @staticmethod
+    def read_double(f):
+        """读取双精度浮点数"""
+        try:
+            data = f.read(8)
+            return struct.unpack('<d', data)[0]
+        except Exception as e:
+            print(f"读取double时出错: {str(e)}")
+            if 'data' in locals():
+                print(f"原始数据: {' '.join(f'{b:02x}' for b in data)}")
+            raise
+
 class BinaryWriter:
 
     @staticmethod
@@ -252,4 +264,14 @@ class BinaryWriter:
             f.write(data)
         except Exception as e:
             print(f"写入float时出错: {str(e)}")
+            raise
+
+    @staticmethod
+    def write_double(f, value):
+        """写入双精度浮点数"""
+        try:
+            data = struct.pack('<d', value)
+            f.write(data)
+        except Exception as e:
+            print(f"写入double时出错: {str(e)}")
             raise

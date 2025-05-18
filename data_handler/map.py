@@ -354,27 +354,20 @@ class Map:
         """读取地图信息"""
         try:
             map_info = Map()
-            print(f"\n开始读取地图信息:")
             
             # 读取基本信息
             try:
                 map_info.index = BinaryReader.read_int32(f)
-                print(f"地图索引: {map_info.index}")
                 
                 map_info.filename = BinaryReader.read_string(f)
-                print(f"文件名: {map_info.filename}")
                 
                 map_info.title = BinaryReader.read_string(f)
-                print(f"标题: {map_info.title}")
-                
+
                 map_info.mini_map = BinaryReader.read_uint16(f)
-                print(f"小地图: {map_info.mini_map}")
                 
                 map_info.light = BinaryReader.read_byte(f)
-                print(f"光照设置: {map_info.light}")
                 
                 map_info.big_map = BinaryReader.read_uint16(f)
-                print(f"大地图: {map_info.big_map}")
             except Exception as e:
                 print(f"读取基本信息时出错: {str(e)}")
                 raise
@@ -382,7 +375,6 @@ class Map:
             # 读取安全区
             try:
                 safe_zone_count = BinaryReader.read_int32(f)
-                print(f"\n安全区数量: {safe_zone_count}")
                 
                 for i in range(safe_zone_count):
                     safe_zone = Map.read_safe_zone(f)
@@ -394,7 +386,6 @@ class Map:
             # 读取重生点
             try:
                 respawn_count = BinaryReader.read_int32(f)
-                print(f"\n重生点数量: {respawn_count}")
                 for i in range(respawn_count):
                     respawn = Map.read_respawn_info(f)
                     map_info.respawns.append(respawn)
@@ -405,7 +396,6 @@ class Map:
             # 读取移动点
             try:
                 movement_count = BinaryReader.read_int32(f)
-                print(f"\n移动点数量: {movement_count}")
                 
                 for i in range(movement_count):
                     movement = Map.read_movement_info(f)
@@ -434,7 +424,6 @@ class Map:
                 map_info.lightning = BinaryReader.read_bool(f)
                 map_info.lightning_damage = BinaryReader.read_int32(f)
                 map_info.map_dark_light = BinaryReader.read_byte(f)
-                print("布尔属性读取完成")
             except Exception as e:
                 print(f"读取布尔属性时出错: {str(e)}")
                 raise
@@ -442,12 +431,10 @@ class Map:
             # 读取矿区
             try:
                 mine_zone_count = BinaryReader.read_int32(f)
-                print(f"读取矿区数量: {mine_zone_count}")
                 for i in range(mine_zone_count):
                     try:
                         mine_zone = Map.read_mine_zone(f)
                         map_info.mine_zones.append(mine_zone)
-                        print(f"读取矿区 {i+1}/{mine_zone_count}")
                     except Exception as e:
                         print(f"读取矿区 {i+1} 时出错: {str(e)}")
                         raise
@@ -461,7 +448,6 @@ class Map:
                 map_info.need_bridle = BinaryReader.read_bool(f)
                 map_info.no_fight = BinaryReader.read_bool(f)
                 map_info.music = BinaryReader.read_uint16(f)
-                print("其他属性读取完成")
             except Exception as e:
                 print(f"读取其他属性时出错: {str(e)}")
                 raise
@@ -476,7 +462,6 @@ class Map:
                     
                 map_info.gt = BinaryReader.read_bool(f)
                 map_info.gt_index = BinaryReader.read_byte(f)
-                print("版本相关属性读取完成")
             except Exception as e:
                 print(f"读取版本相关属性时出错: {str(e)}")
                 raise
