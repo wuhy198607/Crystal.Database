@@ -1,7 +1,7 @@
 [
   {
     "index": 1,
-    "name": "SpiritBlade",
+    "name": "灵魂之刃",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -96,7 +96,7 @@
   },
   {
     "index": 2,
-    "name": "SpiritBlade1",
+    "name": "灵魂之刃1",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -191,7 +191,7 @@
   },
   {
     "index": 3,
-    "name": "SpiritBlade2",
+    "name": "灵魂之刃2",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -286,7 +286,7 @@
   },
   {
     "index": 4,
-    "name": "SpiritBlade3",
+    "name": "灵魂之刃3",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -381,7 +381,7 @@
   },
   {
     "index": 5,
-    "name": "SpiritBlade4",
+    "name": "灵魂之刃4",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -476,7 +476,7 @@
   },
   {
     "index": 6,
-    "name": "SpiritBlade5",
+    "name": "灵魂之刃5",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -571,7 +571,7 @@
   },
   {
     "index": 7,
-    "name": "SpiritHelmet",
+    "name": "灵魂头盔",
     "type": "Necklace",
     "grade": "Rare",
     "required_type": "Level",
@@ -666,7 +666,7 @@
   },
   {
     "index": 8,
-    "name": "SpiritNecklace",
+    "name": "灵魂项链",
     "type": "Bracelet",
     "grade": "Rare",
     "required_type": "Level",
@@ -761,7 +761,7 @@
   },
   {
     "index": 9,
-    "name": "SpiritBracelet",
+    "name": "灵魂手镯",
     "type": "Ring",
     "grade": "Rare",
     "required_type": "Level",
@@ -856,7 +856,7 @@
   },
   {
     "index": 10,
-    "name": "SpiritRing",
+    "name": "灵魂戒指",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -951,7 +951,7 @@
   },
   {
     "index": 11,
-    "name": "RecallHelmet",
+    "name": "召唤头盔",
     "type": "Necklace",
     "grade": "Legendary",
     "required_type": "Level",
@@ -1046,7 +1046,7 @@
   },
   {
     "index": 12,
-    "name": "RecallNecklace",
+    "name": "召唤项链",
     "type": "Bracelet",
     "grade": "Legendary",
     "required_type": "Level",
@@ -1141,7 +1141,7 @@
   },
   {
     "index": 13,
-    "name": "RecallBracelet",
+    "name": "召唤手镯",
     "type": "Ring",
     "grade": "Legendary",
     "required_type": "Level",
@@ -1236,7 +1236,7 @@
   },
   {
     "index": 14,
-    "name": "RecallRing",
+    "name": "召唤戒指",
     "type": "Amulet",
     "grade": "Legendary",
     "required_type": "Level",
@@ -78566,7 +78566,7 @@
   },
   {
     "index": 829,
-    "name": "Amethyst",
+    "name": "紫水晶",
     "type": "Meat",
     "grade": "None_",
     "required_type": "Level",
@@ -78661,7 +78661,7 @@
   },
   {
     "index": 830,
-    "name": "Ruby",
+    "name": "红宝石",
     "type": "Meat",
     "grade": "None_",
     "required_type": "Level",
@@ -130056,7 +130056,7 @@
   },
   {
     "index": 1374,
-    "name": "(éé¾)YellowDragonBow",
+    "name": "(é‡‘é¾ )YellowDragonBow",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -130151,7 +130151,7 @@
   },
   {
     "index": 1375,
-    "name": "(éé¾)DragonSlayer",
+    "name": "(é‡‘é¾ )DragonSlayer",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -130246,7 +130246,7 @@
   },
   {
     "index": 1376,
-    "name": "(éé¾)InfernalBloodBlades",
+    "name": "(é‡‘é¾ )InfernalBloodBlades",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -130341,7 +130341,7 @@
   },
   {
     "index": 1377,
-    "name": "(éé¾)DragonSword",
+    "name": "(é‡‘é¾ )DragonSword",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -130436,7 +130436,7 @@
   },
   {
     "index": 1378,
-    "name": "(éé¾)SoulEaterStaff",
+    "name": "(é‡‘é¾ )SoulEaterStaff",
     "type": "Weapon",
     "grade": "Rare",
     "required_type": "Level",
@@ -132336,7 +132336,7 @@
   },
   {
     "index": 1398,
-    "name": "GonRyunHolyLightBow(è)",
+    "name": "GonRyunHolyLightBow(è –)",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -132431,7 +132431,7 @@
   },
   {
     "index": 1399,
-    "name": "GonRyunHolyLightBow(ç¥)",
+    "name": "GonRyunHolyLightBow(ç¥ž)",
     "type": "Weapon",
     "grade": "None_",
     "required_type": "Level",
@@ -132621,7 +132621,7 @@
   },
   {
     "index": 1401,
-    "name": "HyeoncheonSuhoSteel(è)",
+    "name": "HyeoncheonSuhoSteel(è –)",
     "type": "Torch",
     "grade": "Mythical",
     "required_type": "Level",
@@ -132716,7 +132716,7 @@
   },
   {
     "index": 1402,
-    "name": "HyeoncheonSuhoSteel(ç¥)",
+    "name": "HyeoncheonSuhoSteel(ç¥ž)",
     "type": "Torch",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133001,7 +133001,7 @@
   },
   {
     "index": 1405,
-    "name": "GonRyunHolyLightBlades(è)",
+    "name": "GonRyunHolyLightBlades(è –)",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133096,7 +133096,7 @@
   },
   {
     "index": 1406,
-    "name": "GonRyunHolyLightBlades(ç¥)",
+    "name": "GonRyunHolyLightBlades(ç¥ž)",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133286,7 +133286,7 @@
   },
   {
     "index": 1408,
-    "name": "GonRyunHolyLightSword(è)",
+    "name": "GonRyunHolyLightSword(è –)",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133381,7 +133381,7 @@
   },
   {
     "index": 1409,
-    "name": "GonRyunHolyLightSword(ç¥)",
+    "name": "GonRyunHolyLightSword(ç¥ž)",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133476,7 +133476,7 @@
   },
   {
     "index": 1411,
-    "name": "GonRyunHolyLightSword(è)1",
+    "name": "GonRyunHolyLightSword(è –)1",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133571,7 +133571,7 @@
   },
   {
     "index": 1412,
-    "name": "GonRyunHolyLightSword(è)2",
+    "name": "GonRyunHolyLightSword(è –)2",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133666,7 +133666,7 @@
   },
   {
     "index": 1413,
-    "name": "GonRyunHolyLightSword(è)3",
+    "name": "GonRyunHolyLightSword(è –)3",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -133761,7 +133761,7 @@
   },
   {
     "index": 1414,
-    "name": "(å¹»å½±ç¶ç±¤)IceDragonSkyKnife",
+    "name": "(å¹»å½±ç•¶ç±¤)IceDragonSkyKnife",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -134141,7 +134141,7 @@
   },
   {
     "index": 1418,
-    "name": "GonRyunHolyLightSword(ç¥)1",
+    "name": "GonRyunHolyLightSword(ç¥ž)1",
     "type": "Weapon",
     "grade": "None_",
     "required_type": "Level",
@@ -134236,7 +134236,7 @@
   },
   {
     "index": 1419,
-    "name": "GonRyunHolyLightSword(ç¥)2",
+    "name": "GonRyunHolyLightSword(ç¥ž)2",
     "type": "Weapon",
     "grade": "None_",
     "required_type": "Level",
@@ -134331,7 +134331,7 @@
   },
   {
     "index": 1420,
-    "name": "GonRyunHolyLightSword(ç¥)3",
+    "name": "GonRyunHolyLightSword(ç¥ž)3",
     "type": "Weapon",
     "grade": "None_",
     "required_type": "Level",
@@ -134426,7 +134426,7 @@
   },
   {
     "index": 1421,
-    "name": "(å¹»å½±ç¶ç±¤)IceDragonSkySword",
+    "name": "(å¹»å½±ç•¶ç±¤)IceDragonSkySword",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -134521,7 +134521,7 @@
   },
   {
     "index": 1422,
-    "name": "(å¹»å½±ç¶ç±¤)IceDragonSkyRod",
+    "name": "(å¹»å½±ç•¶ç±¤)IceDragonSkyRod",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -134616,7 +134616,7 @@
   },
   {
     "index": 1423,
-    "name": "(å¹»å½±ç¶ç±¤)IceDragonSkyBayonet",
+    "name": "(å¹»å½±ç•¶ç±¤)IceDragonSkyBayonet",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -134711,7 +134711,7 @@
   },
   {
     "index": 1424,
-    "name": "(å¹»å½±ç¶ç±¤)IceDragonSkyBow",
+    "name": "(å¹»å½±ç•¶ç±¤)IceDragonSkyBow",
     "type": "Weapon",
     "grade": "Mythical",
     "required_type": "Level",
@@ -136136,7 +136136,7 @@
   },
   {
     "index": 1444,
-    "name": "(æ°)Carnation",
+    "name": "(æ–°)Carnation",
     "type": "Potion",
     "grade": "None_",
     "required_type": "Level",
@@ -136231,7 +136231,7 @@
   },
   {
     "index": 1445,
-    "name": "(æ°)BlessCarnation",
+    "name": "(æ–°)BlessCarnation",
     "type": "Potion",
     "grade": "Rare",
     "required_type": "Level",
@@ -136896,7 +136896,7 @@
   },
   {
     "index": 1452,
-    "name": "GonryunHePublication(è)",
+    "name": "GonryunHePublication(è –)",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -136991,7 +136991,7 @@
   },
   {
     "index": 1453,
-    "name": "GonryunHePublication(ç¥)",
+    "name": "GonryunHePublication(ç¥ž)",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -137181,7 +137181,7 @@
   },
   {
     "index": 1455,
-    "name": "GonryunEunhyung(è)",
+    "name": "GonryunEunhyung(è –)",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -137276,7 +137276,7 @@
   },
   {
     "index": 1456,
-    "name": "GonryunEunhyung(ç¥)",
+    "name": "GonryunEunhyung(ç¥ž)",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -137466,7 +137466,7 @@
   },
   {
     "index": 1458,
-    "name": "GonryunSanggwan(è)",
+    "name": "GonryunSanggwan(è –)",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -137561,7 +137561,7 @@
   },
   {
     "index": 1459,
-    "name": "GonryunSanggwan(ç¥)",
+    "name": "GonryunSanggwan(ç¥ž)",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -137751,7 +137751,7 @@
   },
   {
     "index": 1461,
-    "name": "GonryunYeoseonru(è)",
+    "name": "GonryunYeoseonru(è –)",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -137846,7 +137846,7 @@
   },
   {
     "index": 1462,
-    "name": "GonryunYeoseonru(ç¥)",
+    "name": "GonryunYeoseonru(ç¥ž)",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -137941,7 +137941,7 @@
   },
   {
     "index": 1463,
-    "name": "GonryunHePublication(èç©)1",
+    "name": "GonryunHePublication(è –ç‰©)1",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -138036,7 +138036,7 @@
   },
   {
     "index": 1464,
-    "name": "GonryunHePublication(èç©)2",
+    "name": "GonryunHePublication(è –ç‰©)2",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -138131,7 +138131,7 @@
   },
   {
     "index": 1465,
-    "name": "GonryunHePublication(èç©)3",
+    "name": "GonryunHePublication(è –ç‰©)3",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -138226,7 +138226,7 @@
   },
   {
     "index": 1466,
-    "name": "GonryunHePublication(èç©)5",
+    "name": "GonryunHePublication(è –ç‰©)5",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -138321,7 +138321,7 @@
   },
   {
     "index": 1467,
-    "name": "GonryunHePublication(èç©)4",
+    "name": "GonryunHePublication(è –ç‰©)4",
     "type": "Stone",
     "grade": "Mythical",
     "required_type": "Level",
@@ -138416,7 +138416,7 @@
   },
   {
     "index": 1468,
-    "name": "GonryunHePublication(å¯¶ç©)1",
+    "name": "GonryunHePublication(å¯¶ç‰©)1",
     "type": "Stone",
     "grade": "Legendary",
     "required_type": "Level",
@@ -138511,7 +138511,7 @@
   },
   {
     "index": 1469,
-    "name": "GonryunHePublication(å¯¶ç©)2",
+    "name": "GonryunHePublication(å¯¶ç‰©)2",
     "type": "Stone",
     "grade": "Legendary",
     "required_type": "Level",
@@ -138606,7 +138606,7 @@
   },
   {
     "index": 1470,
-    "name": "GonryunHePublication(å¯¶ç©)3",
+    "name": "GonryunHePublication(å¯¶ç‰©)3",
     "type": "Stone",
     "grade": "Legendary",
     "required_type": "Level",
@@ -138701,7 +138701,7 @@
   },
   {
     "index": 1471,
-    "name": "GonryunHePublication(å¯¶ç©)5",
+    "name": "GonryunHePublication(å¯¶ç‰©)5",
     "type": "Stone",
     "grade": "Legendary",
     "required_type": "Level",
@@ -138796,7 +138796,7 @@
   },
   {
     "index": 1472,
-    "name": "GonryunHePublication(å¯¶ç©)4",
+    "name": "GonryunHePublication(å¯¶ç‰©)4",
     "type": "Stone",
     "grade": "Legendary",
     "required_type": "Level",
@@ -138891,7 +138891,7 @@
   },
   {
     "index": 1473,
-    "name": "GonryunHePublication(ç¥ç©)1",
+    "name": "GonryunHePublication(ç¥žç‰©)1",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -138986,7 +138986,7 @@
   },
   {
     "index": 1474,
-    "name": "GonryunHePublication(ç¥ç©)2",
+    "name": "GonryunHePublication(ç¥žç‰©)2",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -139081,7 +139081,7 @@
   },
   {
     "index": 1475,
-    "name": "GonryunHePublication(ç¥ç©)3",
+    "name": "GonryunHePublication(ç¥žç‰©)3",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -139176,7 +139176,7 @@
   },
   {
     "index": 1476,
-    "name": "GonryunHePublication(ç¥ç©)5",
+    "name": "GonryunHePublication(ç¥žç‰©)5",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -139271,7 +139271,7 @@
   },
   {
     "index": 1477,
-    "name": "GonryunHePublication(ç¥ç©)4",
+    "name": "GonryunHePublication(ç¥žç‰©)4",
     "type": "Stone",
     "grade": "None_",
     "required_type": "Level",
@@ -139841,7 +139841,7 @@
   },
   {
     "index": 1483,
-    "name": "GonryunYeoseonru(è)1",
+    "name": "GonryunYeoseonru(è –)1",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -139936,7 +139936,7 @@
   },
   {
     "index": 1484,
-    "name": "GonryunYeoseonru(è)2",
+    "name": "GonryunYeoseonru(è –)2",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -140031,7 +140031,7 @@
   },
   {
     "index": 1485,
-    "name": "GonryunYeoseonru(è)3",
+    "name": "GonryunYeoseonru(è –)3",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -140126,7 +140126,7 @@
   },
   {
     "index": 1486,
-    "name": "GonryunYeoseonru(è)5",
+    "name": "GonryunYeoseonru(è –)5",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -140221,7 +140221,7 @@
   },
   {
     "index": 1487,
-    "name": "GonryunYeoseonru(è)4",
+    "name": "GonryunYeoseonru(è –)4",
     "type": "Bracelet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -140316,7 +140316,7 @@
   },
   {
     "index": 1488,
-    "name": "GonryunYeoseonru(ç¥)1",
+    "name": "GonryunYeoseonru(ç¥ž)1",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -140411,7 +140411,7 @@
   },
   {
     "index": 1489,
-    "name": "GonryunYeoseonru(ç¥)2",
+    "name": "GonryunYeoseonru(ç¥ž)2",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -140506,7 +140506,7 @@
   },
   {
     "index": 1490,
-    "name": "GonryunYeoseonru(ç¥)3",
+    "name": "GonryunYeoseonru(ç¥ž)3",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -140601,7 +140601,7 @@
   },
   {
     "index": 1491,
-    "name": "GonryunYeoseonru(ç¥)4",
+    "name": "GonryunYeoseonru(ç¥ž)4",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -140696,7 +140696,7 @@
   },
   {
     "index": 1492,
-    "name": "GonryunYeoseonru(ç¥)5",
+    "name": "GonryunYeoseonru(ç¥ž)5",
     "type": "Bracelet",
     "grade": "None_",
     "required_type": "Level",
@@ -141266,7 +141266,7 @@
   },
   {
     "index": 1498,
-    "name": "GonryunSanggwan(è)1",
+    "name": "GonryunSanggwan(è –)1",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -141361,7 +141361,7 @@
   },
   {
     "index": 1499,
-    "name": "GonryunSanggwan(è)2",
+    "name": "GonryunSanggwan(è –)2",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -141456,7 +141456,7 @@
   },
   {
     "index": 1500,
-    "name": "GonryunSanggwan(è)3",
+    "name": "GonryunSanggwan(è –)3",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -141551,7 +141551,7 @@
   },
   {
     "index": 1501,
-    "name": "GonryunSanggwan(è)4",
+    "name": "GonryunSanggwan(è –)4",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -141646,7 +141646,7 @@
   },
   {
     "index": 1502,
-    "name": "GonryunSanggwan(è)5",
+    "name": "GonryunSanggwan(è –)5",
     "type": "Necklace",
     "grade": "Mythical",
     "required_type": "Level",
@@ -141741,7 +141741,7 @@
   },
   {
     "index": 1503,
-    "name": "GonryunSanggwan(ç¥)1",
+    "name": "GonryunSanggwan(ç¥ž)1",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -141836,7 +141836,7 @@
   },
   {
     "index": 1504,
-    "name": "GonryunSanggwan(ç¥)2",
+    "name": "GonryunSanggwan(ç¥ž)2",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -141931,7 +141931,7 @@
   },
   {
     "index": 1505,
-    "name": "GonryunSanggwan(ç¥)3",
+    "name": "GonryunSanggwan(ç¥ž)3",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -142026,7 +142026,7 @@
   },
   {
     "index": 1506,
-    "name": "GonryunSanggwan(ç¥)4",
+    "name": "GonryunSanggwan(ç¥ž)4",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -142121,7 +142121,7 @@
   },
   {
     "index": 1507,
-    "name": "GonryunSanggwan(ç¥)5",
+    "name": "GonryunSanggwan(ç¥ž)5",
     "type": "Necklace",
     "grade": "None_",
     "required_type": "Level",
@@ -142691,7 +142691,7 @@
   },
   {
     "index": 1513,
-    "name": "GonryunEunhyung(è)1",
+    "name": "GonryunEunhyung(è –)1",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -142786,7 +142786,7 @@
   },
   {
     "index": 1514,
-    "name": "GonryunEunhyung(è)2",
+    "name": "GonryunEunhyung(è –)2",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -142881,7 +142881,7 @@
   },
   {
     "index": 1515,
-    "name": "GonryunEunhyung(è)3",
+    "name": "GonryunEunhyung(è –)3",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -142976,7 +142976,7 @@
   },
   {
     "index": 1516,
-    "name": "GonryunEunhyung(è)4",
+    "name": "GonryunEunhyung(è –)4",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -143071,7 +143071,7 @@
   },
   {
     "index": 1517,
-    "name": "GonryunEunhyung(è)5",
+    "name": "GonryunEunhyung(è –)5",
     "type": "Boots",
     "grade": "Mythical",
     "required_type": "Level",
@@ -143166,7 +143166,7 @@
   },
   {
     "index": 1518,
-    "name": "GonryunEunhyung(ç¥)1",
+    "name": "GonryunEunhyung(ç¥ž)1",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -143261,7 +143261,7 @@
   },
   {
     "index": 1519,
-    "name": "GonryunEunhyung(ç¥)2",
+    "name": "GonryunEunhyung(ç¥ž)2",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -143356,7 +143356,7 @@
   },
   {
     "index": 1520,
-    "name": "GonryunEunhyung(ç¥)3",
+    "name": "GonryunEunhyung(ç¥ž)3",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -143451,7 +143451,7 @@
   },
   {
     "index": 1521,
-    "name": "GonryunEunhyung(ç¥)4",
+    "name": "GonryunEunhyung(ç¥ž)4",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -143546,7 +143546,7 @@
   },
   {
     "index": 1522,
-    "name": "GonryunEunhyung(ç¥)5",
+    "name": "GonryunEunhyung(ç¥ž)5",
     "type": "Boots",
     "grade": "None_",
     "required_type": "Level",
@@ -144211,7 +144211,7 @@
   },
   {
     "index": 1529,
-    "name": "Gonryunpasackle(è)",
+    "name": "Gonryunpasackle(è –)",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144306,7 +144306,7 @@
   },
   {
     "index": 1530,
-    "name": "Gonryunpasackle(è)1",
+    "name": "Gonryunpasackle(è –)1",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144401,7 +144401,7 @@
   },
   {
     "index": 1531,
-    "name": "Gonryunpasackle(è)2",
+    "name": "Gonryunpasackle(è –)2",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144496,7 +144496,7 @@
   },
   {
     "index": 1532,
-    "name": "Gonryunpasackle(è)3",
+    "name": "Gonryunpasackle(è –)3",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144591,7 +144591,7 @@
   },
   {
     "index": 1533,
-    "name": "Gonryunpasackle(è)4",
+    "name": "Gonryunpasackle(è –)4",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144686,7 +144686,7 @@
   },
   {
     "index": 1534,
-    "name": "Gonryunpasackle(è)5",
+    "name": "Gonryunpasackle(è –)5",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -144781,7 +144781,7 @@
   },
   {
     "index": 1535,
-    "name": "Gonryunpasackle(ç¥)",
+    "name": "Gonryunpasackle(ç¥ž)",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -144876,7 +144876,7 @@
   },
   {
     "index": 1536,
-    "name": "Gonryunpasackle(ç¥)1",
+    "name": "Gonryunpasackle(ç¥ž)1",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -144971,7 +144971,7 @@
   },
   {
     "index": 1537,
-    "name": "Gonryunpasackle(ç¥)2",
+    "name": "Gonryunpasackle(ç¥ž)2",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -145066,7 +145066,7 @@
   },
   {
     "index": 1538,
-    "name": "Gonryunpasackle(ç¥)3",
+    "name": "Gonryunpasackle(ç¥ž)3",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -145161,7 +145161,7 @@
   },
   {
     "index": 1539,
-    "name": "Gonryunpasackle(ç¥)4",
+    "name": "Gonryunpasackle(ç¥ž)4",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -145256,7 +145256,7 @@
   },
   {
     "index": 1540,
-    "name": "Gonryunpasackle(ç¥)5",
+    "name": "Gonryunpasackle(ç¥ž)5",
     "type": "Ring",
     "grade": "None_",
     "required_type": "Level",
@@ -145636,7 +145636,7 @@
   },
   {
     "index": 1544,
-    "name": "GonryunDoubleFlower(å¯¶ç©)3",
+    "name": "GonryunDoubleFlower(å¯¶ç‰©)3",
     "type": "Amulet",
     "grade": "Legendary",
     "required_type": "Level",
@@ -145921,7 +145921,7 @@
   },
   {
     "index": 1547,
-    "name": "GonryunYeongokhwan(è)",
+    "name": "GonryunYeongokhwan(è –)",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146016,7 +146016,7 @@
   },
   {
     "index": 1548,
-    "name": "GonryunYeongokhwan(è)1",
+    "name": "GonryunYeongokhwan(è –)1",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146111,7 +146111,7 @@
   },
   {
     "index": 1549,
-    "name": "GonryunYeongokhwan(è)2",
+    "name": "GonryunYeongokhwan(è –)2",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146206,7 +146206,7 @@
   },
   {
     "index": 1550,
-    "name": "GonryunYeongokhwan(è)3",
+    "name": "GonryunYeongokhwan(è –)3",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146301,7 +146301,7 @@
   },
   {
     "index": 1551,
-    "name": "GonryunYeongokhwan(è)4",
+    "name": "GonryunYeongokhwan(è –)4",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146396,7 +146396,7 @@
   },
   {
     "index": 1552,
-    "name": "GonryunYeongokhwan(è)5",
+    "name": "GonryunYeongokhwan(è –)5",
     "type": "Amulet",
     "grade": "Mythical",
     "required_type": "Level",
@@ -146491,7 +146491,7 @@
   },
   {
     "index": 1553,
-    "name": "GonryunYeongokhwan(ç¥)",
+    "name": "GonryunYeongokhwan(ç¥ž)",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -146586,7 +146586,7 @@
   },
   {
     "index": 1554,
-    "name": "GonryunYeongokhwan(ç¥)1",
+    "name": "GonryunYeongokhwan(ç¥ž)1",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -146681,7 +146681,7 @@
   },
   {
     "index": 1555,
-    "name": "GonryunYeongokhwan(ç¥)2",
+    "name": "GonryunYeongokhwan(ç¥ž)2",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -146776,7 +146776,7 @@
   },
   {
     "index": 1556,
-    "name": "GonryunYeongokhwan(ç¥)3",
+    "name": "GonryunYeongokhwan(ç¥ž)3",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -146871,7 +146871,7 @@
   },
   {
     "index": 1557,
-    "name": "GonryunYeongokhwan(ç¥)4",
+    "name": "GonryunYeongokhwan(ç¥ž)4",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -146966,7 +146966,7 @@
   },
   {
     "index": 1558,
-    "name": "GonryunYeongokhwan(ç¥)5",
+    "name": "GonryunYeongokhwan(ç¥ž)5",
     "type": "Amulet",
     "grade": "None_",
     "required_type": "Level",
@@ -147821,7 +147821,7 @@
   },
   {
     "index": 1567,
-    "name": "(ì§)The essence of Doom",
+    "name": "(ì§„)The essence of Doom",
     "type": "Ring",
     "grade": "Mythical",
     "required_type": "Level",
@@ -150956,7 +150956,7 @@
   },
   {
     "index": 1600,
-    "name": "Gonryunyongdrama(è)(F)",
+    "name": "Gonryunyongdrama(è –)(F)",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151051,7 +151051,7 @@
   },
   {
     "index": 1601,
-    "name": "Gonryunyongdrama(è)(F)1",
+    "name": "Gonryunyongdrama(è –)(F)1",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151146,7 +151146,7 @@
   },
   {
     "index": 1602,
-    "name": "Gonryunyongdrama(è)(F)2",
+    "name": "Gonryunyongdrama(è –)(F)2",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151241,7 +151241,7 @@
   },
   {
     "index": 1603,
-    "name": "Gonryunyongdrama(è)(F)3",
+    "name": "Gonryunyongdrama(è –)(F)3",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151336,7 +151336,7 @@
   },
   {
     "index": 1604,
-    "name": "Gonryunyongdrama(è)(F)4",
+    "name": "Gonryunyongdrama(è –)(F)4",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151431,7 +151431,7 @@
   },
   {
     "index": 1605,
-    "name": "Gonryunyongdrama(è)(F)5",
+    "name": "Gonryunyongdrama(è –)(F)5",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151526,7 +151526,7 @@
   },
   {
     "index": 1606,
-    "name": "Gonryunyongdrama(è)(M)",
+    "name": "Gonryunyongdrama(è –)(M)",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151621,7 +151621,7 @@
   },
   {
     "index": 1607,
-    "name": "Gonryunyongdrama(è)(M)1",
+    "name": "Gonryunyongdrama(è –)(M)1",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151716,7 +151716,7 @@
   },
   {
     "index": 1608,
-    "name": "Gonryunyongdrama(è)(M)2",
+    "name": "Gonryunyongdrama(è –)(M)2",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151811,7 +151811,7 @@
   },
   {
     "index": 1609,
-    "name": "Gonryunyongdrama(è)(M)3",
+    "name": "Gonryunyongdrama(è –)(M)3",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -151906,7 +151906,7 @@
   },
   {
     "index": 1610,
-    "name": "Gonryunyongdrama(è)(M)4",
+    "name": "Gonryunyongdrama(è –)(M)4",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -152001,7 +152001,7 @@
   },
   {
     "index": 1611,
-    "name": "Gonryunyongdrama(è)(M)5",
+    "name": "Gonryunyongdrama(è –)(M)5",
     "type": "Armour",
     "grade": "Mythical",
     "required_type": "Level",
@@ -152096,7 +152096,7 @@
   },
   {
     "index": 1612,
-    "name": "(æ¶)TheFairyRing",
+    "name": "(æ…¶)TheFairyRing",
     "type": "Amulet",
     "grade": "Legendary",
     "required_type": "Level",
@@ -152191,7 +152191,7 @@
   },
   {
     "index": 1613,
-    "name": "HwayoungOkhwan",
+    "name": "花影玉环",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152286,7 +152286,7 @@
   },
   {
     "index": 1614,
-    "name": "HwayoungOkhwan1",
+    "name": "花影玉环1",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152381,7 +152381,7 @@
   },
   {
     "index": 1615,
-    "name": "HwayoungOkhwan2",
+    "name": "花影玉环2",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152476,7 +152476,7 @@
   },
   {
     "index": 1616,
-    "name": "HwayoungOkhwan3",
+    "name": "花影玉环3",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152571,7 +152571,7 @@
   },
   {
     "index": 1617,
-    "name": "HwayoungOkhwan4",
+    "name": "花影玉环4",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152666,7 +152666,7 @@
   },
   {
     "index": 1618,
-    "name": "HwayoungOkhwan5",
+    "name": "花影玉环5",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152761,7 +152761,7 @@
   },
   {
     "index": 1619,
-    "name": "Nokyoungokhwan",
+    "name": "绿莹玉环",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152856,7 +152856,7 @@
   },
   {
     "index": 1620,
-    "name": "Nokyoungokhwan1",
+    "name": "绿莹玉环1",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -152951,7 +152951,7 @@
   },
   {
     "index": 1621,
-    "name": "Nokyoungokhwan2",
+    "name": "绿莹玉环2",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -153046,7 +153046,7 @@
   },
   {
     "index": 1622,
-    "name": "Nokyoungokhwan3",
+    "name": "绿莹玉环3",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -153141,7 +153141,7 @@
   },
   {
     "index": 1623,
-    "name": "Nokyoungokhwan4",
+    "name": "绿莹玉环4",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
@@ -153236,7 +153236,7 @@
   },
   {
     "index": 1624,
-    "name": "Nokyoungokhwan5",
+    "name": "绿莹玉环5",
     "type": "Amulet",
     "grade": "Rare",
     "required_type": "Level",
